@@ -30,8 +30,12 @@ defs.cap={name:'Patrulha de caça',sub:'Intercepta aeronaves inimigas',cost:CFG.
 defs.atk={name:'Ataque ao solo',sub:'Metralha a trincheira ao longo',cost:CFG.ATK.cost};
 defs.spot={name:'Observação de artilharia',sub:'Corrige e pede fogo · 45 s',cost:CFG.SPOT.cost};
 const enemyTeam=t=>1-t;
+/* a IA só gasta com aviação se sobrar caixa acima da reserva de obras (não tira dinheiro da engenharia nem dos reforços) */
+function aiSpend(type,t){if(sandbox)return spend(type,t,false);const res=Math.max(200,(window.IronFrontEngineering&&IronFrontEngineering.state&&IronFrontEngineering.state(t)?.reserve)||0);
+ if(supplies[t]<(defs[type]?.cost||0)+res){S.stats.aiSaved=(S.stats.aiSaved||0)+1;return false}return spend(type,t,false)}
 function note(team,m){if(team!==playerTeam)return;try{toast(m)}catch{}}
-const grounded=()=>{try{return window.PXFL&&PXFL.grounded&&PXFL.grounded()}catch{return false}};
+/* mesma regra do game.js (airAvailable): tempestade forte ou neblina deixam os aviões em solo */
+const grounded=()=>{try{const wx=window.PXW&&PXW.state;return !!wx&&!((wx.cur!=='storm'||wx.I<=.9)&&wx.fog<=.7)}catch{return false}};
 
 /* ---------- lançamento ---------- */
 function launchCap(team,y){const dir=team?-1:1;const p={role:'cap',team,x:team?W+120:-120,y:clamp(y,80,H-80),hd:team?Math.PI:0,v:CFG.CAP.v,pass:1,wait:0,hp:1,cd:0};AIR.push(p);S.stats.cap++;return p}
@@ -101,16 +105,16 @@ if(window.PXBAT&&PXBAT.mission){const o=PXBAT.mission;PXBAT.mission=function(tea
 /* ---------- IA ---------- */
 function aiTick(){for(let t=0;t<2;t++){if(!aiEnabled[t])continue;const C=aiCd[t],foe=1-t;
  const foeAir=planes.some(q=>q.team===foe&&!q.downed)||AIR.some(q=>q.team===foe&&!q.dead)||(window.PXFL&&PXFL.planes&&PXFL.planes().some(q=>q.team===foe&&q.hp>0));
- if(foeAir&&time>C.cap&&!AIR.some(q=>q.role==='cap'&&q.team===t)&&!grounded()&&spend('cap',t,false)){C.cap=time+CFG.CAP.aiCd;const q=AIR.find(q=>q.team===foe)||planes.find(q=>q.team===foe)||{y:H/2};launchCap(t,q.y)}
+ if(foeAir&&time>C.cap&&!AIR.some(q=>q.role==='cap'&&q.team===t)&&!grounded()&&aiSpend('cap',t)){C.cap=time+CFG.CAP.aiCd;const q=AIR.find(q=>q.team===foe)||planes.find(q=>q.team===foe)||{y:H/2};launchCap(t,q.y)}
  /* trincheira inimiga mais cheia perto da própria frente → ataque ao solo */
  if(time>C.atk&&!grounded()){let best=null,bn=5;for(const tr of fieldTrenches){if(tr.team!==foe)continue;let n=0,near=false;for(const u of units){if(u.hp<=0)continue;if(u.team===foe&&Math.abs(u.x-tr.x)<40&&Math.abs(u.y-tr.y)<60)n++;else if(u.team===t&&!near&&hyp(u.x-tr.x,u.y-tr.y)<420)near=true}if(near&&n>bn){bn=n;best=tr}}
-  if(best&&spend('atk',t,false)){C.atk=time+CFG.ATK.aiCd;launchAtk(t,best.x,best.y)}else C.atk=time+15}
+  if(best&&aiSpend('atk',t)){C.atk=time+CFG.ATK.aiCd;launchAtk(t,best.x,best.y)}else C.atk=time+15}
  if(time>C.spot&&!grounded()&&window.PXBAT&&PXBAT.mission){const f=units.filter(u=>u.team===t);if(f.length){let fx=0;for(const u of f)fx+=u.x;fx/=f.length;const probe={role:'spot',team:t,cx:fx+(t?-380:380),cy:H/2};let tg=null;
    for(const y of [400,800,1200]){probe.cy=y;tg=spotTarget(probe);if(tg)break}
-   if(tg&&spend('spot',t,false)){C.spot=time+CFG.SPOT.aiCd;launchSpot(t,tg.x,tg.y)}else C.spot=time+20}}
+   if(tg&&aiSpend('spot',t)){C.spot=time+CFG.SPOT.aiCd;launchSpot(t,tg.x,tg.y)}else C.spot=time+20}}
  if(time>C.bomb&&!grounded()&&typeof callBomber==='function'){let best=null,bn=CFG.BOMB.n-1;for(const u of units){if(u.team!==foe||u.hp<=0||Math.random()>.15)continue;let n=0;for(const o of units)if(o.team===foe&&o.hp>0&&(o.x-u.x)**2+(o.y-u.y)**2<CFG.BOMB.r**2)n++;
    if(n>bn){let safe=true;for(const o of units)if(o.team===t&&(o.x-u.x)**2+(o.y-u.y)**2<160*160){safe=false;break}if(safe){bn=n;best=u}}}
-  if(best&&spend('bomber',t,false)){C.bomb=time+CFG.BOMB.aiCd;callBomber(t,best.x,best.y);S.stats.aiBombers++}else C.bomb=time+12}}}
+  if(best&&aiSpend('bomber',t)){C.bomb=time+CFG.BOMB.aiCd;callBomber(t,best.x,best.y);S.stats.aiBombers++}else C.bomb=time+12}}}
 
 /* ---------- ligações ---------- */
 let aiT=0;

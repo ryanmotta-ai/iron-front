@@ -434,7 +434,7 @@ Substitui o HUD de combatente por uma interface completa inspirada em Battlefiel
 
 ## Versão 1.9 — Vida, feridos, classes e Modo Soldado (passe de polish)
 
-Diagnóstico completo (auditoria, bugs, review de UI P0–P3 e brainstorm do Soldier Mode) em `docs/polish-pass-diagnostico.md`. Tudo entra por módulos novos que fazem *wrap* das funções globais e carregam numa linha própria do `index.html`, depois de `soldier-hud.js`: `life-kit.js`, `casualty.js`, `soldier-life.js`, `classes.js`, `soldier-feel.js`, `soundscape.js`, `aviation.js`, `works.js` e `shelter.js`. Cada um tem chave para desligar (`?vida=0`, `?feridos=0`, `?classes=0`, `?sensacao=0`, `?som2=0`, `?aviacao=0`, `?obras=0`, `?abrigos=0`) e estado em `IronFront.<módulo>.state()`.
+Diagnóstico completo (auditoria, bugs, review de UI P0–P3 e brainstorm do Soldier Mode) em `docs/polish-pass-diagnostico.md`. Tudo entra por módulos novos que fazem *wrap* das funções globais e carregam numa linha própria do `index.html`, depois de `soldier-hud.js`: `life-kit.js`, `casualty.js`, `soldier-life.js`, `classes.js`, `soldier-feel.js`, `soundscape.js`, `aviation.js`, `works.js`, `shelter.js` e `heavyfx.js`. Cada um tem chave para desligar (`?vida=0`, `?feridos=0`, `?classes=0`, `?sensacao=0`, `?som2=0`, `?aviacao=0`, `?obras=0`, `?abrigos=0`) e estado em `IronFront.<módulo>.state()`.
 
 **Feridos e resgate (`casualty.js`).** Usa o mesmo estado de caído do `medics.js` (`u.down`). O ferido tem gravidade:
 - leve: rasteja sozinho até a cobertura;
@@ -481,7 +481,8 @@ Os desfechos são volta ao combate, incapacitado, evacuado (metade volta como re
 - Patrulha de caça: persegue e derruba aeronaves; as bombas ainda não largadas caem com o bombardeiro.
 - Ataque ao solo: voa ao longo da trincheira inimiga, com rajadas, supressão e bombas nos ninhos.
 - Observação de artilharia: orbita 45 s, corrige −65% e pede salvas.
-- A IA usa os três e passa a chamar o bombardeiro leve.
+- A IA usa os três e passa a chamar o bombardeiro leve, mas só com caixa acima da reserva de obras (custo + max(200, reserva da engenharia)).
+- Tempestade forte ou neblina deixam os aviões em solo (mesma regra do jogo).
 
 **Construção (`works.js`, aba DEFESAS).**
 - Toca individual.
@@ -494,6 +495,8 @@ Os desfechos são volta ao combate, incapacitado, evacuado (metade volta como re
 - Sobe quando a barragem acaba ou no alarme (corrida ao parapeito) e volta ao posto.
 - O bunker só atira com guarnição e chama até 2 homens ociosos para guarnecê-lo.
 - No modo soldado, **E** na entrada desce ou sobe.
+
+**Morteiro (`heavyfx.js`).** A bomba do poço de morteiro sobe e desce em arco até o impacto, com rastro e sombra. Há fumaça de boca, um "tum" próprio do tubo e o assobio de chegada perto do ouvinte. Desliga junto com `?vida=0`.
 
 **Bandeiras.** O QG, o posto e as bandeiras de setor deixaram de ser panos azul ou vermelho lisos e passaram a ser bandeiras nacionais: EUA (13 listras) e Império Alemão (preto, branco e vermelho).
 
@@ -524,5 +527,11 @@ Os desfechos são volta ao combate, incapacitado, evacuado (metade volta como re
 - Custo de CPU com 318 unidades: cerca de +1 ms por `update` (12,2–13,2 × 11,5 ms). O render não teve diferença mensurável.
 - O `verify-battle` passa com os módulos ligados: 4 de 4 rodadas, média de 23,4–30,1 ms por quadro com a máquina ocupada (sem os módulos: 19,2–23,5 ms).
 - Uma falha intermitente (4 de 7 rodadas) acontecia dentro de `operations.js`/`learning.js` (`reading 'invasion'` / `'losses'`). A causa era do `aviation.js`: com passo de 0,1 s, o avião de observação pousava exatamente no ponto de órbita, e no quadro seguinte `dx/d` com d=0 dava NaN. Abatido por um caça inimigo, ele gerava uma explosão em NaN que contaminava a posição de todas as unidades. Corrigido, com teste de regressão (`dt=0,1` e caça inimigo).
+- **Efeitos no equilíbrio** (para quem ajusta o balanço):
+  - médicos não atiram, e o inimigo não os mira a mais de 60 px;
+  - pelo hospital volta menos gente que os 78% antigos, mas parte dos evacuados retorna como reforço;
+  - o bunker fica mudo até ter guarnição (chama até 2 homens ociosos);
+  - a IA passa a gastar com aviação e com o bombardeiro, respeitando a reserva de obras. Sem a reserva, o gasto da engenharia no `verify-battle` caía de 636–816 para 396–666; com ela ficou em 516–848;
+  - trincheira suprimida fica mais protegida, mas para de atirar a partir de supressão 0,9.
 - **E** no modo soldado, por prioridade: ferido > MG > abrigo > saque (gancho de 1 linha no `soldier-tactics.js`) > canhão/tanque.
-- Pendentes: itens de UI U1, U2, U7–U10 e U12–U16 do diagnóstico; auditoria visual de morteiro e canhão (projétil em voo, quadros da guarnição); fôlego, ferrolho e munição finita; cone de visão; granada cozida; passos e lama no áudio; variações de classe por nação além dos nomes.
+- Pendentes: itens de UI U1, U2, U7–U10 e U12–U16 do diagnóstico; auditoria visual de canhão, MG pesada e animação da guarnição (o morteiro já tem projétil em voo); fôlego, ferrolho e munição finita; cone de visão; granada cozida; passos e lama no áudio; variações de classe por nação além dos nomes.

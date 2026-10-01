@@ -108,7 +108,7 @@ Fora deste passe, registrados como pendentes: suporte aéreo expandido, constru�
 | B5 caído duplicado | **Parcial**: resgate, arraste e cadeia médica tratam o `u.down`; o caído próprio do `soldier-tactics.js` continua para o jogador | `casualty.js` |
 | B6 tiro em água funda | **Corrigido** (IA e jogador) | `soldier-life.js` |
 | B7 soldado nasce na retaguarda | Pendente | — |
-| B8 morteiro sem projétil em voo | Pendente | — |
+| B8 morteiro sem projétil em voo | **Corrigido**: arco, rastro, fumaça de boca, "tum" e assobio de chegada | `heavyfx.js`, `soundscape.js` |
 | B9–B12 | Pendentes | — |
 | U3 dica sob o painel do soldado | **Corrigido**: linha movida e contextual | `soldier-feel.js` |
 | U4 E sem aviso | **Corrigido**: prompts "[E] ARRASTAR", "[E] ABRIGO", "E assumir a MG"… | `casualty.js`, `shelter.js`, `soldier-feel.js` |
@@ -117,4 +117,4 @@ Fora deste passe, registrados como pendentes: suporte aéreo expandido, constru�
 | U11 resultado pobre | **Corrigido**: relatório médico | `casualty.js` |
 | U1, U2, U7–U10, U12–U16 | Pendentes (arquivos de UI de outras sessões) | — |
 
-Seções do pedido que **não** foram feitas neste passe: 8 (auditoria visual de morteiro, canhão e guarnição), parte de 12 (fôlego, ferrolho, munição finita, granada cozida, cone de visão), parte de 15 (passos, lama, chuva no novo mixer) e o restante de 9 (UI).
+Seções do pedido que **não** foram feitas neste passe: 8 além do morteiro (canhão, MG pesada e animação da guarnição), parte de 12 (fôlego, ferrolho, munição finita, granada cozida, cone de visão), parte de 15 (passos, lama, chuva no novo mixer) e o restante de 9 (UI).

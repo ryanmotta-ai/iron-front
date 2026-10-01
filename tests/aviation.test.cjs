@@ -79,6 +79,16 @@ function engine() {
   const sb = engine(); sb.aiEnabled = [true, false]; for (let i = 0; i < 16; i++) sb.u(1, 1600 + (i % 4) * 25, 800 + Math.floor(i / 4) * 25);
   sb.time = 100; sb.run(15); assert.ok(sb.bombers >= 1, 'a IA chama o bombardeiro sobre 14+ inimigos');
 }
+/* ---------- clima e caixa: tempestade deixa em solo; em conquista a IA não gasta a reserva de obras ---------- */
+{
+  const sb = engine(); sb.aiEnabled = [true, false]; sb.PXW = { state: { cur: 'storm', I: 1, fog: 0 } };
+  sb.planes.push({ kind: 'fighter', team: 1, x: 1800, y: 500, v: 430, tx: 900 }); sb.run(2);
+  assert.ok(!sb.PXAIR.air().length, 'tempestade forte: nenhum avião decola');
+  const sb2 = engine(); sb2.aiEnabled = [true, false]; sb2.sandbox = false; sb2.supplies = [250, 250]; let spent = 0; sb2.spend = (type, t) => { spent++; return true; };
+  sb2.planes.push({ kind: 'fighter', team: 1, x: 1800, y: 500, v: 430, tx: 900 }); sb2.run(2);
+  assert.equal(spent, 0, 'com 250 de caixa (custo 150 + reserva 200) a IA guarda o dinheiro das obras');
+  sb2.supplies = [500, 500]; sb2.planes.push({ kind: 'fighter', team: 1, x: 1800, y: 500, v: 430, tx: 900 }); sb2.run(2); assert.ok(spent >= 1, 'com caixa sobrando, lança a patrulha');
+}
 /* ---------- regressão: passo grande (dt = 0,1 s, como o verify-battle) não pode gerar NaN na chegada da órbita ---------- */
 {
   const sb = engine(), A = sb.PXAIR; for (let k = 0; k < 20; k++) A.launch.spot(0, 300 + k * 97, 200 + k * 61);

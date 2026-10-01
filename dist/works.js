@@ -72,7 +72,8 @@ if(window.PXBAT&&PXBAT.mission){const o=PXBAT.mission;PXBAT.mission=function(tea
 /* pioneiros da IA cavam tocas à frente da própria linha quando o setor está parado */
 let foxT=40;function aiFox(dt){if((foxT-=dt)>0)return;foxT=35;for(let t=0;t<2;t++){if(!aiEnabled[t]||!PXSAP.project)continue;const f=t?-1:1,front=fieldTrenches.filter(a=>a.team===t&&a.line==='front');if(!front.length)continue;
   const a=front[(Math.random()*front.length)|0],x=a.x+f*rnd(70,130),y=a.y+rnd(-20,20);if(units.some(u=>u.team!==t&&u.hp>0&&hyp(u.x-x,u.y-y)<220))continue;
-  try{if(sandbox||supplies[t]>=K.foxhole.cost+60){if(PXSAP.project(t,'foxhole','ai',[[x,y]])&&!sandbox)supplies[t]-=K.foxhole.cost}}catch{}}}
+  const res=Math.max(200,(window.IronFrontEngineering&&IronFrontEngineering.state&&IronFrontEngineering.state(t)?.reserve)||0);   /* só com caixa acima da reserva de obras */
+  try{if(sandbox||supplies[t]>=K.foxhole.cost+res){if(PXSAP.project(t,'foxhole','ai',[[x,y]])&&!sandbox)supplies[t]-=K.foxhole.cost}}catch{}}}
 
 /* ---------- ligações ---------- */
 wrap('setup',(orig,...a)=>{DEP=[];OPS=[];tickT=0;restT=0;foxT=40;return orig(...a)});
