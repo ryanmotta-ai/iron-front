@@ -37,7 +37,8 @@ function fireGun(g,dir){flashes.push({x:g.x,y:g.y,dir,t:0,max:.16,big:g.big});co
  if(typeof soundOn!=='undefined'&&soundOn&&typeof sound==='function'&&Math.random()<.4&&Math.hypot(g.x*2-cam.x,g.y*2-cam.y)<1100)sound('boom')}
 
 function flag(c,x,y,team,big){const cols=team?['#b8654b','#dd8b6f','#8a4530']:['#5d92b5','#8ab6cf','#3f6d8d'],w=wind(),s=w.s,Wd=big?21:15,Hh=big?12:9,t=typeof time==='number'?time:clock;
- for(let k=0;k<Wd;k++){const wv=Math.round(Math.sin(t*(3+s*5)+k*.7)*(k>2?1:0)*(k/9+.3)*(.5+s*1.3)),top=y+wv;rect(c,x+1+k,top,1,Hh,k<1?'#151812':cols[0]);rect(c,x+1+k,top,1,1,cols[1]);rect(c,x+1+k,top+Hh-1,1,1,cols[2]);if(big&&k>2&&k<Wd-2){if(Hh>9&&k%5===3)rect(c,x+1+k,top+4,1,3,'#e9e4c8')}if(k>Wd-5&&k%2===0)rect(c,x+1+k,top+Hh-1+(k%4===0?1:0),1,1,cols[2])}}
+ const NF=window.IFK&&IFK.flagPx;   /* 1.9: bandeira nacional (life-kit.js) no lugar do pano azul/vermelho liso */
+ for(let k=0;k<Wd;k++){const wv=Math.round(Math.sin(t*(3+s*5)+k*.7)*(k>2?1:0)*(k/9+.3)*(.5+s*1.3)),top=y+wv;if(NF){for(let r=0;r<Hh;r++)rect(c,x+1+k,top+r,1,1,k<1?'#151812':NF(team?1:0,k-1,r,Wd-1,Hh));if(k>0)rect(c,x+1+k,top+Hh,1,1,'rgba(0,0,0,.25)');continue}rect(c,x+1+k,top,1,Hh,k<1?'#151812':cols[0]);rect(c,x+1+k,top,1,1,cols[1]);rect(c,x+1+k,top+Hh-1,1,1,cols[2]);if(big&&k>2&&k<Wd-2){if(Hh>9&&k%5===3)rect(c,x+1+k,top+4,1,3,'#e9e4c8')}if(k>Wd-5&&k%2===0)rect(c,x+1+k,top+Hh-1+(k%4===0?1:0),1,1,cols[2])}}
 function flame(c,x,y,big,ph){const h=(big?6:4)+Math.round(Math.sin(clock*14+ph)*1.2+Math.sin(clock*23+ph*2)*.8),w=big?3:2;
  c.globalAlpha=.16;disc(c,x,y-1,big?11:7,'#ff9b32');c.globalAlpha=.1;disc(c,x,y-1,big?17:11,'#ff7a24');c.globalAlpha=1;
  rect(c,x-w,y-h+2,w*2+1,h-1,'#c0471a');rect(c,x-w+1,y-h+1,w*2-1,h,'#ee8a2a');rect(c,x-1,y-h,3,h,'#ffd27a');rect(c,x,y-h-1,1,2,'#ffd27a');rect(c,x,y-2,1,2,'#fff6cc')}

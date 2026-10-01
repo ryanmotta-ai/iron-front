@@ -274,7 +274,9 @@ function drawOver(c,ox,oy){if(!S.on)return;
   rect(c,x-1,y-1,3,3,'#3f7a2a');rect(c,x,y,1,1,'#eaffd8');if(f.vz<=0&&((time*14)|0)%2)rect(c,x-1,y,1,1,'#b8ff8a')}
  /* bandeiras de setor tomado */
  for(const s of SECT){if(s.holder===s.team)continue;const x=ox+Math.round(s.fx*Z),y=oy+Math.round(s.fy*Z);if(x<-10||y<-20||x>vw+10||y>vh+10)continue;
-  const col=s.holder?'#b67765':'#679fae',wv=((time*4+s.fx)|0)%2;rect(c,x,y-12,1,12,'#c1b993');rect(c,x+1,y-12,5,3+wv,col);rect(c,x+1,y-12,5,1,s.holder?'#d89a88':'#8ec2d0');rect(c,x-1,y,3,1,'#3b3124')}}
+  const col=s.holder?'#b67765':'#679fae',wv=((time*4+s.fx)|0)%2;rect(c,x,y-12,1,12,'#c1b993');
+  if(window.IFK&&IFK.flagPx){for(let k=0;k<6;k++)for(let r=0;r<4;r++)rect(c,x+1+k,y-12+r+(k>2?wv:0),1,1,IFK.flagPx(s.holder?1:0,k,r,6,4))}   /* 1.9: bandeira nacional */
+  else{rect(c,x+1,y-12,5,3+wv,col);rect(c,x+1,y-12,5,1,s.holder?'#d89a88':'#8ec2d0')}rect(c,x-1,y,3,1,'#3b3124')}}
 /* deitado: sprite girado 90° (sem antialias), cabeça para o inimigo; rastejando: balança 1 px */
 const ROT=[new WeakMap(),new WeakMap()];
 function rot(src,cw){const m=ROT[cw?0:1];let r=m.get(src);if(r)return r;r=mkc(src.height,src.width);const g=r.getContext('2d');
