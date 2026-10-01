@@ -48,7 +48,7 @@ function launchSpot(team,x,y){const p={role:'spot',team,cx:clamp(x,140,W-140),cy
 S.launch={cap:launchCap,atk:launchAtk,spot:launchSpot};
 
 /* ---------- missões ---------- */
-function down(p,by,why){if(p.dead)return;p.dead=true;S.stats.lost++;for(let i=0;i<14;i++)particles.push({x:p.x,y:p.y,vx:rnd(-60,60),vy:rnd(-60,30),t:rnd(.4,1.1),max:1.1,color:i%2?'#ff9b32':'#3d3a33',size:rnd(3,7)});
+function down(p,by,why){if(p.dead)return;p.dead=true;if(!Number.isFinite(p.x)||!Number.isFinite(p.y)||!Number.isFinite(p.hd))return;S.stats.lost++;for(let i=0;i<14;i++)particles.push({x:p.x,y:p.y,vx:rnd(-60,60),vy:rnd(-60,30),t:rnd(.4,1.1),max:1.1,color:i%2?'#ff9b32':'#3d3a33',size:rnd(3,7)});
  shells.push({x:clamp(p.x+Math.cos(p.hd)*60,20,W-20),y:clamp(p.y+Math.sin(p.hd)*60+30,20,H-20),t:1.4,r:40,power:60,team:by});note(p.team,`Seu ${NAMES[p.role][p.team]} foi abatido${why?' ('+why+')':''}.`)}
 function capTick(p,dt){if(p.wait>0){p.wait-=dt;if(p.wait<=0){p.x=p.team?W+120:-120;p.y=clamp(p.y+rnd(-160,160),80,H-80)}return}
  /* perseguição: vira na direção da aeronave inimiga mais perto (até 600 px), 2 rad/s; sem alvo volta ao rumo da passagem */
@@ -63,7 +63,7 @@ function capTick(p,dt){if(p.wait>0){p.wait-=dt;if(p.wait<=0){p.x=p.team?W+120:-1
  /* caça contra aeronave: as do jogo (planes), as de reconhecimento (frontline) e as deste módulo */
  const tryKill=(q,kill)=>{if(hyp(q.x-p.x,q.y-p.y)>CFG.CAP.r)return;p.cd-=dt;if(Math.random()<dt*CFG.CAP.kill){kill();S.stats.capKills++;note(p.team,'Patrulha de caça: aeronave inimiga abatida.');note(1-p.team,'Caça inimigo derrubou um avião seu.')}
   if(p.cd<=0){p.cd=.08;bullets.push({x:p.x,y:p.y,vx:(q.x-p.x)*4,vy:(q.y-p.y)*4,t:.18,team:p.team,damage:0,air:true})}};
- for(const q of planes)if(q.team!==p.team&&!q.downed&&!(q.delay>0))tryKill(q,()=>{q.downed=true;if(q.kind==='bomber'){const dir=q.team?-1:1;for(let i=shells.length-1;i>=0;i--){const b=shells[i].bomb;if(b&&b.team===q.team&&Math.abs(b.ry-q.y)<30&&(b.rx-q.x)*dir>0)shells.splice(i,1)}}   /* bombas ainda não largadas caem com o avião */
+ for(const q of planes)if(q.team!==p.team&&!q.downed&&!(q.delay>0))tryKill(q,()=>{q.downed=true;if(!Number.isFinite(q.x)||!Number.isFinite(q.y))return;if(q.kind==='bomber'){const dir=q.team?-1:1;for(let i=shells.length-1;i>=0;i--){const b=shells[i].bomb;if(b&&b.team===q.team&&Math.abs(b.ry-q.y)<30&&(b.rx-q.x)*dir>0)shells.splice(i,1)}}   /* bombas ainda não largadas caem com o avião */
   for(let i=0;i<14;i++)particles.push({x:q.x,y:q.y,vx:rnd(-60,60),vy:rnd(-60,30),t:rnd(.4,1.1),max:1.1,color:i%2?'#ff9b32':'#3d3a33',size:rnd(3,7)});shells.push({x:clamp(q.x,20,W-20),y:clamp(q.y+30,20,H-20),t:1.4,r:40,power:60,team:p.team});q.x=q.team?-999:W+999;q.delay=0});
  if(window.PXFL&&PXFL.planes)for(const q of PXFL.planes())if(q.team!==p.team&&q.hp>0)tryKill(q,()=>{try{PXFL.hitPlane?PXFL.hitPlane(q,99):q.hp=0}catch{q.hp=0}});
  for(const q of AIR)if(q!==p&&q.team!==p.team&&!q.dead)tryKill(q,()=>down(q,p.team,'caça inimigo'));
@@ -84,7 +84,10 @@ function spotTarget(p){let best=null,bs=0;const foe=1-p.team;
   if(s){for(const o of units)if(o.team===p.team&&(o.x-u.x)**2+(o.y-u.y)**2<90*90){s=0;break}}if(s>bs){bs=s;best={x:u.x,y:u.y}}}
  for(const b of buildings)if(b.team===foe&&(b.type==='bunker'||b.type==='pillbox')&&hyp(b.x-p.cx,b.y-p.cy)<CFG.SPOT.see&&7>bs){bs=7;best={x:b.x,y:b.y}}
  return best}
-function spotTick(p,dt){if(p.phase==='in'){const dx=p.cx-p.x,dy=p.cy-CFG.SPOT.R-p.y,d=hyp(dx,dy);p.hd=Math.atan2(dy,dx);const s=Math.min(d,(p.v*2)*dt);p.x+=dx/d*s;p.y+=dy/d*s;if(d<8){p.phase='orbit';p.t=0;p.ang=-Math.PI/2;p.next=time+2}return}
+function spotTick(p,dt){if(p.phase==='in'){const dx=p.cx-p.x,dy=p.cy-CFG.SPOT.R-p.y,d=hyp(dx,dy),step=(p.v*2)*dt;
+  /* chegou (ou chega neste passo): entra em órbita — com dt grande o passo passa do limiar, e d=0 daria 0/0 */
+  if(d<=Math.max(8,step)){p.x=p.cx;p.y=p.cy-CFG.SPOT.R;p.phase='orbit';p.t=0;p.ang=-Math.PI/2;p.next=time+2;return}
+  p.hd=Math.atan2(dy,dx);p.x+=dx/d*step;p.y+=dy/d*step;return}
  if(p.phase==='orbit'){p.t+=dt;p.ang+=dt*p.v/CFG.SPOT.R;const nx=p.cx+Math.cos(p.ang)*CFG.SPOT.R,ny=p.cy+Math.sin(p.ang)*CFG.SPOT.R*.75;p.hd=Math.atan2(ny-p.y,nx-p.x);p.x=nx;p.y=ny;
   if(time>=p.next){p.next=time+CFG.SPOT.every;const tg=spotTarget(p);if(tg&&window.PXBAT&&PXBAT.mission){const ok=PXBAT.mission(p.team,tg.x,tg.y,3,60,'he');if(ok!==false){S.stats.spotCalls++;note(p.team,'Avião de observação pediu fogo corrigido sobre um alvo.')}}}
   let aa=0;for(const u of units)if(u.team!==p.team&&u.type==='mg'&&u.hp>0&&!u.down&&hyp(u.x-p.x,u.y-p.y)<260)aa++;if(Math.random()<dt*CFG.SPOT.aaKill*aa)down(p,1-p.team,'fogo antiaéreo');
@@ -112,7 +115,7 @@ function aiTick(){for(let t=0;t<2;t++){if(!aiEnabled[t])continue;const C=aiCd[t]
 /* ---------- ligações ---------- */
 let aiT=0;
 function tick(dt){for(const p of AIR){if(p.dead)continue;if(p.role==='cap')capTick(p,dt);else if(p.role==='atk')atkTick(p,dt);else spotTick(p,dt)}
- AIR=AIR.filter(p=>!p.gone&&!p.dead);if((aiT-=dt)<=0){aiT=1;aiTick()}}
+ AIR=AIR.filter(p=>!p.gone&&!p.dead&&Number.isFinite(p.x)&&Number.isFinite(p.y));   /* nunca deixar coordenada inválida virar projétil */if((aiT-=dt)<=0){aiT=1;aiTick()}}
 wrap('setup',(orig,...a)=>{AIR=[];aiCd=[{cap:0,atk:60,spot:40,bomb:90},{cap:0,atk:60,spot:40,bomb:90}];return orig(...a)});
 wrap('update',(orig,dt)=>{orig(dt);if(!S.on||!started||ended||!(dt>0))return;try{if(window.PXFORT&&PXFORT.isPrep&&PXFORT.isPrep()){AIR.length=0;return}tick(dt)}catch(e){fail(e)}});
 wrap('place',(orig,x,y)=>{const t=placement;if(!S.on||!(t==='cap'||t==='atk'||t==='spot'))return orig(x,y);

@@ -79,4 +79,11 @@ function engine() {
   const sb = engine(); sb.aiEnabled = [true, false]; for (let i = 0; i < 16; i++) sb.u(1, 1600 + (i % 4) * 25, 800 + Math.floor(i / 4) * 25);
   sb.time = 100; sb.run(15); assert.ok(sb.bombers >= 1, 'a IA chama o bombardeiro sobre 14+ inimigos');
 }
+/* ---------- regressão: passo grande (dt = 0,1 s, como o verify-battle) não pode gerar NaN na chegada da órbita ---------- */
+{
+  const sb = engine(), A = sb.PXAIR; for (let k = 0; k < 20; k++) A.launch.spot(0, 300 + k * 97, 200 + k * 61);
+  for (let i = 0; i < 300; i++) { if (i % 20 === 0) A.launch.cap(1, 200 + (i * 7) % 1200); sb.update(.1); }
+  assert.ok(A.air().every(p => Number.isFinite(p.x) && Number.isFinite(p.y)), 'coordenadas sempre finitas com dt grande');
+  assert.ok(sb.shells.every(s => Number.isFinite(s.x) && Number.isFinite(s.y)), 'nenhum projétil em NaN');
+}
 console.log('Aviação 1.9: patrulha de caça, ataque ao solo ao longo da trincheira, observação de artilharia e uso pela IA OK');

@@ -82,6 +82,14 @@ function gunshot(u,manual){if(!live()||!init())return;const sp=space(u.x,u.y,u.t
  v.srcs.push(layer(c.inp,PINK,t,'lowpass',far>.5?600:900,0,.01,R.tg*(1+far*1.5),R.tail*(1+far)));
  bump(u.x,u.y,u.type==='mg'?.06:.12)}
 
+/* ---------- morteiro: "tum" do tubo e assobio de chegada ---------- */
+function mortarLaunch(x,y){if(!live()||!init())return;const sp=space(x,y,'boom');if(sp.d>CFG.MAXD.gun)return;const t=A.currentTime+sp.delay,v=claim('gun',CFG.PRI.mortar*(1-sp.d/CFG.MAXD.gun)**2,.6,t);if(!v)return;S.stats.shots++;
+ const c=chain('gun',sp,sp.gain*1.1,t);v.g=c.g;v.srcs.push(thump(c.inp,t,130,55,.14,.9),layer(c.inp,NOISE,t,'bandpass',420,1.2,.003,.5,.22),layer(c.inp,PINK,t+.02,'bandpass',900,6,.01,.06,.35));bump(x,y,.4)}
+function whistle(x,y,dur){if(!live()||!init())return;const sp=space(x,y,'boom');if(sp.d>520)return;const t=A.currentTime,v=claim('boom',CFG.PRI.mortar+3,dur,t);if(!v)return;
+ const c=chain('boom',sp,.18*(1-sp.d/520)+.04,t);v.g=c.g;const o=node(A.createOscillator()),g=node(A.createGain());o.type='sine';o.frequency.setValueAtTime(1900,t);o.frequency.exponentialRampToValueAtTime(700,t+dur);
+ g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.5,t+dur*.85);g.gain.linearRampToValueAtTime(0,t+dur);o.connect(g);g.connect(c.inp);o.start(t);o.stop(t+dur+.02);v.srcs.push(o)}
+S.mortarLaunch=mortarLaunch;S.whistle=whistle;
+
 /* ---------- explosões ---------- */
 function boom(x,y,r){if(!live()||!init())return;const sp=space(x,y,'boom');if(sp.d>CFG.MAXD.boom)return;
  const size=r<40?0:r<80?1:2,pri=[CFG.PRI.rifle+1,CFG.PRI.mortar,CFG.PRI.howitzer][size]*(1-sp.d/CFG.MAXD.boom)**2+(sp.d<150?6:0),now=A.currentTime,t=now+sp.delay;
@@ -133,7 +141,10 @@ S.calm=()=>1-clamp((I/(I+2)-.15)/.35,0,1);
 wrap('shoot',(orig,u,target,manual=false)=>{if(!S.on)return orig(u,target,manual);const nb=bullets.length,ns=shells.length;mute++;
  try{return orig(u,target,manual)}finally{mute--;try{if(bullets.length>nb||shells.length>ns)gunshot(u,manual)}catch(e){fail(e)}}});
 wrap('explode',(orig,x,y,r,power=100,team=0)=>{if(!S.on)return orig(x,y,r,power,team);mute++;try{return orig(x,y,r,power,team)}finally{mute--;try{boom(x,y,r)}catch(e){fail(e)}}});
-wrap('sound',(orig,kind)=>{if(S.on&&mute&&(kind==='shot'||kind==='boom'))return;return orig(kind)});
+wrap('sound',(orig,kind)=>{if(S.on&&mute&&(kind==='shot'||kind==='boom'))return;
+ /* tiro do poço de morteiro (sappers.js marca m.fl=.18 no quadro do disparo): troca o "shot" genérico pelo "tum" do tubo */
+ if(S.on&&kind==='shot'&&window.PXSAP&&PXSAP.posts){const m=PXSAP.posts.find(m=>m.fl>=.179);if(m){try{mortarLaunch(m.x,m.y)}catch(e){fail(e)}return}}
+ return orig(kind)});
 wrap('update',(orig,dt)=>{orig(dt);try{if(S.on&&dt>0)ambTick(dt)}catch(e){fail(e)}});
 wrap('setup',(orig,...a)=>{I=0;G=0;lastBoomNear=-99;return orig(...a)});
 S.state=()=>({on:S.on,live:live(),voices:Object.fromEntries(Object.entries(ACT).map(([k,v])=>[k,v.length])),intensity:+(I/(I+2)).toFixed(2),global:+(G/(G+6)).toFixed(2),calm:+S.calm().toFixed(2),nodesPerSec:Math.round(S.nodesPerSec||0),stats:{...S.stats}});
