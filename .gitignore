@@ -1,0 +1,5 @@
+versoes/
+.openai/
+.claude/
+node_modules/
+*.log

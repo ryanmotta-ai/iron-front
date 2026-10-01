@@ -1,0 +1,13 @@
+<!doctype html><meta charset="utf-8"><base href="../dist/"><title>planes</title>
+<style>body{margin:0;background:#46573a;color:#eee;font:11px monospace}canvas{image-rendering:pixelated;display:block}</style>
+<canvas id="c"></canvas>
+<script src="art.js"></script><script src="planes.js"></script>
+<script>
+const q=new URLSearchParams(location.search),S=+q.get('s')||5,kinds=(q.get('k')||'fighter,bomber').split(','),teams=(q.get('t')||'0,1').split(',').map(Number);
+const items=[];for(const k of kinds)for(const t of teams)for(const sp of[false,true])items.push([k,t,sp]);
+const COLS=+q.get('cols')||2,CW=+q.get('cw')||330,CH=+q.get('ch')||300;
+const cv=document.getElementById('c');cv.width=COLS*CW;cv.height=Math.ceil(items.length/COLS)*CH;const g=cv.getContext('2d');g.imageSmoothingEnabled=false;g.fillStyle='#46573a';g.fillRect(0,0,cv.width,cv.height);
+items.forEach(([k,t,sp],i)=>{const s=PX.planeSprite(k,t,sp),cx=(i%COLS)*CW+CW/2,cy=Math.floor(i/COLS)*CH+CH/2+8;
+ g.drawImage(s.sh,cx-s.ax*S+14*S/2,cy-s.ay*S+22*S/2,s.sh.width*S,s.sh.height*S);g.drawImage(s.c,cx-s.ax*S,cy-s.ay*S,s.c.width*S,s.c.height*S);
+ g.fillStyle='#fff';g.fillText(s.name+' t'+t+(sp?' gira':' parado')+' '+s.c.width+'x'+s.c.height,cx-CW/2+6,cy-CH/2+14)});
+</script>

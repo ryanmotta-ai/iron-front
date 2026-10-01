@@ -1,0 +1,113 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Iron Front — Pixel Battlefield</title><meta name="description" content="Um jogo de guerra em pixel art na Primeira Guerra. Comande tropas, construa defesas ou lute na linha de frente."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23171917'/%3E%3Cpath d='M5 8h22v5H5zm8 5h6v14h-6z' fill='%23c6d69a'/%3E%3C/svg%3E"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jersey+10&family=Silkscreen:wght@400;700&display=swap"><link rel="stylesheet" href="ui.css"><link rel="stylesheet" href="ui-fix.css"><link rel="stylesheet" href="soldier-hud.css"></head><body data-screen="title" data-mode="commander">
+
+<!-- ===================== BATALHA ===================== -->
+<div id="field">
+<canvas id="game" aria-label="Campo de batalha interativo"></canvas><div class="vignette"></div>
+
+<header id="topbar">
+ <div class="tb-left"><button id="pause" class="ib" data-ico="pause" title="Pausar (Espaço)" aria-label="Pausar"></button><span class="live"><i></i><span id="status">PREPARAÇÃO</span></span><span id="clock">00:00</span></div>
+ <div class="tb-center"><span class="team blue">EUA <b id="blueTickets">500</b></span><div class="scorebar"><i id="blubar"></i><i id="redbar"></i></div><span class="team red"><b id="redTickets">500</b> ALEMANHA</span></div>
+ <div class="tb-right"><div class="seg modetoggle"><button class="active" id="commander" title="Modo comandante (TAB)">COMANDO</button><button id="soldier" title="Modo soldado (TAB)">SOLDADO</button></div><button id="sound" class="ib" data-ico="sndoff" title="Som" aria-label="Som"></button><button id="aiControl" class="ib" data-ico="ai" title="Comando das facções (IA)" aria-label="IA"></button><button id="qgtoggle" class="ib" data-ico="qg" title="Quartel-general (H)" aria-label="Quartel-general"></button><button id="settings" class="ib" data-ico="menu" title="Menu (Esc)" aria-label="Menu"></button></div>
+</header>
+
+<div id="objectives"></div>
+<div class="fieldtop"><b id="mapname">A ÚLTIMA TRINCHEIRA</b><span id="weather">FRONTE OCIDENTAL · 1917</span></div><button id="mobilemode">COMBATER</button>
+<div id="toast" role="status"></div>
+
+<div id="orders" class="panel">
+ <b id="selected">Nenhuma unidade</b>
+ <div class="ord"><button id="advance">AVANÇAR</button><button id="hold">DEFENDER</button><button id="retreat">RECUAR</button></div>
+ <div class="ord two"><button id="line" title="Formar linha (F)">LINHA <kbd>F</kbd></button><button id="column" title="Formar coluna (C)">COLUNA <kbd>C</kbd></button></div>
+</div>
+
+<div id="supply" class="panel"><span class="sup-side" id="sideName">EUA</span><b class="sup-val">◈ <span id="money">600</span></b><small id="income">+8 por segundo</small></div>
+
+<div id="hotbar">
+ <span class="placehint" id="placehint">Escolha uma unidade e posicione no campo</span>
+ <div class="hb-row"><div class="tabs"><button class="active" data-tab="units">TROPAS</button><button data-tab="build">DEFESAS</button><button data-tab="support">APOIO</button></div><div id="cards"></div></div>
+</div>
+
+<div id="mapbox"><canvas id="minimap" width="128" height="85" aria-label="Minimapa, clique para mover a câmera"></canvas></div>
+<div id="hintline"><span id="modeLabel">VISÃO DO COMANDANTE</span><span id="hint">Arraste para selecionar · Clique direito para dar uma ordem</span></div>
+
+<div id="mobileorders" class="hidden"><button id="mobileadvance">AVANÇAR</button><button id="mobilehold">DEFENDER</button><button id="mobileretreat">RECUAR</button><button id="mobileline">LINHA</button><button id="mobilecolumn">COLUNA</button></div>
+<div id="playerhud" class="panel" hidden><b id="health">100 HP</b><span id="weapon">SPRINGFIELD M1903 · 5 / 5</span><span id="grenades"></span><span id="coverstatus">SEM COBERTURA</span><button id="weaponswap" type="button" title="Trocar arma (1/2/3)">TROCAR ARMA</button><div class="hp"><i id="hpbar"></i></div></div>
+<div id="crosshair" hidden>+</div>
+<div id="touch"><button data-key="w">↑</button><div><button data-key="a">←</button><button data-key="s">↓</button><button data-key="d">→</button></div><button id="touchfire">ATIRAR</button><button id="touchreload">R</button><button id="touchgrenade">G</button></div>
+
+<aside id="qg" class="panel" aria-label="Quartel-general">
+ <div class="qg-h"><span class="eyebrow">QUARTEL-GENERAL</span><span class="tag" id="modeTag">RTS</span><button class="ib" data-ico="close" id="qgclose" aria-label="Fechar"></button></div>
+ <div class="resources"><span>SUPRIMENTO INIMIGO</span><b>◈ <span id="enemyMoney">600</span></b><small id="enemyIncome">+8/s</small></div>
+ <div class="eyebrow sec">ORDEM DE BATALHA · <span id="unitcount">0</span></div>
+ <div class="stats"><div><b id="infcount">0</b><span>Infantaria</span></div><div><b id="tankcount">0</b><span>Blindados</span></div><div><b id="kills">0</b><span>Baixas inimigas</span></div></div>
+ <p class="tip" id="tip">Mantenha posições para drenar os reforços inimigos. Tanques rompem a linha; infantaria captura o terreno.</p>
+ <button class="wide" id="help"><span class="ico" data-ico="help"></span>GUIA DE CAMPO</button>
+</aside>
+</div>
+
+<!-- ===================== TELA INICIAL ===================== -->
+<div id="title" class="screen" data-view="main">
+ <div id="scenebox"><canvas id="scene"></canvas></div>
+ <canvas id="logo" aria-label="Iron Front — Pixel Battlefield"></canvas>
+
+ <nav id="mainmenu" aria-label="Menu principal">
+  <button class="mbtn" data-go="campaign"><span class="ico" data-ico="flag"></span><span class="mt">CAMPANHA<small id="sub-campaign">6 operações</small></span></button>
+  <button class="mbtn" data-go="story"><span class="ico" data-ico="book"></span><span class="mt">MODO HISTÓRIA<small id="sub-story">5 capítulos</small></span></button>
+  <button class="mbtn" data-go="sandbox"><span class="ico" data-ico="crate"></span><span class="mt">SANDBOX<small>Suprimentos ilimitados</small></span></button>
+  <button class="mbtn" id="btn-options"><span class="ico" data-ico="gear"></span><span class="mt">OPÇÕES<small>Som · Tela · Interface</small></span></button>
+  <button class="mbtn sm" id="btn-guide"><span class="ico" data-ico="help"></span><span class="mt">GUIA DE CAMPO</span></button>
+ </nav>
+
+ <footer id="titlefoot"><span>VERSÃO 1.2 · IA TÁTICA E PIXEL ART</span><span class="fh">↑ ↓ navegar · ENTER escolher · ESC voltar</span><button class="ib" id="title-sound" data-ico="sndoff" aria-label="Som" title="Som"></button><button class="ib" id="title-fs" data-ico="fs" aria-label="Tela cheia" title="Tela cheia"></button></footer>
+
+ <!-- CAMPANHA -->
+ <section class="view" id="v-campaign" aria-labelledby="h-campaign">
+  <div class="vhead"><button class="back" data-back>◀ VOLTAR</button><div><span class="eyebrow">FRENTE OCIDENTAL · 1917–1918</span><h2 id="h-campaign">Campanha</h2></div></div>
+  <div class="opgrid" id="opgrid"></div>
+  <div class="opinfo panel" id="opinfo"></div>
+ </section>
+
+ <!-- HISTÓRIA -->
+ <section class="view" id="v-story" aria-labelledby="h-story">
+  <div class="vhead"><button class="back" data-back>◀ VOLTAR</button><div><span class="eyebrow">DIÁRIO DE CAMPO DO CABO REYES</span><h2 id="h-story">Modo História</h2></div></div>
+  <div class="storywrap"><ol class="chlist" id="chlist"></ol>
+   <div class="brief panel" id="brief"><div class="brief-top"><canvas id="portrait" width="32" height="32"></canvas><div><span class="eyebrow" id="brief-eb">CAPÍTULO 1</span><h3 id="brief-title">—</h3><span class="brief-meta" id="brief-meta"></span></div></div>
+    <p id="brief-text" class="typed"></p><ul id="brief-goals"></ul><div class="brief-foot"><button class="primary" id="brief-go">INICIAR CAPÍTULO <span>▶</span></button></div></div></div>
+ </section>
+
+ <!-- SANDBOX / CONFIGURAÇÃO -->
+ <section class="view" id="v-sandbox" aria-labelledby="h-sandbox">
+  <div class="vhead"><button class="back" data-back>◀ VOLTAR</button><div><span class="eyebrow">COMANDO LIVRE</span><h2 id="h-sandbox">Sandbox</h2></div></div>
+  <div class="panel sbpanel"><p class="lead">Suprimentos ilimitados e sem condição de vitória. Monte a batalha que quiser.</p>
+   <div class="menuform"><label>CAMPO DE BATALHA<select id="mapselect"><option value="trenches">A última trincheira</option><option value="forest">Floresta de ferro</option><option value="winter">Inverno sem fim</option></select></label><label>OPERAÇÃO<select id="gametype"><option value="conquest">Conquista · capture e resista</option><option value="sandbox" selected>Sandbox · suprimentos ilimitados</option></select></label><label>ESCALA<select id="scale"><option value="80">Até 80 por exército</option><option value="160" selected>Até 160 por exército</option><option value="320">Até 320 por exército</option><option value="600">Até 600 por exército</option></select></label><label>COMANDANTE INIMIGO<select id="difficulty"><option value="easy">Recruta</option><option value="normal" selected>Veterano</option><option value="hard">General</option></select></label><label>FACÇÃO SOB SEU COMANDO<select id="playerside"><option value="0">Estados Unidos</option><option value="1">Império Alemão</option></select></label><label>IA DOS EUA<select id="blueai"><option value="off" selected>Desligada · comando manual</option><option value="on">Ligada · comando autônomo</option></select></label><label>IA DA ALEMANHA<select id="redai"><option value="on" selected>Ligada · comando autônomo</option><option value="off">Desligada · comando manual</option></select></label></div>
+   <div class="sbfoot"><span class="keys">WASD mover · TAB trocar modo · Mouse mirar<br>1/2/3 armas · R recarregar · G granada · E tanque/canhão</span><button class="primary" id="start">INICIAR OPERAÇÃO <span>▶</span></button></div></div>
+ </section>
+</div>
+
+<!-- ===================== DIÁLOGOS ===================== -->
+<dialog id="menu" class="dlg small"><span class="eyebrow">OPERAÇÃO EM ANDAMENTO</span><h1>Pausa</h1>
+ <div class="stack"><button class="mbtn" id="pm-continue"><span class="ico" data-ico="play"></span><span class="mt">CONTINUAR</span></button><button class="mbtn" id="pm-options"><span class="ico" data-ico="gear"></span><span class="mt">OPÇÕES</span></button><button class="mbtn" id="pm-guide"><span class="ico" data-ico="help"></span><span class="mt">GUIA DE CAMPO</span></button><button class="mbtn" id="pm-restart"><span class="ico" data-ico="flag"></span><span class="mt">REINICIAR OPERAÇÃO</span></button><button class="mbtn danger" id="pm-quit"><span class="ico" data-ico="close"></span><span class="mt">MENU PRINCIPAL</span></button></div></dialog>
+
+<dialog id="optionsDlg" class="dlg"><button class="close" data-close="optionsDlg" aria-label="Fechar"><span data-ico="close"></span></button><span class="eyebrow">CONFIGURAÇÕES</span><h1>Opções</h1>
+ <div class="optlist">
+  <div class="opt"><div><b>Som</b><small>Tiros, explosões e ambiente sintetizados</small></div><div class="seg" data-opt="sound"><button data-v="1">LIGADO</button><button data-v="0">DESLIGADO</button></div></div>
+  <div class="opt"><div><b>Tamanho da interface</b><small>Ajusta botões e textos em batalha</small></div><div class="seg" data-opt="ui"><button data-v="1">NORMAL</button><button data-v="1.25">GRANDE</button><button data-v="1.5">MÁXIMO</button></div></div>
+  <div class="opt"><div><b>Dicas de controle</b><small>Mostra a linha de atalhos no campo</small></div><div class="seg" data-opt="hints"><button data-v="1">SIM</button><button data-v="0">NÃO</button></div></div>
+  <div class="opt"><div><b>Minimapa</b><small>Canto inferior direito</small></div><div class="seg" data-opt="mini"><button data-v="1">SIM</button><button data-v="0">NÃO</button></div></div>
+  <div class="opt"><div><b>Tremor de tela</b><small>Explosões balançam a câmera</small></div><div class="seg" data-opt="shake"><button data-v="1">SIM</button><button data-v="0">NÃO</button></div></div>
+  <div class="opt"><div><b>Tela cheia</b><small>Alterna o modo de tela cheia</small></div><div class="seg"><button id="opt-fs">ALTERNAR</button></div></div>
+  <div class="opt"><div><b>Progresso salvo</b><small id="save-info">Campanha e História</small></div><div class="seg"><button id="opt-reset" class="warn">APAGAR</button></div></div>
+ </div><button class="primary" data-close="optionsDlg">CONCLUÍDO</button></dialog>
+
+ <dialog id="guide" class="dlg"><button class="close" data-close="guide" aria-label="Fechar"><span data-ico="close"></span></button><span class="eyebrow">MANUAL DO COMBATENTE</span><h1>Conheça a sua frente.</h1><div class="guidegrid"><section><h3>Comandante</h3><p>Arraste no campo para selecionar tropas da sua facção. Clique direito para ordenar movimento. WASD ou bordas do campo movem a câmera. A roda do mouse controla o zoom.</p><p>Use Avançar, Defender ou Recuar para orientar a seleção. Formar Linha (F) ou Coluna (C) organiza as tropas selecionadas; sem seleção, vale para todo o exército.</p></section><section><h3>Soldado</h3><p>TAB alterna os modos. WASD move, mouse mira e clique atira. 1/2/3 alternam fuzil, submetralhadora e pistola (EUA: Springfield M1903, Thompson, Colt M1911 · Alemanha: Gewehr 98, MP 18, Luger P08); R recarrega; G lança uma das suas 2 granadas. E assume o controle de um tanque da sua facção próximo — ou, perto de uma peça de artilharia aliada, o canhão: WASD move o retículo, clique dispara, 1/2/3 escolhem HE, shrapnel ou fumaça, E sai.</p><p>Se cair, você pode assumir outro combatente após 3 segundos. Cada fuzileiro leva 2 granadas e a IA também as usa contra alvos entre 50 e 130 m. Os fuzileiros da IA também esvaziam o carregador e recarregam.</p></section><section><h3>Construção &amp; apoio</h3><p>Selecione um cartão da barra inferior (teclas 1–4) e clique para posicionar. Tropas precisam nascer no seu território. Defesas só podem ser construídas perto das suas tropas. ESC cancela.</p><p>Artilharia: as baterias da retaguarda disparam de verdade (o projétil leva 2–4 s conforme a distância). Com o cartão selecionado, T troca a munição (alto-explosivo, shrapnel ou fumaça). No modo combatente, E perto de uma peça aliada assume o canhão: WASD move o retículo, clique dispara, 1/2/3 troca a munição. Bombardeios e caças atingem a área marcada após alguns segundos. Explosões e metralhamento também causam fogo amigo. Ruínas, árvores e trincheiras oferecem cobertura.</p></section><section><h3>Vitória &amp; painéis</h3><p>Capture A, B e C mantendo mais unidades próximas que o inimigo. Cada posição rende 4 suprimentos por segundo e reduz os reforços adversários. A operação acaba quando um lado fica sem reforços.</p><p>O botão de IA liga ou desliga cada comandante. A IA prioriza alvos perigosos, busca abrigo sob fogo intenso, reúne soldados com aliados, retoma o avanço após se recuperar, faz reconhecimento, mantém reservas móveis, ocupa trincheiras e responde a invasões. O painel do quartel-general (H) mostra o suprimento inimigo e a ordem de batalha. ESC abre o menu de pausa.</p></section></div><button class="primary" data-close="guide">ENTENDIDO</button></dialog>
+
+<dialog id="aiPanel" class="dlg small"><button class="close" data-close="aiPanel" aria-label="Fechar"><span data-ico="close"></span></button><span class="eyebrow">COMANDO DAS FACÇÕES</span><h1>Quem dá as ordens?</h1><p>Desligar a IA estratégica faz as tropas manterem posição até você comandá-las. Elas continuam mirando e atirando. Suprimentos são separados por facção.</p><div class="aiControls"><button id="toggleBlueAI">IA EUA: OFF</button><button id="toggleRedAI">IA ALEMANHA: ON</button><button id="switchSide">ASSUMIR ALEMANHA</button></div><div class="aiEconomy"><span>EUA · ◈ <b id="blueSupply">600</b> <small id="blueRate">+12/s</small></span><span>ALEMANHA · ◈ <b id="redSupply">600</b> <small id="redRate">+12/s</small></span></div><p id="aiSummary">Aguardando batalha.</p><button class="primary" data-close="aiPanel">VOLTAR À BATALHA</button></dialog>
+
+<dialog id="result" class="dlg small"><span class="eyebrow">RELATÓRIO DA OPERAÇÃO</span><h1 id="resulttitle">Frente assegurada.</h1><p id="resulttext"></p><p id="resultnote" class="note"></p><div class="resbtns"><button class="primary" id="nextop" hidden>PRÓXIMA OPERAÇÃO <span>▶</span></button><button class="primary alt" id="retry">TENTAR NOVAMENTE</button><button class="primary alt" id="restart">NOVA OPERAÇÃO</button></div></dialog>
+
+<script src="ai.js"></script><script src="learning.js"></script><script src="operations.js"></script><script src="art.js"></script>
+<script src="tanks.js"></script><script src="planes.js"></script><script src="terrain.js"></script><script src="ww1-layout.js"></script><script src="ww1-spr.js"></script><script src="ww1-spr-rear.js"></script><script src="ww1-spr-war.js"></script><script src="ww1-spr-flora.js"></script><script src="ww1-terrain.js"></script><script src="ww1-ground.js"></script><script src="ww1-props.js"></script><script src="ww1-scene.js"></script><script src="game.js"></script><script src="pixel.js"></script><script src="weather.js"></script><script src="ww1-ambient.js"></script><script src="battery.js"></script><script src="planefx.js"></script><script src="physics.js"></script><script src="sappers.js"></script><script src="frontline.js"></script><script src="blood.js"></script><script src="assault.js"></script><script src="soldier-combat.js"></script><script src="fortify.js"></script><script src="medics.js"></script><script src="art-forts.js"></script><script src="art-medics.js"></script><script src="ui-art.js"></script><script src="title.js"></script><script src="ui.js"></script><script src="ui-fix.js"></script>
+<script src="tactics-view.js"></script>
+<script src="soldier-tactics.js"></script>
+<script src="soldier-hud.js"></script>
+</body></html>

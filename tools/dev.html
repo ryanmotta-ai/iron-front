@@ -1,0 +1,17 @@
+<!doctype html><meta charset="utf-8"><base href="../dist/"><title>dev</title>
+<style>body{margin:0;background:#0d0f0c;color:#bcc;font:11px monospace}canvas{image-rendering:pixelated;display:block}#i{position:fixed;right:6px;top:4px;background:#000a;padding:2px 6px}</style>
+<canvas id="c"></canvas><div id="i"></div>
+<script src="art.js"></script><script src="terrain.js"></script>
+<script src="ww1-layout.js"></script><script src="ww1-spr.js"></script><script src="ww1-spr-rear.js"></script><script src="ww1-spr-war.js"></script><script src="ww1-spr-flora.js"></script><script src="ww1-terrain.js"></script><script src="ww1-ground.js"></script><script src="ww1-props.js"></script><script src="ww1-scene.js"></script>
+<script>
+const q=new URLSearchParams(location.search),X=+q.get('x')||0,Y=+q.get('y')||0,Wd=+q.get('w')||1200,Hd=+q.get('h')||800,S=+q.get('s')||1;
+const t0=performance.now();let base;
+try{base=PX.genTerrain('trenches',2400,1600)}catch(e){document.getElementById('i').textContent='ERRO: '+e.message+' '+(e.stack||'').split('\n')[1];throw e}
+const dt=performance.now()-t0;
+const cv=document.getElementById('c');cv.width=Wd*S;cv.height=Hd*S;const g=cv.getContext('2d');g.imageSmoothingEnabled=false;
+g.drawImage(base.canvas,X,Y,Wd,Hd,0,0,Wd*S,Hd*S);
+if(q.get('grid')){g.strokeStyle='rgba(255,255,0,.35)';g.fillStyle='#ff0';g.font='10px monospace';const st=+q.get('grid');for(let x=Math.ceil(X/st)*st;x<X+Wd;x+=st){g.beginPath();g.moveTo((x-X)*S+.5,0);g.lineTo((x-X)*S+.5,Hd*S);g.stroke();g.fillText(x,(x-X)*S+2,10)}for(let y=Math.ceil(Y/st)*st;y<Y+Hd;y+=st){g.beginPath();g.moveTo(0,(y-Y)*S+.5);g.lineTo(Wd*S,(y-Y)*S+.5);g.stroke();g.fillText(y,2,(y-Y)*S-2)}}
+if(q.get('anch')){const a=PX.WW1.fieldTrenches();g.fillStyle='#f0f';for(const t of a){const x=(t.x/2-X)*S,y=(t.y/2-Y)*S;if(x>=0&&y>=0&&x<Wd*S&&y<Hd*S){g.fillRect(x-1,y-1,3,3);if(q.get('anch')==='2'){g.strokeStyle='#f0f8';g.strokeRect(x-t.hw/2*S,y-t.hh/2*S,t.hw*S,t.hh*S)}}}}
+document.getElementById('i').textContent='gen '+dt.toFixed(0)+' ms · '+base.canvas.width+'x'+base.canvas.height;
+window.BASE=base;
+</script>

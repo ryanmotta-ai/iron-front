@@ -1,0 +1,60 @@
+/* ui-fix: painel de unidades, barra de clima, moldura do minimapa, bandeiras no placar */
+#orders{width:15.5rem;padding:.7rem .75rem .65rem;gap:.45rem;opacity:1}
+#orders #selected{font:400 .8rem var(--font);letter-spacing:.08em;color:var(--accent);text-transform:uppercase}
+#orders .ord{display:grid;grid-template-columns:repeat(2,1fr);gap:.3rem}
+#orders .ord.two{grid-template-columns:repeat(2,1fr)}
+#orders .ord button{padding:.5rem .2rem;font-size:.78rem;white-space:nowrap;letter-spacing:.04em}
+#orders #advance{grid-column:1/-1}
+#selinfo{display:flex;flex-direction:column;gap:.3rem;font:400 .68rem var(--font);color:var(--muted);letter-spacing:.05em}
+#selinfo .big{display:flex;align-items:baseline;gap:.4rem;color:var(--text)}#selinfo .big b{font-size:1.9rem;line-height:1;color:var(--text)}
+#selinfo .chips{display:flex;flex-wrap:wrap;gap:.25rem}
+#selinfo .chip{background:rgba(111,126,78,.25);box-shadow:inset 0 0 0 2px rgba(111,126,78,.5);padding:.12rem .4rem;color:var(--text);text-transform:uppercase}
+#selinfo .chip em{font-style:normal;color:var(--accent);margin-right:.25rem}
+#selinfo .bar{height:.55rem;background:var(--ink);padding:2px}#selinfo .bar i{display:block;height:100%;background:#b8d68b}
+#selinfo .row{display:flex;justify-content:space-between}
+#selinfo.empty .big b{color:var(--muted)}
+/* clima */
+.fieldtop #weather{display:none}
+#wxbar{position:absolute;left:.6rem;top:5.6rem;z-index:5;pointer-events:auto;display:flex;flex-direction:column;gap:.25rem;max-width:26rem}
+#wxbar .wxb{display:flex;gap:.2rem;flex-wrap:wrap}
+#wxbar button{font:400 .66rem var(--font);letter-spacing:.05em;padding:.3rem .5rem;background:rgba(10,13,8,.78);color:var(--muted);border:0;box-shadow:inset 0 0 0 2px #343b2f;cursor:pointer}
+#wxbar button:hover{color:var(--text)}#wxbar button.on{color:#15190f;background:var(--accent);box-shadow:inset 0 0 0 2px var(--brassd)}
+#wxbar .wxs{font:400 .62rem var(--font);letter-spacing:.06em;color:var(--muted);background:rgba(10,13,8,.6);padding:.2rem .45rem;text-transform:uppercase;text-shadow:0 2px 0 #000;white-space:normal;line-height:1.4}
+/* minimapa */
+#mapbox{padding:.55rem;background:linear-gradient(#10140c,#0a0d07);box-shadow:0 0 0 2px #000,0 0 0 4px var(--brass),0 0 0 6px var(--brassdd),0 0 0 8px #000,0 .5rem 1rem rgba(0,0,0,.55),inset 0 0 0 2px var(--brassd),inset 0 0 0 4px #000;right:.9rem;bottom:.9rem}
+#mapbox::before,#mapbox::after{content:"";position:absolute;width:.5rem;height:.5rem;background:var(--brass);box-shadow:inset -2px -2px 0 var(--brassd),0 0 0 2px #000}
+#mapbox::before{left:-.25rem;top:-.25rem;box-shadow:inset -2px -2px 0 var(--brassd),0 0 0 2px #000,calc(var(--mmw) + 1.6rem) 0 0 0 var(--brass)}
+#mapbox::after{left:-.25rem;bottom:-.25rem;box-shadow:inset -2px -2px 0 var(--brassd),0 0 0 2px #000,calc(var(--mmw) + 1.6rem) 0 0 0 var(--brass)}
+/* bandeiras */
+.team canvas.flag{width:1.9rem;height:1.15rem;image-rendering:pixelated;box-shadow:0 0 0 2px #000,0 0 0 3px var(--brassd);align-self:center}
+/* título centralizado */
+#logo{left:50%;transform:translateX(-50%)}
+#mainmenu{left:50%;transform:translateX(-50%);width:calc(150*var(--k))}
+#scenebox::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 34% 75% at 50% 52%,rgba(4,6,4,.82),rgba(4,6,4,.55) 60%,transparent 100%)}
+#titlefoot{justify-content:center}
+/* respiro entre logo e menu + botões maiores */
+#mainmenu{margin-top:calc(16*var(--k));width:calc(185*var(--k));gap:calc(4*var(--k))}
+#mainmenu .mbtn{height:max(3.2rem,calc(22*var(--k)));padding:0 calc(6*var(--k));gap:calc(6*var(--k))}
+#mainmenu .mbtn .mt{font-size:max(1.7rem,calc(9.5*var(--k)))}
+#mainmenu .mbtn .mt small{font-size:max(.75rem,calc(3.2*var(--k)))}
+#mainmenu .mbtn .ico{width:2.2rem;height:2.2rem}
+#mainmenu .mbtn.sm{height:max(2.6rem,calc(15*var(--k)))}#mainmenu .mbtn.sm .mt{font-size:max(1.3rem,calc(7*var(--k)))}
+/* telas internas centralizadas (o menu agora é central; o logo some nelas para a cena aparecer) */
+#title:not([data-view=main]) #logo{display:none}
+.view{left:50%;right:auto;width:min(66rem,94vw);transform:translateX(-50%);top:calc(6*var(--k))}
+/* sandbox em cartões */
+.sbform{display:flex;flex-direction:column;gap:1rem}
+.sbsec{display:flex;flex-direction:column;gap:.7rem;padding:.8rem .9rem;background:rgba(0,0,0,.28);box-shadow:inset 0 0 0 2px rgba(111,126,78,.35)}
+.sbsec h4{margin:0;font:400 .8rem var(--font);letter-spacing:.14em;color:var(--brass2)}
+.sbgroup{display:flex;flex-direction:column;gap:.35rem}.sbcap{font:400 .62rem var(--fs);letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.sbopts{display:flex;flex-wrap:wrap;gap:.4rem}
+.sbopts button{flex:1 1 9rem;min-width:8rem;display:flex;flex-direction:column;align-items:flex-start;gap:.15rem;padding:.55rem .7rem;text-align:left;background:#14180f;color:var(--text);border:0;box-shadow:inset 0 0 0 2px #343b2f;cursor:pointer;font-family:var(--font)}
+.sbopts button b{font-weight:400;font-size:1.05rem;letter-spacing:.04em}.sbopts button small{font:400 .6rem var(--fs);color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.sbopts button:hover{box-shadow:inset 0 0 0 2px var(--brassd)}
+.sbopts button.on{background:#2c2312;box-shadow:inset 0 0 0 2px var(--brass);color:var(--brass2)}.sbopts button.on small{color:#cdb56a}
+.sbfoot{position:sticky;bottom:0;background:linear-gradient(0deg,rgba(14,18,10,.97) 70%,transparent);padding-top:.8rem}
+/* clima: espaçamento entre botões e afastamento do cabeçalho */
+#wxbar{top:7.2rem;gap:.5rem}
+#wxbar .wxb{gap:.45rem}
+#wxbar button{padding:.42rem .8rem;margin:0}
+#wxbar .wxs{padding:.3rem .6rem;margin-bottom:.1rem}

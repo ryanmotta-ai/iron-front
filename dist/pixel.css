@@ -1,0 +1,11 @@
+/* Iron Front 0.4 — ajustes de interface para o pipeline de pixel art */
+#game{position:absolute;left:0;top:0;width:auto;height:auto;image-rendering:pixelated}
+#crosshair{display:none!important}
+.card{grid-template-columns:56px 1fr}
+.card canvas{width:56px;height:56px;image-rendering:pixelated}
+#minimap{image-rendering:pixelated}
+#wxpill{position:absolute;left:20px;top:54px;padding:6px 10px;background:#141a14bc;border:1px solid #65705566;border-left:3px solid #c5db91;color:#d6dbc4;font-size:10px;letter-spacing:1px;pointer-events:none;text-shadow:0 2px 2px #000;z-index:2}
+#wxpill.wet{border-left-color:#7fb9c8;color:#cfe6ee}
+@media(max-width:750px){#wxpill{left:12px;top:44px;font-size:8px;padding:4px 7px}}
+#wxpill{white-space:pre-line;line-height:1.55}
+#grenades{color:#c4d99d;font-size:9px!important;letter-spacing:.5px}

@@ -1,0 +1,15 @@
+<!doctype html><meta charset="utf-8"><base href="../dist/"><title>sprites</title>
+<style>body{margin:0;background:#4a5a3c;color:#eee;font:10px monospace}canvas{image-rendering:pixelated}</style>
+<canvas id="c"></canvas>
+<script src="art.js"></script><script src="terrain.js"></script><script src="ww1-layout.js"></script><script src="ww1-spr.js"></script>
+<script src="ww1-spr-rear.js"></script><script src="ww1-spr-war.js"></script><script src="ww1-spr-flora.js"></script>
+<script>
+const q=new URLSearchParams(location.search),S=+q.get('s')||3,only=q.get('only'),COLS=+q.get('cols')||6,CW=+q.get('cw')||260;
+const A=PX.WW1.SPR,names=Object.keys(A).filter(n=>!only||only.split(',').includes(n));
+const cv=document.getElementById('c'),rows=Math.ceil(names.length/COLS),CH=+q.get('ch')||170;cv.width=COLS*CW;cv.height=rows*CH;const g=cv.getContext('2d');g.imageSmoothingEnabled=false;
+g.fillStyle='#4a5a3c';g.fillRect(0,0,cv.width,cv.height);
+names.forEach((n,i)=>{const cx=(i%COLS)*CW,cy=Math.floor(i/COLS)*CH;let sp;try{sp=A[n]()}catch(e){g.fillStyle='#f66';g.fillText(n+' ERR '+e.message,cx+4,cy+14);console.error(n,e);return}
+ const K=PX.WW1.kit;const ox=cx+CW/2,oy=cy+CH-26;g.save();g.translate(0,0);
+ const sh=K.shadowOf(sp);g.drawImage(sh,ox-sp.ax*S+sp.sh[0]*S,oy-sp.ay*S+sp.sh[1]*S,sh.width*S,sh.height*S);g.drawImage(sp.c,ox-sp.ax*S,oy-sp.ay*S,sp.c.width*S,sp.c.height*S);
+ g.fillStyle='#fff';g.fillText(n+' '+sp.c.width+'x'+sp.c.height,cx+4,cy+12);g.restore()});
+</script>
