@@ -590,3 +590,67 @@ Os desfechos são volta ao combate, incapacitado, evacuado (metade volta como re
   - EUA: respirador SBR cáqui-acinzentado com mangueira.
   - Alemanha: Gummimaske de borracha escura com filtro redondo.
   - Os dois têm lentes de vidro com reflexo.
+
+### Efeitos refinados (anim-fx.js)
+Camada só visual, carregada no fim; `?animfx=0` desliga e `PXFX.state()` mostra contagens, custo (ms) e erros.
+- **Explosões em etapas**: clarão + luz no chão, bola de fogo em lóbulos (núcleo de fuligem, borda acesa), anel de choque, anel de poeira, cortina de terra, torrões com sombra que quicam e ficam no chão, faíscas, brasas na cratera, coluna de fumaça que sobe e deriva com o vento (mais alto, mais vento) e fumaça residual.
+- **Variantes**: granada, morteiro, 75 mm, 155 mm (coluna alta, clarão de tela), bomba de avião, e lama (gêiser negro, respingos que grudam). A água continua com o physics.js; o "dud" e o abafamento na lama, com o frontline.js.
+- **Shrapnel** (nuvem branca no ar + cone de balins com poeira no chão), **cortina de fumaça** volumosa ao vento, **sopro de boca** das baterias (anel de vórtice, nuvem dirigida, poeira), fumaça dos fuzis, impacto de bala no chão, chamas animadas (fogueiras e depósito destruído) e respingos de chuva.
+- O pixel.js deixa de desenhar o blast redesenhado aqui (via `PHYS.skipBlastFx` encadeado) e a cratera é carimbada por esta camada. Pool fixo em arrays tipados, sprites pontilhados em cache (aquecidos em tempo ocioso), tetos por tipo e LOD. Com 12 erros a camada se desliga e volta o padrão.
+
+## Aviação animada (anim-air.js)
+
+- Cada avião é um modelo 3D simples (asas, fuselagem, empenagem, montantes, rodas, tripulação) rasterizado em pixels inteiros já na orientação (64 rumos × inclinação lateral × arfagem), com luz de cima-esquerda e sombra da asa superior; cache preguiçoso com orçamento por quadro.
+- Tipos: SPAD S.XIII, Sopwith Camel, Breguet 14, Salmson 2A2 (reconhecimento), Airco DH-4 (EUA); Fokker D.VII, Halberstadt CL.II, DFW C.V, Rumpler C.IV (reconhecimento), Gotha G.V de hélices propulsoras (Alemanha).
+- Voo: rumo suavizado, inclinação nas curvas por mola própria (Camel nervoso, Gotha pesado), mergulho e recuperação no metralhamento, sombra que muda com a altitude, turbulência, disco de hélice, escape por motor, metralhador traseiro que gira, ronco de motor sintetizado.
+- Abate: parafuso, mergulho em chamas, asa arrancada ou planeio com arrasto no chão; fumaça preta, destroços, paraquedas (alemães às vezes, aliados quase nunca), explosão moderada no impacto e destroço queimando por minutos até virar esqueleto gravado no terreno.
+- `PXAIR.crash(p,por,causa)` (usado pela antiaérea do fortify.js), assume os abates do aviation.js e do reconhecimento do frontline.js. `?aviao=0` desliga · `PXAIR.anim.state()`.
+
+## Animações da infantaria (anim-infantry.js)
+
+Camada só visual, carregada depois de todas as que envolvem `PHYS.draw` (é a mais externa). Os quadros novos são montados com as mesmas grades do `art.js` (cabeça, tronco e pernas de cada nação, Springfield/Gewehr 98 desenhados por partes) e ficam em cache por pose, subquadro, 16 direções, nação e granadas no cinto. A geometria é a do sprite base (30×30, âncora 15,16). Nos estados que melhora, a camada troca o sprite e chama a cadeia interna com ele, então máscara de gás, recortes de trincheira, insígnias de classe, abrigo e socorro continuam valendo.
+- **Marcha e corrida:** 8 quadros cada, com o passo travado na distância percorrida e balanço de tronco e cabeça. A corrida tem passada longa, tronco inclinado e fuzil em "port arms"; vale para ondas de assalto, retirada e quem anda rápido.
+- **Tiro:** fuzil no ombro, com a boca no ponto do clarão do pixel.js. No coice o ombro recua e a boca sobe. Entre os tiros o ferrolho é manejado (sobe, atrás, frente, baixa) e o estojo é ejetado. Atrás de cobertura ou sob supressão, o soldado atira ajoelhado.
+- **Recarga:** a lâmina segue as mesmas 6 fases do pixel.js.
+- **Granada:** 6 tempos; a mão abre no instante exato em que o jogo lança (thr ≤ .28).
+- **Parado:** respiração e olhadas para os lados.
+- **Giro:** gradual, passando pelas direções intermediárias; no tiro trava no ângulo real.
+- **Rastejar dos fixados:** grades deitadas, pré-giradas pelo RotSprite, com cotovelo e joelho alternados.
+- **Morte:** tranco, joelhos cedem, tomba, e termina no próprio sprite de cadáver do art.js, 2 px acima do chão. O cadáver real é ocultado só durante a queda, para não haver corpo duplo.
+- **Acerto:** o flash branco/vermelho é pintado com a silhueta da pose nova.
+- `?animinf=0` desliga a camada; `PXINF.state()` mostra o estado; `PXINF.sheet(time)` gera a folha de contatos. Cada gancho tem try/catch e a camada se desliga após 12 erros.
+
+## Animação de blindados e cavalaria (`anim-vehicles.js`)
+
+Camada só visual, carregada por último (`?animveh=0` desliga; `PXVEH.state()` e `PXVEH.prof()` mostram contadores e custo por quadro). Envolve `PHYS.draw`, `update`, `damage`, `shoot`, `explode` e `setup`, e desenha em `WW1A.under`/`over`. Não muda dano, tiro nem IA.
+
+- **Esteiras:** cada lado tem a própria fase, que avança pela distância percorrida (1 elo por 2 unidades). No giro no lugar, as esteiras andam em sentidos opostos, e um tanque atolado (`atr.bog`) patina sem sair do lugar. São 9 combinações × 16 direções por RotSprite, pré-aquecidas em fatias ociosas.
+- **Renault FT com torre giratória:** o casco foi redesenhado sem a torre, e a torre Berliet com o canhão de 37 mm virou um sprite separado em 32 direções. Ela mira o alvo, ou o mouse no modo combatente, a ~1,7 rad/s, tem sombra própria e o cano recua no tiro. O A7V continua com o canhão de 57 mm fixo na proa.
+- **Movimento e tiro:** a suspensão segue a regra do `physics.js` (casco fatiado ao meio). Há também:
+  - escape (baforadas na marcha lenta, fumaça escura ao acelerar ou atolar) e tremor do motor parado;
+  - poeira das esteiras no seco, pó na neve, torrões na lama e marcas das sapatas no chão seco;
+  - clarão do canhão em 2 estágios na boca real, com anel de poeira;
+  - MGs piscando nas casamatas do A7V voltadas para o alvo.
+- **Dano e destruição:** impactos deixam cicatrizes no casco; a partir de 60% de vida sai fumaça, abaixo de 40% o casco fica chamuscado e abaixo de 30% sai fogo das venezianas. A morte tem:
+  - clarão interno e jato de fogo pela escotilha;
+  - cerca de 6 a 10 s de munição detonando (estalos, faíscas, traçantes);
+  - torre do FT arrancada em ~60% das mortes, que gira no ar, quica e fica no chão;
+  - chapas e elos voando, que ficam pintados no terreno, e mancha de queimado;
+  - fogo forte, depois chamas, brasa e fumaça fina. A carcaça fica depois dos 60 s do `pixel.js`, e as mais antigas que 26 são pintadas no terreno.
+- **Cavalaria:** passo, trote e galope de 4 tempos com fase de suspensão (6/6/8 quadros, também por distância), cavaleiro quicando no ritmo e poeira dos cascos. Na carga, o americano ergue o sabre e o Ulano baixa a lança com flâmula preta e branca; fora da carga, o sabre vai ao ombro e a lança fica em pé. Ao morrer, o cavalo empina, cai de lado, esperneia e fica no chão, e o cavaleiro é arremessado para a frente.
+- **Truques e custo:** a carcaça do FT no cache do `tanks.js` (`tnw0_*`) é trocada por getters preguiçosos, sem editar `pixel.js` nem `tanks.js`. O `u.flash` dos tanques é zerado depois do tiro porque o clarão e o coice passam a ser desta camada. Custo medido com 4 tanques e 15–20 cavalos, Edge headless sem GPU, cache aquecido: ~0,5–0,7 ms por quadro, quase todo em partículas.
+
+## Versão 1.9.1 — Pendências do passe de polish
+
+Fechadas as pendências do diagnóstico (`docs/polish-pass-diagnostico.md`), exceto as marcadas como parciais.
+
+- **UI (U1, U2, U7–U10, U12, U14–U16):** campanha cabe a 720p (base do INICIAR 897 → 627 px); botões de clima só no sandbox; painel de ordens vazio 203 → 129 px; renda "+12/s"; 17 cartões de Defesas sem nome truncado, atalhos Shift+1…9; Guia de Campo reescrito; ícone de reiniciar com a bandeira do lado jogado; operações com nomes únicos; fonte mínima 12 px. Testes: `tests/ui.test.cjs`, `tools/ui-geometry.cjs`.
+- **Modo Soldado (`soldier-gear.js`, `?soldado=0`, `?cone=0`):** fôlego (correr 5,0 s até exausto), ferrolho (1,2 s entre tiros), munição finita do jogador (reserva 30; reabastece em depósito e saque), granada cozida (pavio 1,55 s → 0,32 s), cone de visão (tecla C; +0,09 a +0,18 ms de render). B4 (pistola do caído), B7/U13 (soldado nasce na linha de contato, seta "FRENTE") e B10 (Thompson → BAR M1918).
+- **Classes por nação (`classes.js`):** Mk2 × Stielhandgranate, Springfield (350 px) × Gewehr 98 (330 px), Trench Raider × Stoßtrupp (MP18/M1897 só até 120/90 px), observador e médico com alcances próprios, sprites distintos.
+- **Pesados (`battery.js`, `heavyfx.js`):** recuo do tubo, projétil de canhão em arco, poeira, freio de boca, culatra, guarnição agachando e MG pesada com efeitos.
+- **Som (`soundscape.js`):** passos por superfície e lama, no máximo 14/s, sem nós novos por segundo.
+- **B11, B12:** rodapé "VERSÃO 1.9", comentário do fator de obra corrigido.
+
+**Captura de posição (QA).** `tools/qa-capture.cjs` registra quando cada ponto e setor muda de dono em batalha IA×IA. A "frente travada" era a preparação de 5 min: com o padrão, o primeiro ponto cai aos 346,5 s. Com `?preparo=60`, o ponto B muda de dono entre 106 e 108 s nas 3 rodadas de 900 s, e o ponto C troca várias vezes. Os **setores de trincheira não trocaram em nenhuma rodada**: a regra exige invasores dentro da vala com a guarnição zerada, e a IA ataca os pontos, não a trincheira.
+
+**Pendentes:** B9 (sprite do avião de reconhecimento) não foi verificado; o caído próprio do `soldier-tactics.js` ainda é separado do `u.down`; o botão de granada do celular não cozinha; pesados e som não tiveram auditoria visual/auditiva final (as frentes foram interrompidas).
