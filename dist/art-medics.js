@@ -45,7 +45,7 @@ const SMOCK={F:['UuuuxuuuU','tuuxxxuuU','UuuuxuuuU','sUuuuuuUs'],B:['UPuuxuuuU',
 const LEGF=[['.kkK.Kkk.','.kkK.Kkk.','.bbb.bbb.','.........'],['.kkK.Kkk.','.kkK..Kk.','.kkK..bb.','.bbb.....'],['.kkK.Kkk.','.Kkk.Kk..','.Kkk.bb..','.....bbb.']];
 const LEGS=[['..kkK....','..kkK....','..bbb....','.........'],['..kkK....','.kkK.Kk..','.kk..Kk..','.bb..bb..'],['..kKk....','..KkK....','..kk.K...','..bb.bb..']];
 const legsFor=(t,L)=>L.map(fr=>fr.map((r,i)=>i===1?(t===0?r.replace(/[kK]/g,m=>m==='k'?'K':'k'):r.replace(/[kK]/g,'b')):r));
-const KNEEL=['..kkkkkk.','.bkK...k.','.......bb'],SIT=['.kKk.kKk.','.kk...kk.','.bb...bb.'];
+const KNEEL=['..kkkkkk.','.bkK...k.','.......bb'],SIT=['.kK...Kk.','.kk...kk.','.bb...bb.'];
 const DOC={F:['...nnn...','..nNNnn..','..nnnnn..','..SsssS..','..sssss..','...sss...','CccgcgccC','CcccgcccC','CcccccccC','sCcccccCs','.CcccccC.','.CcC.CcC.'],
  B:['...nnn...','..nnnnn..','..nNnnn..','..nnnnn..','..SnnnS..','...sss...','CcccccccC','CcccccccC','CccCCCccC','sCcccccCs','.CcccccC.','.CcC.CcC.'],
  S:['..nnnn...','.nnNnnn..','.nnnnnn..','..nnSss..','...ssss..','....ss...','..CcccC..','..CcgcC..','..CcccC..','..CcccCs.','..CcccC..','.CccccC..']};
@@ -82,7 +82,7 @@ function lieRows(v,blanket){const g=LIE.map(r=>r.split('')),set=(y,x,ch)=>{if(g[
  else{set(1,9,'w');set(1,10,'x');set(2,9,'W');set(4,4,'w');set(4,5,'w')}                                   // perna e braço
  if(blanket)for(let y=0;y<5;y++)for(let x=6;x<13;x++)set(y,x,x===6?'G':x===10&&y%2?'G':y===0?'g':'h');
  return g.map(r=>r.join(''))}
-const lipPal=t=>{const T=TEAM[t];return{n:'#3b2b1e',s:T.s,S:T.S,u:T.u,U:T.U,k:T.k,K:T.K,b:T.b,w:WHT,W:'#c9c5b4',x:'#9a2622',g:'#8f8870',h:'#77705a',G:'#57513f'}};
+const lipPal=t=>{const T=TEAM[t];return{n:'#3b2b1e',s:T.s,S:T.S,u:T.u,U:T.U,k:T.k,K:T.K,b:T.b,w:WHT,W:'#c9c5b4',x:'#9a2622',g:'#76705c',h:'#5c5848',G:'#45423a'}};
 const lieCanvas=(t,v,bl)=>cached(`lie${t}${v}${bl}`,()=>fromGrid(lieRows(v,bl),lipPal(t)));
 const lieV=(t,v)=>cached(`lieV${t}${v}`,()=>rot90(lieCanvas(t,v,1)));                                     // cabeça para cima (catre / maca N-S)
 /* caído no chão: capacete ao lado da cabeça, fuzil ao lado; quadro 1 = braço erguido pedindo socorro */
@@ -151,9 +151,9 @@ const surgTent=()=>spr('med:surg',44,32,(x,W,Hh)=>tentDraw(x,W,Hh,{ins:4,rb:15,c
  R(x,tx+13,ty+1,4,1,'#8f969a');dot(x,tx+14,ty+1,'#dfe6ea');R(x,tx+13,ty+2,1,3,'#3a3d40');R(x,tx+16,ty+2,1,3,'#3a3d40');                         // bandeja de instrumentos
  R(x,X+2,Y+h-6,2,1,WHT);R(x,X+2,Y+h-5,2,4,'#6d7f99');R(x,X+2,Y+h-5,2,2,'#ecebe2');                                                               // enfermeira instrumentadora
  R(x,X+w-4,Y+h-4,3,4,'#4a5056');R(x,X+w-4,Y+h-4,3,1,'#7d858c')}}),{ax:22,ay:30,sh:[3,3]});                                                      // bacia/estufa
-const aidTent=()=>spr('med:aidt',36,24,(x,W,Hh)=>tentDraw(x,W,Hh,{ins:3,rb:11,cross:3,door:[11,19],inside:(x,X,Y,w,h)=>{R(x,X,Y,w,h,'#2b251c');cotFront(x,X+1,Y+h-4,6,0,1);dot(x,X+w-2,Y,'#f0c860')}}),{ax:18,ay:22,sh:[2,2]});
+const aidTent=()=>spr('med:aidt',40,28,(x,W,Hh)=>tentDraw(x,W,Hh,{ins:4,rb:13,cross:4,door:[12,21],inside:(x,X,Y,w,h)=>{R(x,X,Y,w,h,'#2b251c');cotFront(x,X+1,Y+h-4,6,0,1);dot(x,X+w-2,Y,'#f0c860')}}),{ax:20,ay:26,sh:[2,2]});
 /* catre vertical (cabeça ao norte) */
-const cot=()=>spr('med:cot',7,15,(x)=>{R(x,0,0,7,15,'#3f4440');R(x,1,1,5,13,'#a39a78');R(x,1,1,1,13,'#b9b08e');R(x,1,1,5,3,'#e6e1d0');R(x,1,1,5,1,'#f4f0e2');R(x,0,15-1,7,1,'#2b2f2b')},{ax:3,ay:7,sh:[1,1],sa:.25});
+const cot=()=>spr('med:cot',7,15,(x)=>{R(x,0,0,1,15,WOOD[2]);R(x,6,0,1,15,WOOD[1]);R(x,1,0,5,1,WOOD[1]);R(x,1,14,5,1,WOOD[0]);R(x,1,1,5,13,'#b0a684');R(x,1,1,1,13,'#c2b896');R(x,5,1,1,13,'#968d6e');R(x,1,1,5,3,'#efeadb');R(x,1,1,4,1,'#fbf8ee');R(x,1,10,5,3,'#6f6a5a');R(x,1,10,5,1,'#8a8470');dot(x,3,11,'#a0303a');for(const[a,b]of[[0,0],[6,0],[0,14],[6,14]])dot(x,a,b,'#2e2a22')},{ax:3,ay:7,sh:[1,1],sa:.25});
 const bench=()=>spr('med:bench',15,4,(x)=>{R(x,0,0,15,2,WOOD[2]);R(x,0,0,15,1,WOOD[3]);R(x,1,2,1,2,WOOD[0]);R(x,13,2,1,2,WOOD[0]);R(x,0,1,15,1,WOOD[1])},{ax:7,ay:3,sh:[1,1],sa:.25});
 const medCrate=k=>spr('med:crate'+k,9,8,(x)=>{const b=k?'#6f5a3a':'#7a5f3c';R(x,0,0,9,8,b);R(x,0,0,9,1,WOOD[3]);R(x,0,0,1,8,WOOD[3]);R(x,8,1,1,7,WOOD[0]);R(x,0,7,9,1,WOOD[0]);
  R(x,2,1,5,5,'#e8e2cf');R(x,4,2,1,3,RED);R(x,3,3,3,1,RED)},{ax:4,ay:7,sh:[2,1]});
@@ -169,7 +169,7 @@ const duckH=n=>spr('med:dkh'+n,n*2+1,5,(x)=>{R(x,0,0,n*2+1,1,'#4a3826');R(x,0,4,
 const lantern=()=>spr('med:lant',5,12,(x)=>{R(x,2,3,1,9,WOOD[1]);R(x,2,3,1,9,WOOD[1]);dot(x,1,11,WOOD[0]);dot(x,3,11,WOOD[0]);R(x,2,0,3,1,WOOD[1]);R(x,3,1,1,1,'#2b2f33');R(x,3,2,2,3,'#2b2f33');dot(x,3,3,'#f0c860')},{ax:2,ay:11,sh:[2,1]});
 const washLine=()=>spr('med:wash',20,12,(x)=>{R(x,0,0,1,12,WOOD[1]);R(x,19,0,1,12,WOOD[1]);for(let X=1;X<19;X++){const y=1+Math.round(Math.sin(X/19*Math.PI)*2);dot(x,X,y,'#8b8468');
   if(X%3===1){R(x,X,y+1,1,3+(X%2),X===10?'#d9b8ae':'#ece8da');dot(x,X,y+1,'#fffaf0')}}},{ax:10,ay:11,sh:[2,1],sa:.2});
-const tarp=(w,h)=>spr('med:tarp'+w+'x'+h,w,h,(x)=>{for(let y=0;y<h;y++)for(let X=0;X<w;X++){const e=X===0||y===0||X===w-1||y===h-1;x.fillStyle=e?'#4f4a39':hh(X,y,9)<.12?'#5c5744':'#67614c';x.fillRect(X,y,1,1)}},{out:0,ax:w>>1,ay:h>>1,sh:[0,0],sa:0});
+const tarp=(w,h)=>spr('med:tarp'+w+'x'+h,w,h,(x)=>{for(let y=0;y<h;y++)for(let X=0;X<w;X++){const e=X===0||y===0||X===w-1||y===h-1;if(e&&(X+y)&1)continue;x.fillStyle=e?'#5c5744':hh(X,y,9)<.12?'#5c5744':'#67614c';x.fillRect(X,y,1,1)}},{out:0,ax:w>>1,ay:h>>1,sh:[0,0],sa:0});
 const bin=()=>spr('med:bin',6,7,(x)=>{R(x,0,1,6,6,'#4a5056');R(x,0,1,2,6,'#6b7278');R(x,0,0,6,1,'#7d858c');R(x,1,0,4,1,'#3a2c22');dot(x,2,0,'#e6e1d0');dot(x,3,0,'#9a2622')},{ax:3,ay:6,sh:[1,1]});
 const basin=()=>spr('med:basin',5,3,(x)=>{ell(x,2,1,2,1,'#8f969a');dot(x,2,1,'#c8d6da');dot(x,1,0,'#dfe6ea')},{ax:2,ay:2,sh:[1,1],sa:.2});
 
@@ -184,7 +184,7 @@ function ground(x,cx,cy,blobs,seed){const col=['#5d4e37','#67573d','#716046','#5
 const FIELD={W:118,H:92,ax:27,ay:50,
  cots:[[-8,18],[0,18],[8,18]],decor:[[16,18,0],[24,18,1],[32,18,2]],rest:[[[-9,8,'sit'],[-3,8,'sit']],[[6,6,'stand'],[11,6,'smoke']]],
  flag:[31,-12],lamps:[[-12,3],[40,6]],boil:[-14,33],surg:[54,-11],ward:[4,-11]};
-const AIDL={W:46,H:46,ax:23,ay:23,cots:[[-8,15],[0,15],[8,15]],decor:[],rest:FIELD.rest,flag:[-17,-3],lamps:[],tent:[-1,2]};
+const AIDL={W:48,H:60,ax:24,ay:30,cots:[[-8,15],[0,15],[8,15]],decor:[],rest:[[[-9,8,'sit'],[-3,8,'sit']],[[12,4,'stand'],[17,6,'smoke']]],flag:[-17,-3],lamps:[],tent:[-1,-2]};
 function compose(team,L,draw){const c=mk(L.W,L.H),x=g2(c),f=face(team),ax=team?L.W-1-L.ax:L.ax,ay=L.ay,
  P=(sp,dx,dy,o={})=>put(x,sp,ax+f*dx,ay+dy,{flip:o.dir?(team?o.dir<0:o.dir>0):false});draw(x,P,ax,ay,f);return{c,ax,ay}}
 function drawField(x,P,ax,ay,f,team){
@@ -203,8 +203,8 @@ function drawField(x,P,ax,ay,f,team){
  for(const k of FIELD.cots)P(cot(),k[0],k[1]);
  for(const k of FIELD.decor){P(cot(),k[0],k[1]);const cx=ax+f*k[0],cy=ay+k[1];if(k[2]===2){const s=cached('sitter'+team,()=>{const o=outlined(fromGrid(SITTER,lipPal(team)));return{c:o,ax:5,ay:o.height-1}});blitP(x,s,cx,cy+3)}else x.drawImage(lieV(team,k[2]),cx-2,cy-6)}}
 function drawAid(x,P,ax,ay,f,team){
- ground(x,ax,ay,[[0,0,20,13],[0,14,15,9]],team+7);
- P(tarp(26,13),0,15);P(aidTent(),AIDL.tent[0],AIDL.tent[1]);P(sandV(8),19,-1);P(sandH(3),-14,-12);
+ ground(x,ax,ay,[[0,-4,20,14],[0,14,15,9]],team+7);
+ P(tarp(26,13),0,15);P(aidTent(),AIDL.tent[0],AIDL.tent[1]);P(sandV(9),19,-3);P(sandH(3),-14,-16);
  P(bench(),-6,8);P(medCrate(0),15,10);P(medCrate(1),-17,11);if(SPR.stretcher)P(SPR.stretcher(2),-15,18);
  for(const k of AIDL.cots)P(cot(),k[0],k[1])}
 const fieldBase=t=>cached('fieldB'+t,()=>compose(t,FIELD,(x,P,ax,ay,f)=>drawField(x,P,ax,ay,f,t)));
@@ -252,7 +252,7 @@ function crewVis(c,p,dt){let V=VIS.get(c);const now=tm();if(!V){V={x:c.x,y:c.y,p
  let tx=c.x,ty=c.y;
  if(c.st==='idle'&&!moving){const r=lay(p).rest[c.i]||lay(p).rest[0],f=face(p.team);tx=p.x+f*((r[0][0]+r[1][0])/2)/Z;ty=p.y+r[0][1]/Z}
  else if(c.st==='load'&&c.u){tx=c.u.x;ty=c.u.y+6/Z}
- if(Math.hypot(tx-V.tx,ty-V.ty)>5){V.offx+=V.tx-tx;V.offy+=V.ty-ty}                       // salto de alvo vira deslize suave
+ const jd=Math.hypot(tx-V.tx,ty-V.ty);if(jd>60){V.offx=V.offy=0}else if(jd>5){V.offx+=V.tx-tx;V.offy+=V.ty-ty}                       // salto de alvo vira deslize suave
  const k=Math.exp(-dt*9);V.offx*=k;V.offy*=k;V.tx=tx;V.ty=ty;V.x=tx+V.offx;V.y=ty+V.offy;V.moving=moving;return V}
 function drawCrew(c,p,ox,oy,dt){if(c.st==='dead')return;const V=crewVis(c,p,dt),x=ox+Math.round(V.x*Z),y=oy+Math.round(V.y*Z);if(!seen(x,y,40))return;
  if(p.team!==pt()&&window.PXW&&PXW.visible&&!PXW.visible({team:p.team,x:V.x,y:V.y}))return;
@@ -282,7 +282,7 @@ let c_=null;   // contexto do quadro atual (evita passar por todas as funções)
    EQUIPE DO HOSPITAL (só visual): médico, 2 enfermeiras, servente; no posto pequeno, 1 enfermeiro
    ====================================================================================== */
 function staffOf(p){let S=STAFF.get(p);if(S)return S;const F=isField(p);
- S=F?[{k:'doctor',x:54,y:-6,role:'doc'},{k:'nurse',x:16,y:29,role:'n1'},{k:'nurse',x:4,y:-8,role:'n2'},{k:'orderly',x:-9,y:36,role:'ord'}]:[{k:'bearer',x:13,y:6,role:'med'}];
+ S=F?[{k:'doctor',x:54,y:-6,role:'doc'},{k:'nurse',x:16,y:29,role:'n1'},{k:'nurse',x:4,y:-8,role:'n2'},{k:'orderly',x:-9,y:36,role:'ord'}]:[{k:'bearer',x:-16,y:4,role:'med'}];
  for(const s of S){s.tx=s.x;s.ty=s.y;s.wait=Math.random()*2;s.pose='stand';s.dir='S';s.i=0}STAFF.set(p,s0(S));return S}
 const s0=S=>S;
 function occupiedCots(p){const L=lay(p),A=COTS.get(p),r=[];if(A)for(const i of A.values())r.push(L.cots[i]);return r}
@@ -292,7 +292,7 @@ function nextGoal(s,p){const L=lay(p),occ=occupiedCots(p),all=L.cots.concat(L.de
  else if(s.role==='n1'){const k=occ.length?occ[s.i%occ.length]:all[(s.i*2)%all.length];atCot(k)}
  else if(s.role==='n2'){const seq=[[4,-8,'stand',2],[24,29,'bend',2.5],[-8,34,'side',2],[32,29,'bend',2.5]],q=seq[s.i%seq.length];s.tx=q[0];s.ty=q[1];s.after=q[2];s.hold=q[3]}
  else if(s.role==='ord'){const seq=[[-9,36,'stoke',4],[-2,24,'stand',2]],q=seq[s.i%seq.length];s.tx=q[0];s.ty=q[1];s.after=q[2];s.hold=q[3]}
- else{if(occ.length){atCot(occ[s.i%occ.length])}else{s.tx=13;s.ty=6;s.after='stand';s.hold=3}}}
+ else{if(occ.length){atCot(occ[s.i%occ.length])}else{s.tx=-16;s.ty=4;s.after='stand';s.hold=3}}}
 function staffTick(S,p,dt){for(const s of S){if(s.wait>0){s.wait-=dt;continue}const dx=s.tx-s.x,dy=s.ty-s.y,d=Math.hypot(dx,dy);
  if(d<.6){if(s.pose==='walk'){s.pose=s.after||'stand';s.wait=s.hold||2;continue}nextGoal(s,p);s.pose='walk';continue}
  const v=Math.min(d,dt*(s.k==='doctor'?13:11));s.x+=dx/d*v;s.y+=dy/d*v;s.pose='walk';s.dir=Math.abs(dx)>=Math.abs(dy)*.7?(dx>0?'E':'W'):(dy>0?'S':'N')}}
@@ -343,23 +343,23 @@ function aidStage(s){const st=s.stage|0;if(st>=3)return cached('aid1x1',()=>mk(1
  const fr=Math.max(0,Math.min(1,s.work/(s.need[Math.min(st,s.need.length-1)]||1))),b=Math.min(4,Math.floor(fr*5)),t=s.team|0;
  return cached(`aidS${t}${st}${b}`,()=>{const L=AIDL,c=mk(L.W,L.H),x=g2(c),f=face(t),ax=t?L.W-1-L.ax:L.ax,ay=L.ay,P=(sp,dx,dy)=>put(x,sp,ax+f*dx,ay+dy);
   const tape='#e8e6c8',stake=WOOD[1];
-  if(st>=1)ground(x,ax,ay,[[0,0,18,11]],t+11);
+  if(st>=1)ground(x,ax,ay,[[0,-4,18,12]],t+11);
   if(st===0){/* fita branca e estacas marcando tenda e catres; chegam caixas e lona dobrada */
-   const pts=[];for(let X=-15;X<=13;X+=2){pts.push([X,-12],[X,2])}for(let Y=-12;Y<=2;Y+=2){pts.push([-15,Y],[13,Y])}
+   const pts=[];for(let X=-15;X<=13;X+=2){pts.push([X,-16],[X,-2])}for(let Y=-16;Y<=-2;Y+=2){pts.push([-15,Y],[13,Y])}
    const n=Math.round(pts.length*(.2+.8*b/4));for(let i=0;i<n;i++){const[a,bb]=pts[(i*7)%pts.length];dot(x,ax+f*a,ay+bb,tape)}
-   for(const[a,bb]of[[-15,-12],[13,-12],[-15,2],[13,2]]){R(x,ax+f*a,ay+bb-2,1,3,stake);dot(x,ax+f*a,ay+bb-2,WOOD[3])}
+   for(const[a,bb]of[[-15,-16],[13,-16],[-15,-2],[13,-2]]){R(x,ax+f*a,ay+bb-2,1,3,stake);dot(x,ax+f*a,ay+bb-2,WOOD[3])}
    if(b>=1)for(const k of L.cots)for(let j=-6;j<=6;j+=3){dot(x,ax+f*k[0]-3,ay+k[1]+j,tape);dot(x,ax+f*k[0]+3,ay+k[1]+j,tape)}
    if(b>=2)P(medCrate(0),15,10);if(b>=3){R(x,ax+f*-17-5,ay+8,10,4,'#a49b80');R(x,ax+f*-17-5,ay+8,10,1,'#cbc2a4');R(x,ax+f*-17-5,ay+11,10,1,'#7d765e')}return c}
   if(st===1){/* armação: varas de pé e cumeeira; lona ainda dobrada no chão */
-   const ridge=-17,k=.4+.6*b/4,x0=-10,x1=Math.round(-10+18*k);R(x,ax+Math.min(f*x0,f*x1),ay+ridge,Math.abs(f*x1-f*x0)+1,1,WOOD[2]);
-   for(const a of[-14,-10,-1,8,12]){if(a>x1+4)continue;const top=(a===-14||a===12)?-7:ridge;R(x,ax+f*a,ay+top,1,2-top+1,WOOD[1]);dot(x,ax+f*a,ay+top,WOOD[3])}
-   line(x,ax+f*-14,ay-7,ax+f*-10,ay+ridge,WOOD[1]);if(x1>=8)line(x,ax+f*12,ay-7,ax+f*8,ay+ridge,WOOD[1]);
-   R(x,ax+f*-17-5,ay+8,10,4,'#a49b80');R(x,ax+f*-17-5,ay+8,10,1,'#cbc2a4');P(medCrate(0),15,10);P(sandH(3),-14,-12);return c}
+   const ridge=-21,k=.4+.6*b/4,x0=-10,x1=Math.round(-10+18*k);R(x,ax+Math.min(f*x0,f*x1),ay+ridge,Math.abs(f*x1-f*x0)+1,1,WOOD[3]);
+   for(const a of[-14,-10,-1,8,12]){if(a>x1+4)continue;const top=(a===-14||a===12)?-11:ridge;R(x,ax+f*a,ay+top,1,-2-top+1,WOOD[3]);dot(x,ax+f*a,ay+top,WOOD[3])}
+   line(x,ax+f*-14,ay-11,ax+f*-10,ay+ridge,WOOD[2]);if(x1>=8)line(x,ax+f*12,ay-11,ax+f*8,ay+ridge,WOOD[2]);
+   R(x,ax+f*-17-5,ay+8,10,4,'#a49b80');R(x,ax+f*-17-5,ay+8,10,1,'#cbc2a4');P(medCrate(0),15,10);P(sandH(3),-14,-16);return c}
   /* st 2: a lona sobe — a tenda pronta revelada de baixo para cima conforme o progresso; catres ainda empilhados */
   const T=aidTent(),cut=Math.round(T.c.height*(1-(.3+.7*b/4))),tx=ax+f*AIDL.tent[0]-T.ax,ty=ay+AIDL.tent[1]-T.ay;
-  R(x,ax+f*-10,ay-17,1,19,WOOD[1]);R(x,ax+f*8,ay-17,1,19,WOOD[1]);R(x,ax+Math.min(f*-10,f*8),ay-17,19,1,WOOD[2]);
+  R(x,ax+f*-10,ay-21,1,19,WOOD[1]);R(x,ax+f*8,ay-21,1,19,WOOD[1]);R(x,ax+Math.min(f*-10,f*8),ay-21,19,1,WOOD[2]);
   x.drawImage(T.c,0,cut,T.c.width,T.c.height-cut,tx,ty+cut,T.c.width,T.c.height-cut);
-  P(sandV(8),19,-1);P(sandH(3),-14,-12);P(medCrate(0),15,10);for(let i=0;i<3;i++){R(x,ax+f*-2-3,ay+12-i*2,7,2,'#3f4440');R(x,ax+f*-2-2,ay+12-i*2,5,1,'#a39a78')}return c})}
+  P(sandV(9),19,-3);P(sandH(3),-14,-16);P(medCrate(0),15,10);for(let i=0;i<3;i++){R(x,ax+f*-2-3,ay+12-i*2,7,2,'#3f4440');R(x,ax+f*-2-2,ay+12-i*2,5,1,'#a39a78')}return c})}
 
 /* ======================================================================================
    LIGAÇÕES
@@ -372,5 +372,5 @@ if(window.PHYS){const d0=PHYS.draw||(()=>false);PHYS.draw=function(c,u,sp,sx,sy,
  try{return drawDown(c,u,sx,sy)}catch(e){fail(e);return d0.call(PHYS,c,u,sp,sx,sy,vis,bob)}}}
 if(window.PXSAP&&PXSAP.cfg&&PXSAP.cfg.KIND&&PXSAP.cfg.KIND.aid){const k=PXSAP.cfg.KIND.aid,old=k.sprite;k.sprite=s=>{if(!ART.on)return old(s);try{return aidStage(s)}catch(e){fail(e);return old(s)}}}
 ART.state=()=>({on:ART.on,errors:ART.errors,posts:M.posts.map(p=>({id:p.id,team:p.team,field:isField(p),beds:p.beds.map(u=>(COTS.get(p)||new Map()).get(u)),crews:p.crews.map(c=>c.st+(VIS.get(c)?':'+VIS.get(c).dir:'')).join('/')}))});
-ART.sprites={person,stretcherH,stretcherV,groundSpr,fieldBase,aidBase,aidStage,lieV};
+ART._vis=c=>VIS.get(c);ART.sprites={person,stretcherH,stretcherV,groundSpr,fieldBase,aidBase,aidStage,lieV};
 })();

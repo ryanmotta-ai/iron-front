@@ -13,7 +13,7 @@ const assignments=new Map(p.orders.map(o=>[o.id,o.squad]));
 s.time=9;p=Brain.plan(s);assert.equal(p.operation.phase,'muster');
 s.time=14;p=Brain.plan(s);assert.equal(p.operation.phase,'prepare');
 s.time=25;p=Brain.plan(s);assert.equal(p.operation.phase,'advance','sem resistência, não fica esperando relógio de ondas');
-assert.ok(p.orders.some(o=>o.role==='avanço-alternado'));assert.ok(p.orders.some(o=>o.role==='cobrindo-avanco'));
+assert.ok(p.orders.some(o=>o.role==='avanço-alternado'));assert.ok(!p.orders.some(o=>o.role==='cobrindo-avanco'),'sem contato, esquadrões não param em alternância artificial');
 for(const o of p.orders)assert.equal(o.squad,assignments.get(o.id),'esquadrões persistem entre etapas');
 const current=p.operation.sector;s.time=90;p=Brain.plan(s);
 assert.equal(p.operation.phase,'withdraw','ataque sem progresso é abortado');
@@ -67,4 +67,36 @@ fresh(['defend','attack']);s=make({units:Array.from({length:8},(_,i)=>unit(i+1,0
 s.units.push(...Array.from({length:20},(_,i)=>unit(2000+i,1,680,440+i*4)));
 p=Brain.plan(s);assert.ok(p.orders.some(o=>o.role==='retirada-coberta'));
 assert.ok(p.orders.filter(o=>o.role==='retirada-coberta').every(o=>o.tx<650));
+
+// Ritmo ofensivo maior em acesso livre; sem transformar inferioridade em ataque suicida.
+fresh();s=make();for(const time of [0,5,6,12]){s.time=time;p=Brain.plan(s)}
+assert.equal(p.operation.phase,'advance','acesso livre libera ofensiva em 12 segundos');
+const offensive=p.orders.filter(o=>o.role==='avanço-alternado').length;
+assert.ok(offensive>p.orders.filter(o=>o.role==='reserva-movel').length,'maior parte da força mantém pressão');
+s.units.push(unit(3000,1,930,p.operation.y));s.time=13;p=Brain.plan(s);
+assert.ok(p.orders.some(o=>o.role==='cobrindo-avanco'),'contato real mantém cobertura alternada');
+fresh();s=make({units:Array.from({length:8},(_,i)=>unit(i+1,0,720,800+i*4))});
+s.units.push(...Array.from({length:60},(_,i)=>unit(4000+i,1,950,160+Math.floor(i/12)*320,{type:'mg'})));
+for(const time of [0,5,6,12,30,60]){s.time=time;p=Brain.plan(s);assert.notEqual(p.operation.phase,'advance','forte inferioridade continua impedindo ofensiva');}
 console.log('operations: setores, etapas, reservas, esquadrões, captura, adaptação, defesa, neblina e rotas OK');
+
+// Apenas os combatentes disponíveis contam para liberar um assalto.
+fresh();s=make({units:Array.from({length:8},(_,i)=>unit(i+1,0,720,480+i*2,{manualUntil:i?100:0}))});
+for(const time of [0,5,10,20]){s.time=time;p=Brain.plan(s)}assert.equal(p.operation.phase,'muster');
+
+// Baixas na retaguarda não cancelam a ofensiva; reforços não escondem perdas do assalto original.
+fresh();s=make();for(const time of [0,5,6,12]){s.time=time;p=Brain.plan(s)}
+const fighters=new Set(p.orders.filter(o=>['avanço-alternado','flanqueamento-coordenado','infiltração','cobrindo-avanco','escolta','ruptura'].includes(o.role)).map(o=>o.id));
+for(const u of s.units)if(!fighters.has(u.id))u.hp=0;
+s.time=13;p=Brain.plan(s);assert.equal(p.operation.phase,'advance','baixas de outros grupos não causam retirada artificial');
+for(const u of s.units)if(fighters.has(u.id))u.hp=40;
+s.units.push(...Array.from({length:40},(_,i)=>unit(5000+i,0,720,480)));
+s.time=14;p=Brain.plan(s);assert.equal(p.operation.phase,'withdraw','35% de perda efetiva aciona reorganização mesmo com reforços');
+
+// O defensor protege e pode recuperar objetivos anteriores, apenas no seu lado e por tempo limitado.
+fresh(['defend','attack']);s=make({points:[{name:'A',x:930,y:400,owner:0}]});p=Brain.plan(s);
+assert.ok(p.orders.some(o=>o.role==='guarda-objetivo'));
+s.points[0].owner=1;s.time=5;p=Brain.plan(s);assert.equal(p.operation.phase,'counter');
+assert.ok(p.orders.some(o=>o.role==='recuperar-objetivo'));assert.ok(p.orders.filter(o=>o.role==='recuperar-objetivo').every(o=>o.tx<1200));
+s.time=36;p=Brain.plan(s);assert.equal(p.operation.phase,'hold');
+s.time=40;p=Brain.plan(s);assert.equal(p.operation.phase,'hold','há recuperação entre contra-ataques');

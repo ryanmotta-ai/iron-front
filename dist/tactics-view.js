@@ -15,7 +15,8 @@ const css=document.createElement('style');css.textContent='#tacticalStatus{posit
 const hud0=window.hud;
 window.hud=function(...args){const r=hud0.apply(this,args);const plan=Brain.lastPlans[playerTeam];
  const text=show&&started&&!ended&&aiEnabled[playerTeam]&&plan?plan.summary:'';if(status.textContent!==text)status.textContent=text;
- const learned=plan?.learning?`Aprendizado da sua facção: ${plan.learning.note}. Operações avaliadas: ${plan.learning.evaluated}.`:'';
+ const engineering=window.IronFrontEngineering?.state(playerTeam);
+ const learned=plan?.learning?`Aprendizado da sua facção: ${plan.learning.note}. Operações avaliadas: ${plan.learning.evaluated}.${engineering?` Engenharia: ${engineering.note}. Obras avaliadas: ${engineering.evaluated}; investimento: ${Math.round(engineering.spent)}.`:''}`:'';
  if(lesson.textContent!==learned)lesson.textContent=learned;
  if(plan&&aiEnabled[playerTeam]){const e=plan.events.at(-1);if(e&&e.id!==lastEvent[playerTeam]){lastEvent[playerTeam]=e.id;
   if(time-lastToast[playerTeam]>12&&['advance','withdraw','counter'].includes(plan.operation.phase)){lastToast[playerTeam]=time;toast(e.text)}}}

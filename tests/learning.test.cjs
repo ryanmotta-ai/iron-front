@@ -49,3 +49,9 @@ s.units[0].x=1090;s.units[0].y=480;s.time=5;p=Brain.plan(s);assert.equal(p.suppo
 Brain.operations.reset();s=make();s.maxUnits=24;s.units[0].down=true;p=Brain.plan(s);assert.equal(p.purchase,null,'feridos ainda ocupam a capacidade do exército');
 Brain.operations.reset();assert.equal(Brain.operations.state(0),null);
 console.log('Learning: perdas reais, escolha de táticas, rotas perigosas, memória limitada, ordens humanas, captura e informação observada OK');
+
+// Cautela causada por baixas diminui após alguns minutos sem novos incidentes.
+l=Learning.create();s=make();Learning.update(s,s.units,[],l);for(const u of s.units.slice(0,8))u.hp=10;
+s.time=5;Learning.update(s,s.units,[],l);const caution=Learning.select(l,1,s,[]).caution;
+for(const time of [65,125,185,245,305,365,425,485]){s.time=time;Learning.update(s,s.units,[],l)}
+assert.ok(Learning.select(l,1,s,[]).caution<caution*.1,'experiência antiga não torna o atacante permanentemente passivo');

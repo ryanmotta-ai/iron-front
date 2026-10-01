@@ -18,7 +18,7 @@ const state = overrides => ({team:1,units:[unit(1,1,1800,800),unit(2,0,650,800)]
 const baseline = Brain.plan(state());
 assert.match(baseline.summary,/B:/);
 assert.equal(baseline.orders.length,1);
-assert.equal(baseline.purchase,'mg');
+assert.equal(baseline.purchase,'rifle','força reduzida repõe infantaria antes de comprar apoio caro');
 
 const targetShooter=unit(50,1,1000,800);
 const priorityTargets=[targetShooter,unit(51,0,1120,800,{type:'mg'}),unit(52,0,1080,800,{type:'rifle'})];

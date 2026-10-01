@@ -100,7 +100,7 @@ function bag(team,x,y,vert,ax=0,ay=1,len=32){const b=newBuilding('sandbag',team,
 function lineB(b,ax,ay,len,th){th=th||(b.type==='wire'?12:9);const hl=len/2+2;b.vert=1;b.ax=ax;b.ay=ay;b.len=len;
  b.bw=Math.max(th,Math.abs(ax)*hl+Math.abs(ay)*th);b.bh=Math.max(th,Math.abs(ay)*hl+Math.abs(ax)*th);b._spr=null;return b}
 function addAnchor(s,o={}){const team=s.team,a={id:`sap-${team}-${s.id}`,type:'trench',team,x:Math.round(s.x),y:Math.round(s.y),hp:Infinity,hw:o.hw||s.hw,hh:o.hh||s.hh,slots:o.slots||1,line:o.line||s.p.line||'sap',
-  ax:s.ax,ay:s.ay,bw:o.hw||s.hw,bh:o.hh||s.hh,pk:o.pk??.85};
+  ax:s.ax,ay:s.ay,len:CFG.KIND[s.kind].line?s.len:undefined,bw:o.hw||s.hw,bh:o.hh||s.hh,pk:o.pk??.85};
  fieldTrenches.push(a);const k=gkey(a.x,a.y);if(!trenchGrid.has(k))trenchGrid.set(k,[]);trenchGrid.get(k).push(a);s.anchor=a;
  if(window.PHYS&&typeof PHYS.rebuild==='function')PHYS.rebuild();return a}
 function stageUp(s){
@@ -247,11 +247,12 @@ function planCounter(team){if(supportCooldown[team]>0||time-(S.cAt[team]??-99)<4
   p.shelled=time;S.cAt[team]=time;supportCooldown[team]=Math.max(supportCooldown[team],14);
   if(p.team===playerTeam)say(p.team,'Fogo inimigo sobre seus sapadores!');return}}
 function aiTick(team){
- planCounter(team);
+ const managed=window.IronFrontEngineering&&window.PXFORT?.on;
+ if(!managed)planCounter(team);
  const crew=sappers(team);
  if(!crew.length){if(time>25&&(S.boughtAt?.[team]??-99)+75<time&&(sandbox||supplies[team]>=cost('sapper')+30)&&units.filter(u=>u.team===team).length+3<=maxUnits&&pay(team,cost('sapper'))){
   (S.boughtAt||(S.boughtAt=[-99,-99]))[team]=time;const rx=window.PX&&PX.WW1&&map==='trenches'?PX.WW1.reinforceX(team):(team?W-350:350);squad('sapper',team,rx,clamp(800+rnd(-200,200),180,H-180))}return}
- if(live(team).length>=CFG.MAXPROJ.ai)return;
+ if(managed||live(team).length>=CFG.MAXPROJ.ai)return;
  planRepair(team)||planCreep(team)||(crew.length>=2&&planSap(team))}
 
 /* ======================================================================================

@@ -88,7 +88,8 @@ assert.ok(hurt >= 6, 'quem respirou o gás se feriu');
 assert.ok(vict.some(u => u.cough > sb.time - 2), 'tossem');
 const px0 = S.puffs.reduce((n, p) => n + p.x, 0) / S.puffs.length; run(5);
 assert.ok(S.puffs.reduce((n, p) => n + p.x, 0) / S.puffs.length > px0 + 4, 'a nuvem vai com o vento (leste)');
-const m1 = unit('rifle', 1, 1215, 810, { mask: 1 }), n1 = unit('rifle', 1, 1216, 811, { maskAt: 1e9 });
+const pb = S.puffs.reduce((b, p) => p.c > b.c ? p : b), gx = Math.floor(pb.x / 64) * 64 + 32, gy = Math.floor(pb.y / 64) * 64 + 32; // centro da célula mais densa
+const m1 = unit('rifle', 1, gx, gy, { mask: 1 }), n1 = unit('rifle', 1, gx + 1, gy + 1, { maskAt: 1e9 });
 run(2);
 assert.ok(100 - m1.hp < (100 - n1.hp) * .3, 'máscara corta quase todo o dano');
 sb.units.length = 0; S.reset();

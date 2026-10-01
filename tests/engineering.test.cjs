@@ -1,0 +1,17 @@
+const assert=require('node:assert/strict');
+const E=require('../dist/engineering.js');
+const own=Array.from({length:24},(_,id)=>({id,team:0,type:'rifle',hp:100,maxhp:100,x:750,y:800}));
+const context=()=>({team:0,time:0,own,workers:3,projects:[],assets:[],catalog:{trench:{},nest:{},dugout:{},mortar:{}},cash:600,income:8,plan:{sectors:[{id:2,y:800,front:770,force:24,threat:0}],operation:{sector:2,phase:'hold'}},enemies:[],shells:[],dry:()=>true,cost:i=>({trench:30,nest:150,dugout:70,mortar:130}[i.kind])});
+E.reset();let c=context(),it=E.choose(c);assert.equal(it.kind,'trench');assert.ok(c.cash-it.cost>=140);
+E.reset();c.cash=160;assert.equal(E.choose(c),null);assert.ok(E.state(0).reserve<=180);
+E.reset();c=context();c.dry=()=>false;assert.equal(E.choose(c),null);
+E.reset();c=context();c.enemies=[{x:755,y:765}];assert.equal(E.choose(c),null);
+E.reset();c=context();c.workers=0;assert.equal(E.choose(c),null);
+E.reset();c=context();c.projects=[{done:false,kind:'trench',segs:[{x:755,y:765}]}];assert.equal(E.choose(c),null,'workers limit blocks extra projects');
+E.reset();c=context();it=E.choose(c);const project={done:true,crew:[],segs:[{x:it.x,y:it.y,stage:2,need:[1,1]}]};E.committed(0,it,project,0);
+c.time=13;c.assets=[{kind:'trench',x:it.x,y:it.y}];assert.notEqual(E.choose(c)?.kind,'trench');
+c.time=70;E.choose(c);assert.equal(E.state(0).evaluated,1);assert.ok(E.state(0).scores.trench.value>0,'actual allied occupation rewards useful cover');
+E.reset();c=context();it=E.choose(c);project.segs[0].b={hp:0};E.committed(0,it,project,0);c.time=1;E.choose(c);assert.equal(E.state(0).scores.trench.value,-1);
+E.reset();c=context();it=E.choose(c);E.committed(0,{...it,cost:315},project,0);c.time=13;assert.equal(E.choose(c),null,'rolling budget protects reinforcement income');
+E.reset();assert.equal(E.state(0),null);
+console.log('Engineering: reserves, worker capacity, visibility safety, dry ground, duplicate prevention, measured use, loss learning and spending limits OK');

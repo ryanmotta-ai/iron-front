@@ -1,5 +1,17 @@
 # Iron Front — Pixel Battlefield
 
+## Engenharia adaptativa e formações
+
+Durante o combate, a IA escolhe novas trincheiras, ninhos, abrigos, ligações de comunicação, postos médicos e apoio conforme a ocupação dos setores. Bunkers respondem à pressão; antiaéreas dependem de ataques aéreos observados e canhões só são propostos em mapas com baterias funcionais. Avanços com tropas suficientes podem receber cobertura perto da nova posição. O plano evita obras duplicadas, terreno alagado, inimigos observados próximos e impactos iminentes.
+
+O orçamento conserva 140 suprimentos para combate (260 com menos de 18 combatentes), limita os investimentos recentes a uma parcela da renda e reserva dinheiro para a próxima obra. A preparação também guarda 200 suprimentos e procura uma obra acessível quando outra está cara. Projetos rejeitados devolvem o pagamento. Ninhos usam metralhadoras existentes, respeitando ordens humanas, sem criar tropas gratuitas.
+
+A engenharia avalia a ocupação da cobertura pelos aliados e a sobrevivência da estrutura depois de concluída. Obras pouco utilizadas ou destruídas reduzem a preferência pelo tipo; perdas também desestimulam o mesmo local por alguns minutos. Essa avaliação é uma aproximação da utilidade, não uma garantia de vitória. O painel IA mostra o investimento e as avaliações. A memória começa novamente em cada partida.
+
+Soldados ocupam posições espaçadas no eixo da trincheira, com preferência pela posição anterior e espaço reservado aos combatentes sob controle humano. Esquadrões mantêm lugares nas formações de cunha, linha ou dispersão; passagens difíceis exigem coluna. A avaliação de cada formação compara progresso e perdas dos mesmos participantes, e orienta as escolhas seguintes. A física e as reações locais ainda podem quebrar temporariamente uma formação sob fogo.
+
+Implementação: `dist/engineering.js` e `dist/formations.js`; verificação em `tests/engineering.test.cjs`, `tests/formations.test.cjs` e `tools/verify-battle.cjs`.
+
 ## Aprendizado durante a batalha
 
 A IA registra o resultado das operações e compara quatro abordagens por setor: avanço combinado, flanqueamento, ruptura blindada e infiltração cautelosa. Conquistas aumentam a preferência pela manobra usada; falta de progresso e perdas reduzem essa preferência e abrem espaço para testar alternativas. Só entram na avaliação os participantes da operação. Reforços novos não escondem as perdas, e soldados assumidos pelo jogador saem dessa avaliação.
@@ -9,6 +21,20 @@ Um mapa de experiência registra locais em que aliados sofreram dano. As rotas p
 O defensor aprende quais setores recebem pressão, antecipa reservas e desloca parte das metralhadoras para acessos recorrentes. Contra-ataques malsucedidos aumentam a força exigida para tentar novamente. Ataques que sofreram perdas passam a conservar mais reservas nas próximas operações.
 
 O painel **IA** mostra a última conclusão e o total de operações avaliadas; a intenção no campo inclui a manobra escolhida. O aprendizado usa informações observadas e resultados próprios, tem memória limitada e começa do zero em cada nova partida. É adaptação tática por resultados, com exploração de alternativas, sem treinamento externo ou leitura de inimigos ocultos. Implementação em `dist/learning.js`, integrada a `operations.js`. Testes em `tests/learning.test.cjs`.
+
+## Refino do equilíbrio de combate
+
+A força para liberar ataques conta apenas combatentes disponíveis, com vida e supressão consideradas. Perdas e progresso são calculados a partir dos participantes originais da ofensiva: reservas não confundem o progresso, compras novas não escondem baixas e perdas em outros setores não interrompem um avanço saudável. A cautela recente diminui gradualmente para permitir novas tentativas.
+
+O defensor destaca guarnições para objetivos próximos e pode tentar recuperar posições anteriormente suas dentro da própria metade do campo, com força suficiente e prazo de 30 segundos. Contra-ataques têm 12 segundos de recuperação. Compras recompõem a infantaria quando falta; tanques automáticos conferem aliados antes de cada disparo. Os danos e preços das armas permanecem iguais.
+
+As contas, limites da amostra e comparação de quatro cenários com papéis espelhados estão em `tests/artifacts/balance-notes.md`. Reprodução: `tools/balance-battle.cjs`, com Playwright disponível via `NODE_PATH`.
+
+## Ritmo do atacante
+
+O atacante reconhece por 5 segundos e prepara fogo por pelo menos 6, liberando acessos pouco defendidos mais cedo. Mantém aproximadamente 16% dos esquadrões de infantaria em reserva (a experiência de perdas pode aumentar essa proporção). Ao conquistar um objetivo, retoma o ciclo após 10 segundos de consolidação; a reorganização após um fracasso leva pelo menos 12 segundos. Reuniões sem força suficiente procuram outro acesso mais cedo.
+
+Sem contato observado, os esquadrões continuam avançando. Com resistência, cerca de um terço dos grupos alterna cobertura em ciclos de 6 segundos, enquanto os demais se movem. A infiltração usa ciclos de 9 segundos. A IA conserva os limites de perdas, supressão, falta de progresso e apoio contra posições fortes. O defensor mantém seu ritmo e sua proporção de reservas.
 
 ## IA de operações — setores, esquadrões e defesa dinâmica
 
@@ -431,6 +457,12 @@ Substitui o HUD de combatente por uma interface completa inspirada em Battlefiel
 ### 4. Verificação
 - `node tests/soldier-hud.test.cjs`: Identidade, avatar, barra de vida, arsenal, status e kill switch 100% OK.
 - Todas as 13 suítes de testes do repositório aprovadas sem regressões.
+
+### Arte das construções (dist/art-forts.js)
+Camada só de desenho para tudo que os pioneiros e a IA constroem. Troca `K[kind].sprite` do sappers.js (bunker, casamata, abrigo, ninho de MG, morteiro, antiaérea, canhão 75 / obuseiro 155, e as plantas de arame e sacos) com estágios detalhados: planta com estacas, fita e cal; escavação com parede à vista e terra virando parapeito; estrutura (troncos, fôrma com vergalhão, sacos subindo); pronto. Bunkers prontos (`b.kind` 'wood'/'concrete') saem do render genérico e ganham sprite próprio com seteira virada para o inimigo, cano de MG que acompanha o alvo, clarão no tiro, 3 estados de dano e ruínas. Postos de morteiro (`PXSAP.customPosts`) e antiaéreas (`PXFORT.customAA`) têm peça e guarnição animadas. Tudo em cache; ~0,1 ms por quadro. `?arteobras=0` desliga; `PXARTF.state()` / `PXARTF.sheet()` para revisão.
+
+### Arte do socorro (dist/art-medics.js)
+Camada só de desenho por cima de `medics.js` (liga `PXMED.customDraw`). Os postos livres da retaguarda viram um **hospital de campanha**: enfermaria e tenda de cirurgia em lona (cruz no telhado, mesa de operação iluminada com cirurgião animado), fila de catres com pacientes, banco dos padioleiros, ambulância, caixas da Cruz Vermelha, caldeira com vapor, varal de ataduras, sacos de areia, lona com cruz para os aviões e bandeira; médico, duas enfermeiras e um servente andam e atendem os catres ocupados. Os postos construídos viram um **posto de socorro** menor, com as 3 etapas da obra (estacas e fita, armação, lona subindo). Padioleiros de bata com cruz (Brodie / Stahlhelm) em 4 vistas com passo: maca enrolada no ombro na ida, ajoelham e erguem o ferido, carregam a maca com o ferido sob cobertor, descansam no banco. Feridos deitados com atadura e sangue discreto, cruz piscando (precisa de socorro) ou fixa com seta (padioleiros a caminho). Sprites em cache, ~0,15 ms por quadro. `PXMEDART.state()`.
 
 ## Versão 1.9 — Vida, feridos, classes e Modo Soldado (passe de polish)
 

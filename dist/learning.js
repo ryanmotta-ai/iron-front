@@ -26,6 +26,7 @@ function update(state,own,enemies,l){
   const pressure=observed.reduce((v,e)=>v+(e.type==='tank'?5:e.type==='mg'?2.5:1),0);
   s.pressure+=(pressure-s.pressure)*alpha;s.mg+=(observed.filter(e=>e.type==='mg').length-s.mg)*alpha;
   s.tanks+=(observed.filter(e=>e.type==='tank').length-s.tanks)*alpha;
+  s.losses*=Math.exp(-Math.min(dt,120)/150);s.exposure*=Math.exp(-Math.min(dt,120)/150);
   if(observed.length)s.exposure+=Math.min(dt,15);
  }
  for(const [k,h] of l.heat){h.value*=Math.exp(-Math.min(dt,120)/180);if(h.value<.08||state.time-h.at>300)l.heat.delete(k)}

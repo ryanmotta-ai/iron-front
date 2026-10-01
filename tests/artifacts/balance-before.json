@@ -1,0 +1,209 @@
+{
+  "duration": 180,
+  "seeds": [
+    907,
+    908
+  ],
+  "scale": 80,
+  "errors": [],
+  "results": [
+    {
+      "map": "trenches",
+      "attacker": 0,
+      "firstAdvance": 25.000000000000085,
+      "attackDuty": 0.19444444444444445,
+      "phases": {
+        "recon": 2,
+        "muster": 1,
+        "prepare": 4,
+        "advance": 7,
+        "consolidate": 5,
+        "hold": 17
+      },
+      "centerChanges": [
+        {
+          "time": 80,
+          "owner": 0
+        }
+      ],
+      "losses": [
+        16,
+        1
+      ],
+      "kills": [
+        2,
+        19
+      ],
+      "cashMin": 14,
+      "points": [
+        {
+          "name": "A",
+          "owner": 0
+        },
+        {
+          "name": "B",
+          "owner": 0
+        },
+        {
+          "name": "C",
+          "owner": 0
+        }
+      ],
+      "engineering": [
+        132,
+        402
+      ],
+      "units": [
+        79,
+        80
+      ]
+    },
+    {
+      "map": "trenches",
+      "attacker": 1,
+      "firstAdvance": 25.000000000000085,
+      "attackDuty": 0.19444444444444445,
+      "phases": {
+        "recon": 2,
+        "muster": 2,
+        "prepare": 4,
+        "advance": 7,
+        "consolidate": 4,
+        "hold": 17
+      },
+      "centerChanges": [
+        {
+          "time": 80,
+          "owner": 1
+        }
+      ],
+      "losses": [
+        1,
+        0
+      ],
+      "kills": [
+        1,
+        6
+      ],
+      "cashMin": 96.36000000000018,
+      "points": [
+        {
+          "name": "A",
+          "owner": 1
+        },
+        {
+          "name": "B",
+          "owner": 1
+        },
+        {
+          "name": "C",
+          "owner": 1
+        }
+      ],
+      "engineering": [
+        246,
+        320
+      ],
+      "units": [
+        79,
+        78
+      ]
+    },
+    {
+      "map": "forest",
+      "attacker": 0,
+      "firstAdvance": 25.000000000000085,
+      "attackDuty": 0.75,
+      "phases": {
+        "recon": 3,
+        "muster": 1,
+        "prepare": 3,
+        "advance": 27,
+        "withdraw": 2
+      },
+      "centerChanges": [],
+      "losses": [
+        5,
+        1
+      ],
+      "kills": [
+        0,
+        6
+      ],
+      "cashMin": 45.11400000000026,
+      "points": [
+        {
+          "name": "A",
+          "owner": 0
+        },
+        {
+          "name": "B",
+          "owner": -1
+        },
+        {
+          "name": "C",
+          "owner": 1
+        }
+      ],
+      "engineering": [
+        558,
+        766
+      ],
+      "units": [
+        74,
+        74
+      ]
+    },
+    {
+      "map": "forest",
+      "attacker": 1,
+      "firstAdvance": 25.000000000000085,
+      "attackDuty": 0.2777777777777778,
+      "phases": {
+        "recon": 2,
+        "muster": 2,
+        "prepare": 5,
+        "advance": 10,
+        "consolidate": 5,
+        "hold": 12
+      },
+      "centerChanges": [
+        {
+          "time": 105,
+          "owner": 1
+        }
+      ],
+      "losses": [
+        13,
+        16
+      ],
+      "kills": [
+        15,
+        17
+      ],
+      "cashMin": 78,
+      "points": [
+        {
+          "name": "A",
+          "owner": 1
+        },
+        {
+          "name": "B",
+          "owner": 1
+        },
+        {
+          "name": "C",
+          "owner": 1
+        }
+      ],
+      "engineering": [
+        566,
+        818
+      ],
+      "units": [
+        76,
+        80
+      ]
+    }
+  ]
+}

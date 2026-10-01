@@ -362,7 +362,8 @@ function choosePurchase(state){
   const reserve=own.length<maxUnits*.28?0:75;
   const affordable=type=>remaining>=defs[type].count&&supplies>=defs[type].cost+reserve;
   /* teto duro de blindados por lado: nunca mais que 3 (2 em partidas pequenas) e só um a mais que os do inimigo */
-  const tankCap=Math.min(maxUnits>=120?3:2,enemyTanks+1);
+ const tankCap=Math.min(maxUnits>=120?3:2,enemyTanks+1);
+ if(counts.rifle<Math.max(8,Math.ceil(own.filter(u=>!u.sap&&!u.down).length*.5))&&affordable('rifle'))return 'rifle';
   if(counts.tank<tankCap&&affordable('tank')&&own.length>maxUnits*.28)return 'tank';
   if(counts.mg<Math.max(2,Math.floor(own.length/(roles[team]==='defend'?10:18)))&&affordable('mg'))return 'mg';
   if(counts.cavalry<Math.max(2,Math.floor(own.length/22))&&affordable('cavalry'))return 'cavalry';

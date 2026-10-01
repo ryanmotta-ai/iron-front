@@ -28,7 +28,7 @@ const server=http.createServer((req,res)=>{
   for(let batch=0;batch<12;batch++){
    const result=await page.evaluate(()=>{
     for(let i=0;i<300;i++)update(.1);hud();render();minimap();
-    return {game:IronFront.state(),operations:[0,1].map(t=>IronFront.tactics.state(t)),stats:[PXAS.stats,PXSAP.stats,PXFL.stats,PHYS.stats],posted:units.filter(u=>u.post).length};
+    return {game:IronFront.state(),operations:[0,1].map(t=>IronFront.tactics.state(t)),engineering:[0,1].map(t=>IronFrontEngineering.state(t)),formations:[...new Set(units.map(u=>u.aiFormation).filter(Boolean))],stats:[PXAS.stats,PXSAP.stats,PXFL.stats,PHYS.stats],posted:units.filter(u=>u.post).length};
    });
    checkpoints.push(result);console.log(JSON.stringify({time:result.game.time,phases:result.operations.map(o=>o?.phase),sectors:result.operations.map(o=>o?.sector),roles:result.game.aiRoles,posted:result.posted}));
   }
@@ -37,6 +37,9 @@ const server=http.createServer((req,res)=>{
   assert.ok(checkpoints.at(-1).game.aiRoles[0]['reserva-movel']||checkpoints.at(-1).game.aiRoles[0]['reforço-defensivo']);
   assert.equal(checkpoints.at(-1).posted,0,'postos automáticos foram liberados para coordenação');
   assert.ok(checkpoints.some(r=>r.operations[0]?.learning.evaluated>0),'operações geram aprendizado durante a partida');
+  assert.ok(checkpoints.some(r=>r.engineering.some(e=>e?.spent>0)),'engenharia continua construindo durante combate');
+  assert.ok(checkpoints.some(r=>r.engineering.some(e=>e?.evaluated>0)),'obras geram avaliações');
+  assert.ok(checkpoints.some(r=>r.formations.includes('wedge')),'tropas recebem formações');
   assert.ok(await page.locator('#aiLearning').textContent());
   const benchmark=await page.evaluate(()=>{
    const samples=[];for(let i=0;i<12;i++){const start=performance.now();runCommander(i%2);samples.push(performance.now()-start)}
@@ -58,8 +61,16 @@ const server=http.createServer((req,res)=>{
    assert.equal(result.manual,true);assert.equal(result.roles.join(','),'defend,attack');
    console.log(JSON.stringify(result));
   }
+  const economy=await page.evaluate(()=>{
+   document.getElementById('mapselect').value='forest';document.getElementById('gametype').value='conquest';setup();running=false;
+   let minCash=Infinity,maxActive=0;
+   for(let i=0;i<1800;i++){update(.1);minCash=Math.min(minCash,...supplies);maxActive=Math.max(maxActive,PXSAP.projects.filter(p=>!p.done&&p.src==='fort').length)}
+   return {sandbox,minCash,maxActive,cash:[...supplies],engineering:[0,1].map(t=>IronFrontEngineering.state(t))};
+  });
+  assert.equal(economy.sandbox,false);assert.ok(economy.minCash>=0);assert.ok(economy.maxActive<=8);assert.ok(economy.engineering.some(e=>e?.spent>0));
+  console.log(JSON.stringify({economy}));
   assert.deepEqual(errors,[]);
-  fs.writeFileSync(path.join(out,'battle-report.json'),JSON.stringify({checkpoints,benchmark,errors},null,2));
+  fs.writeFileSync(path.join(out,'battle-report.json'),JSON.stringify({checkpoints,benchmark,economy,errors},null,2));
   console.log('Browser: preparação, ataque/defesa, três mapas, papéis espelhados, ordens manuais e interface OK');
  }finally{await browser.close();server.close()}
 })().catch(e=>{console.error(e);server.close();process.exitCode=1});

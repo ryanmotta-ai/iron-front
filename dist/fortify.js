@@ -91,21 +91,20 @@ Object.assign(K,{
  gunf:{need:[14,34,60],target:3,cost:240,label:'Canhão de campanha 75 mm: clique',box:{hw:22,hh:18},sprite:s=>ringSprite(s,11),onStage:(s,st)=>gunStage(s,st,'f')},
  gunh:{need:[16,40,70],target:3,cost:320,label:'Obuseiro 155 mm: clique',box:{hw:24,hh:20},sprite:s=>ringSprite(s,13),onStage:(s,st)=>gunStage(s,st,'h')}});
 K.trench.label='Trincheira de tiro: arraste uma linha';
-K.nest.label='Ninho de metralhadora (com guarnição): clique';K.nest.cost=150;
+K.nest.label='Ninho de metralhadora (usa MGs disponíveis): clique';K.nest.cost=150;
 K.mortar.label='Poço de morteiro: clique';
 function gunStage(s,st,k){if(st!==3)return;const b=window.PXBAT&&typeof PXBAT.addGun==='function'?PXBAT.addGun(s.team,s.x,s.y,k):null;
  if(b){GUNS.push({s,b,team:s.team,x:s.x,y:s.y,hp:CFG.GUNHP});built(s)}else if(s.team===playerTeam)toast('Sem artilharia tripulada neste mapa: a peça ficou sem guarnição.')}
 /* ninho de MG: a guarnição vem junto (a mais próxima livre, ou um esquadrão novo pela estrada) */
 const nestStage=(s,st)=>{if(st===2)anchorAt(s,{hw:20,hh:18,slots:2,pk:.9,line:'front'});if(st!==3)return;const fc=face(s.team);
  SAP.bag(s.team,s.x+fc*20,s.y,true,0,1,40);s.bags=1;
- let crew=units.filter(u=>u.team===s.team&&u.type==='mg'&&u.hp>0&&!u.post&&u!==player).sort((a,b)=>hyp(a.x-s.x,a.y-s.y)-hyp(b.x-s.x,b.y-s.y)).slice(0,3).filter(u=>hyp(u.x-s.x,u.y-s.y)<900);
- if(crew.length<2){const rx=PX.WW1&&PX.WW1.reinforceX?PX.WW1.reinforceX(s.team):X(s.team,350),n0=units.length;squad('mg',s.team,rx,clamp(s.y,120,H-120),3);crew=units.slice(n0)}
- crew.forEach((u,i)=>{u.post={x:s.x-fc*6,y:s.y+(i-1)*9,s};POSTED.push(u)});built(s)};
+ let crew=units.filter(u=>u.team===s.team&&u.type==='mg'&&u.hp>0&&!u.down&&!u.post&&u!==player&&!(u.manualUntil>time)).sort((a,b)=>hyp(a.x-s.x,a.y-s.y)-hyp(b.x-s.x,b.y-s.y)).slice(0,2).filter(u=>hyp(u.x-s.x,u.y-s.y)<900);
+ crew.forEach((u,i)=>{u.post={x:s.x-fc*6,y:s.y+(i-.5)*18,s};POSTED.push(u)});built(s)};
 K.nest.onStage=nestStage;
 function built(s){S.stats.built++;const it=s.p.item;if(it){it.done=true;it.seg=s}}
 const KINDS=['trench','comm','wire','sandbag','nest','bunker','pillbox','dugout','aid','mortar','aa','gunf','gunh'];
 const SHORT={trench:'Trincheira',comm:'Comunicação',wire:'Arame',sandbag:'Sacos de areia',nest:'Ninho de MG',bunker:'Bunker',pillbox:'Casamata',dugout:'Abrigo',mortar:'Morteiro',aa:'Antiaérea',gunf:'Canhão 75',gunh:'Obuseiro 155'};
-const SUB={trench:'Linha de tiro · ◈/trecho',comm:'Ligação · ◈/trecho',wire:'Linha · ◈/trecho',sandbag:'Parapeito avulso',nest:'Com guarnição de 3',bunker:'Madeira · MG · 1000',pillbox:'Concreto · MG · 2400',dugout:'Protege do bombardeio',mortar:'Fogo indireto 620 px',aa:'Derruba aviões',gunf:'Bateria tripulada',gunh:'Bateria pesada'};
+const SUB={trench:'Linha de tiro · ◈/trecho',comm:'Ligação · ◈/trecho',wire:'Linha · ◈/trecho',sandbag:'Parapeito avulso',nest:'Posição para MGs disponíveis',bunker:'Madeira · MG · 1000',pillbox:'Concreto · MG · 2400',dugout:'Protege do bombardeio',mortar:'Fogo indireto 620 px',aa:'Derruba aviões',gunf:'Bateria tripulada',gunh:'Bateria pesada'};
 
 /* ======================================================================================
    IA CONSTRUTORA — plano de defesa em profundidade
@@ -150,13 +149,29 @@ function plan2(t){const fc=face(t),FX=X(t,CFG.FX),it=[],add=(kind,pts,pri,line)=
 function costOf(it){const k=K[it.kind];return k.line?SAP._.segment(it.pts,k.step||SAP.cfg.SEG).length*k.cost:k.cost}
 function liveFort(t){return SAP.projects.filter(p=>!p.done&&p.team===t&&p.src==='fort')}
 function builderTick(t){
+ if(!PH.on&&window.IronFrontEngineering){adaptiveBuild(t);return}
  const q=QUEUE[t];if(!q.length&&PH.on&&!PH.deploy&&!EXTRA[t]&&(sandbox||supplies[t]>400)){EXTRA[t]=true;q.push(...plan2(t))}if(!q.length)return;const workers=units.filter(u=>u.team===t&&u.sap&&u.hp>0).length;
  const maxA=PH.on?clamp(Math.ceil(workers/5),2,14):clamp(Math.ceil(workers/3),1,4);
  let act=liveFort(t).length;
- while(q.length&&act<maxA){const it=q[0],c=costOf(it);if(!pay(t,c))break;q.shift();
-  const p=SAP.project(t,it.kind,'fort',it.pts,{keep:true,line:it.line});if(p){p.item=it;it.p=p;DONE[t].push(it);act++}}}
+ while(q.length&&act<maxA){const index=q.findIndex(it=>sandbox||costOf(it)<=supplies[t]-(PH.on?200:140));if(index<0)break;const it=q[index],c=costOf(it);if(!pay(t,c))break;q.splice(index,1);
+  const p=SAP.project(t,it.kind,'fort',it.pts,{keep:true,line:it.line});if(p){p.item=it;it.p=p;DONE[t].push(it);act++}else if(!sandbox)supplies[t]+=c}}
+function adaptiveBuild(t){
+ const E=window.IronFrontEngineering,own=units.filter(u=>u.team===t&&u.hp>0&&!u.down),projects=[...new Set([...SAP.projects,...SAP.segs.map(s=>s.p)])].filter(p=>p.team===t);
+ const assets=[];
+ for(const p of projects)for(const s of p.segs){if(s.stage<K[p.kind].target||s.b&&s.b.hp<=0)continue;
+  if(p.kind==='aa'&&!AAS.some(a=>a.s===s&&a.hp>0))continue;
+  if((p.kind==='gunf'||p.kind==='gunh')&&!GUNS.some(g=>g.s===s&&g.hp>0))continue;
+  assets.push({kind:p.kind,x:s.x,y:s.y})}
+ for(const a of fieldTrenches)if(a.team===t&&a.hp>0)assets.push({kind:'trench',x:a.x,y:a.y});
+ for(const p of projects)if(!p.done&&p.src==='fort'&&time-p.t0>120&&!p.crew.length&&p.segs.every(s=>s.stage===0))SAP.cancel(p);
+ const it=E.choose({team:t,time,own,workers:own.filter(u=>u.sap).length,projects,assets,catalog:K,cash:sandbox?Infinity:supplies[t],maxSegments:SAP.cfg.MAXSEGS,usable:s=>s.kind==='aa'?AAS.some(a=>a.s===s&&a.hp>0):(s.kind==='gunf'||s.kind==='gunh')?GUNS.some(g=>g.s===s&&g.hp>0):true,income:incomeFor(t),airThreat:time-airSeen[t]<60,artillery:!!window.PXBAT?.active?.(),plan:window.IronFrontBrain?.lastPlans[t],enemies:window.IronFrontBrain?.operations?.contacts(t)||[],shells,dry,cost:costOf});
+ if(!it||!pay(t,it.cost))return;
+ const p=SAP.project(t,it.kind,'fort',it.pts,{keep:true,line:it.line});
+ if(!p){if(!sandbox)supplies[t]+=it.cost;return}p.item=it;it.p=p;DONE[t].push(it);E.committed(t,it,p,time);
+}
 /* depois da trégua: repõe o que caiu e responde ao ataque aéreo */
 function maintain(t){const fc=face(t);
+ if(window.IronFrontEngineering)return;
  for(const it of DONE[t]){if(!it.done||it.requeued)continue;const s=it.seg;let lost=false;
   if(s&&s.b&&s.b.hp<=0)lost=true;
   if((it.kind==='gunf'||it.kind==='gunh')&&s&&!GUNS.some(g=>g.s===s))lost=true;
@@ -208,11 +223,12 @@ function releaseTemp(){for(const u of units){if(!u.sapTmp)continue;u.sap=0;u.sap
 const LINEPRI={front:0,sap:1,comm:2,support:3};
 function deploy(){PH.deploy=true;releaseTemp();
  for(let t=0;t<2;t++){const slots=[];let gn=0;
-  for(const a of fieldTrenches){if(a.team!==t)continue;const n=a.slots||1;for(let i=0;i<n;i++)slots.push({x:a.x+(n>1?(i-(n-1)/2)*10:0),y:a.y,pri:LINEPRI[a.line]??2})}
+  if(window.IronFrontFormations)slots.push(...IronFrontFormations.slots(fieldTrenches,t).map(p=>({...p,pri:LINEPRI[p.trench.line]??2})));
+  else for(const a of fieldTrenches){if(a.team!==t)continue;const n=a.slots||1;for(let i=0;i<n;i++)slots.push({x:a.x+(n>1?(i-(n-1)/2)*10:0),y:a.y,pri:LINEPRI[a.line]??2})}
   slots.sort((a,b)=>a.pri-b.pri||Math.abs(a.y-800)-Math.abs(b.y-800));
   const free=units.filter(u=>u.team===t&&u.hp>0&&(u.type==='rifle'||u.type==='mg')&&!u.sap&&!u.post&&!(u===player&&mode==='soldier'));
   for(const sl of slots){if(!free.length)break;let bi=0,bd=Infinity;for(let i=0;i<free.length;i++){const d=hyp(free[i].x-sl.x,free[i].y-sl.y);if(d<bd){bd=d;bi=i}}
-   const u=free.splice(bi,1)[0];u.tx=sl.x+rnd(-3,3);u.ty=sl.y+rnd(-3,3);u.order='move';u.target=null;u.aiRole='guarnição';u.manualUntil=u.depStamp=PH.end+4;
+   const u=free.splice(bi,1)[0];u.tx=sl.x;u.ty=sl.y;u.aiSlot=sl.key||null;u.order='move';u.target=null;u.aiRole='guarnição';u.manualUntil=u.depStamp=PH.end+4;
    /* metade da primeira linha fica de guarnição depois do apito (o resto o comando usa para atacar) */
    if(sl.pri===0&&(gn++)%2===0&&u.type==='rifle'){u.post={x:u.tx,y:u.ty};u.postStamp=u.manualUntil;POSTED.push(u)}}}
  toast('40 s para o apito: a tropa larga as pás e ocupa as posições.')}
@@ -244,7 +260,7 @@ function bannerTick(){try{const b=ensureBanner(),show=PH.on&&started&&!ended&&do
    LAÇO
    ====================================================================================== */
 function tick(dt){
- if(!active()||!started||ended)return;
+ if(!S.on||!started||ended)return;
  prepTick();
  if(PH.on){if(!PH.deploy)tempSappers();
   for(const u of units){
@@ -256,12 +272,13 @@ function tick(dt){
   for(const b of bullets)b.t=-1;
   if(window.PXBAT&&PXBAT.batteries)for(const b of PXBAT.batteries)if(b.queue&&b.queue.length)b.queue.length=0;     // nem tiro de inquietação
   if(planes.length)planes.length=0}
- for(let t=0;t<2;t++){if(aiEnabled[t]&&!auto[t]){auto[t]=true;startBuilder(t)}if(!auto[t])continue;bT[t]-=dt;if(bT[t]<=0){bT[t]=1;builderTick(t)}}
+ for(let t=0;t<2;t++){if(aiEnabled[t]&&!auto[t]){auto[t]=true;startBuilder(t)}if(!auto[t]||!PH.on&&!aiEnabled[t])continue;bT[t]-=dt;if(bT[t]<=0){bT[t]=1;builderTick(t)}}
  rT-=dt;if(rT<=0){rT=5;if(!PH.on)for(let t=0;t<2;t++)if(aiEnabled[t]||auto[t])maintain(t)}
  aaTick(dt);postsTick();
  for(const g of GUNS)if(g.hp<=0&&!g.gone){g.gone=true;if(window.PXBAT)PXBAT.removeGun(g.b);explodeFx(g.x,g.y)}GUNS=GUNS.filter(g=>!g.gone)}
 function explodeFx(x,y){for(let i=0;i<20;i++)particles.push({x,y,vx:rnd(-90,90),vy:rnd(-90,40),t:rnd(.4,1.2),max:1.2,color:i%3?'#6b5a40':'#3d3a33',size:rnd(3,8)})}
 function reset(){PH={on:false,end:0,warned:0,deploy:false};AAS=[];GUNS=[];DUGS=[];POSTED=[];QUEUE=[[],[]];DONE=[[],[]];auto=[false,false];bT=[0,0];rT=5;airSeen=[-99,-99];
+ window.IronFrontEngineering?.reset();
  SAP.hold=false;if(window.PXAS)PXAS.hold=false;SAP.cfg.CREW=3;SAP.cfg.WORKX=CFG.WORKX_WAR;SAP.cfg.MAXPROJ.player=8;K.trench.anchorLine=undefined;
  if(active()&&started&&CFG.PREP>0)startPrep()}
 
