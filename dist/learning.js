@@ -6,7 +6,11 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const styles={balanced:'Avanço combinado',flank:'Flanqueamento',armor:'Ruptura blindada',infiltrate:'Infiltração cautelosa'};
 const manual=(u,time)=>u.manualUntil>time&&![u.pinStamp,u.sapStamp,u.postStamp,u.depStamp].includes(u.manualUntil);
 const sector=y=>clamp(Math.floor(y/320),0,4),key=(x,y)=>`${Math.floor(x/80)},${Math.floor(y/80)}`;
-function create(){return {time:null,own:new Map(),heat:new Map(),sectors:Array.from({length:5},()=>({pressure:0,mg:0,tanks:0,exposure:0,losses:0,successes:0,attempts:0,styles:Object.fromEntries(Object.keys(styles).map(s=>[s,{trials:0,reward:0}]))})),trial:null,note:'Reconhecimento em andamento',history:[]}}
+function create(){return {time:null,own:new Map(),heat:new Map(),contexts:{},sectors:Array.from({length:5},()=>({pressure:0,mg:0,tanks:0,exposure:0,losses:0,successes:0,attempts:0,styles:Object.fromEntries(Object.keys(styles).map(s=>[s,{trials:0,reward:0}]))})),trial:null,note:'Reconhecimento em andamento',history:[]}}
+function context(state,id,enemies){const y=id*320+160,point=(state.points||[]).filter(p=>p.owner!==state.team).sort((a,b)=>Math.abs(a.y-y)-Math.abs(b.y-y))[0]||{x:1200,y};
+ const terrain=state.terrainRisk?.(point.x,point.y,'rifle')>3?'passagem':(state.trenches||[]).some(t=>t.hp>0&&Math.hypot(t.x-point.x,t.y-point.y)<180)?'trincheira':'aberto';
+ const near=enemies.filter(e=>sector(e.y)===id&&state.time-e.at<12),threat=near.some(e=>e.type==='tank')?'blindados':near.some(e=>e.type==='mg')?'mg':'infantaria';return `${terrain}/${state.visibilityRange<400?'neblina':'visivel'}/${threat}`;
+}
 function update(state,own,enemies,l){
  const dt=l.time===null?1:Math.max(0,state.time-l.time);if(!dt)return;
  l.time=state.time;
@@ -37,18 +41,19 @@ function select(l,id,state,enemies){
  const s=l.sectors[id],near=enemies.filter(e=>sector(e.y)===id&&state.time-e.at<12);
  const mg=near.filter(e=>e.type==='mg').length,tanks=state.units.filter(u=>u.team===state.team&&u.hp>0&&!u.down&&u.type==='tank'&&(u.atr?.bog||0)<=state.time).length;
  const prior={balanced:.25,flank:mg>=2?.55:.1,armor:mg>=2?.6:.05,infiltrate:state.visibilityRange<400?.4:.05};
+ const learned=l.contexts[context(state,id,enemies)];
  let best='balanced',score=-Infinity;
  for(const name of Object.keys(styles)){
   if(name==='armor'&&!tanks)continue;
   const a=s.styles[name],explore=.38*Math.sqrt(Math.log(s.attempts+2)/(a.trials+1));
-  const value=a.reward+explore+prior[name]/(a.trials+1);
+  const contextual=learned?.[name],value=a.reward+explore+prior[name]/(a.trials+1)+(contextual?.reward||0)*Math.min(.25,(contextual?.trials||0)*.08);
   if(value>score){score=value;best=name}
  }
  return {name:best,label:styles[best],caution:clamp(s.losses/(s.exposure/8+8),0,.5)};
 }
 function begin(l,op,state,ids,kind='attack'){
  const members=state.units.filter(u=>ids.includes(u.id)&&u.team===state.team&&u.hp>0&&!u.down&&!manual(u,state.time)&&u.id!==state.controlledId);
- l.trial={kind,sector:op.sector.id,style:op.style?.name||'balanced',at:state.time,startDistance:op.best,
+ l.trial={kind,sector:op.sector.id,style:op.style?.name||'balanced',at:state.time,startDistance:op.best,context:context(state,op.sector.id,state.knownEnemies||[]),
   members:members.map(u=>({id:u.id,hp:u.hp,maxhp:u.maxhp||u.hp})),objective:op.objective};
 }
 function finish(l,op,state,success){
@@ -62,10 +67,11 @@ function finish(l,op,state,success){
  const loss=clamp(1-remaining/start,0,1),progress=Number.isFinite(trial.startDistance)&&Number.isFinite(op.best)?clamp((trial.startDistance-op.best)/Math.max(100,trial.startDistance),0,1):0;
  const reward=clamp((success?1:-.55)+progress*.25-loss*1.25,-1,1),s=l.sectors[trial.sector],a=s.styles[trial.style];
  a.trials++;a.reward+=(reward-a.reward)/Math.min(a.trials,6);s.attempts++;if(success)s.successes++;
+ const contexts=l.contexts[trial.context]||(l.contexts[trial.context]={}),c=contexts[trial.style]||(contexts[trial.style]={trials:0,reward:0});c.trials++;c.reward+=(reward-c.reward)/Math.min(c.trials,6);
  const where=['extremo norte','norte','centro','sul','extremo sul'][trial.sector];
  l.note=success?`${styles[trial.style]} funcionou no ${where}${loss>.3?', mas custou muitas baixas':''}`:
   loss>.25?`Muitas baixas no ${where}: mudar acesso e reforçar apoio`:`Pouco progresso no ${where}: testar outra manobra`;
- l.history.push({time:state.time,sector:trial.sector,style:trial.style,kind:trial.kind,success,loss,reward});
+ l.history.push({time:state.time,sector:trial.sector,style:trial.style,kind:trial.kind,success,loss,reward,context:trial.context,reason:success?'objetivo':loss>.25?'perdas':op.failureReason||'pouco-progresso'});
  if(l.history.length>20)l.history.shift();l.trial=null;
 }
 function risk(l,x,y){

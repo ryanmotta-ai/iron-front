@@ -160,11 +160,12 @@ function adaptiveBuild(t){
  const assets=[];
  for(const p of projects)for(const s of p.segs){if(s.stage<K[p.kind].target||s.b&&s.b.hp<=0)continue;
   if(p.kind==='aa'&&!AAS.some(a=>a.s===s&&a.hp>0))continue;
+  if(p.kind==='depot'&&!window.PXWORKS?.depots().some(a=>a.s===s&&a.hp>0))continue;
   if((p.kind==='gunf'||p.kind==='gunh')&&!GUNS.some(g=>g.s===s&&g.hp>0))continue;
   assets.push({kind:p.kind,x:s.x,y:s.y})}
  for(const a of fieldTrenches)if(a.team===t&&a.hp>0)assets.push({kind:'trench',x:a.x,y:a.y});
  for(const p of projects)if(!p.done&&p.src==='fort'&&time-p.t0>120&&!p.crew.length&&p.segs.every(s=>s.stage===0))SAP.cancel(p);
- const it=E.choose({team:t,time,own,workers:own.filter(u=>u.sap).length,projects,assets,catalog:K,cash:sandbox?Infinity:supplies[t],maxSegments:SAP.cfg.MAXSEGS,usable:s=>s.kind==='aa'?AAS.some(a=>a.s===s&&a.hp>0):(s.kind==='gunf'||s.kind==='gunh')?GUNS.some(g=>g.s===s&&g.hp>0):true,income:incomeFor(t),airThreat:time-airSeen[t]<60,artillery:!!window.PXBAT?.active?.(),plan:window.IronFrontBrain?.lastPlans[t],enemies:window.IronFrontBrain?.operations?.contacts(t)||[],shells,dry,cost:costOf});
+ const it=E.choose({team:t,time,own,workers:own.filter(u=>u.sap).length,projects,assets,catalog:K,cash:sandbox?Infinity:supplies[t],maxSegments:SAP.cfg.MAXSEGS,usable:s=>s.kind==='depot'?!!window.PXWORKS?.depots().some(a=>a.s===s&&a.hp>0):s.kind==='aa'?AAS.some(a=>a.s===s&&a.hp>0):(s.kind==='gunf'||s.kind==='gunh')?GUNS.some(g=>g.s===s&&g.hp>0):true,income:incomeFor(t),airThreat:time-airSeen[t]<60,artillery:!!window.PXBAT?.active?.(),plan:window.IronFrontBrain?.lastPlans[t],enemies:window.IronFrontBrain?.operations?.contacts(t)||[],shells,dry,cost:costOf});
  if(!it||!pay(t,it.cost))return;
  const p=SAP.project(t,it.kind,'fort',it.pts,{keep:true,line:it.line});
  if(!p){if(!sandbox)supplies[t]+=it.cost;return}p.item=it;it.p=p;DONE[t].push(it);E.committed(t,it,p,time);

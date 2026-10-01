@@ -40,7 +40,7 @@ function mkGun(team,g,i){const PW=PX.WW1.PW;
    mk=(role,hx,hy)=>({role,hp:100,alive:true,x:hx,y:hy,hx,hy,px:cx-d*26,py:cy-14});
   B.push({team,i,big,d,cx,cy,mx:team?PW-(g.x+ml):g.x+ml,my:cy,off:0,ang:d>0?0:Math.PI,cfg:big?CYC.h:CYC.f,
    crew:[mk('gunner',cx-d*2,cy-11),mk('loader',cx-d*11,cy+8),mk('carrier',cx-d*26,cy-14),mk('firer',cx-d*19,cy+1)],
-   ammo:(big?CYC.h:CYC.f).ammo,queue:[],ph:null,t:0,cool:0,recoil:0,shotT:0,tgt:null,phase:0,refill:0,sp:{shrap:big?5:8,smoke:big?3:4},spT:0,hot:-99,shelter:0,ri:big?14:11,gx:g.x});const b=B[B.length-1];gunGeom(b);return b}
+   ammo:(big?CYC.h:CYC.f).ammo,queue:[],ph:null,t:0,cool:0,recoil:0,shotT:99,tgt:null,phase:0,refill:0,sp:{shrap:big?5:8,smoke:big?3:4},spT:0,hot:-99,shelter:0,ri:big?14:11,gx:g.x});const b=B[B.length-1];gunGeom(b);return b}
 /* peças construídas durante a partida (fortify.js): coordenadas do mundo; devolve a bateria ou null */
 function addGun(team,wx,wy,kind){if(!active||!window.PX||!PX.WW1)return null;const PW=PX.WW1.PW,ax=wx*.5;
  const b=mkGun(team,{x:team?PW-ax-2:ax-2,y:Math.round(wy*.5),k:kind==='h'?'h':'f'},B.length);if(b)b.built=1;return b}
@@ -93,10 +93,24 @@ function mission(team,x,y,count,spread,kind,cb=false,strict=false){
 
 function openInfantry(team,x,y){if(typeof units==='undefined'||typeof protectedBy!=='function')return 0;let n=0;for(const u of units)if(u.team!==team&&u.type!=='tank'&&Math.abs(u.x-x)<120&&Math.abs(u.y-y)<120&&protectedBy(u)>.6)n++;return n}
 function startCycle(b,job){b.tgt=job;b.ph=0;b.t=0;if(job.real)b.ammo--;const a=Math.atan2(job.y-b.cy*2,job.x-b.cx*2);b.aimA=a}
+/* 1.9 (pesados): recuo hidropneumático — o tubo sai de uma vez (≈1,4 quadros) e volta devagar ao bater em bateria; o carro dá um tranco de 1 px.
+   Vale para o desenho (drawGun) e para a conta de quadros nos testes. t = segundos desde o disparo (b.shotT). */
+const RC_OUT=.045,RC_END=.75;
+function recoilOf(b){const t=b.shotT;if(!(t<RC_END))return 0;const pk=b.big?8:6;return pk*(t<RC_OUT?t/RC_OUT:Math.exp(-(t-RC_OUT)*4.6))}
+/* só gasta partícula extra se a peça está perto da tela (o jogo tem até 20 peças atirando ao mesmo tempo) */
+function nearView(wx,wy){if(typeof cam==='undefined'||typeof vw==='undefined')return true;const z=PX.Z||.5;return Math.abs(wx-cam.x)<vw/z*.5+200&&Math.abs(wy-cam.y)<vh/z*.5+200}
 function fireShot(b){
  const job=b.tgt,cfg=b.cfg,mxw=b.mx*2,myw=b.my*2;
  b.recoil=cfg===CYC.h?8:6;b.shotT=0;
  flashes.push({x:b.mx,y:b.my,dir:b.d,t:0,max:.16,big:b.big});
+ if(nearView(mxw,myw)){const ca=Math.cos(b.ang||0),sa=Math.sin(b.ang||0),nx=-sa,ny=ca,gx=b.mx+ca*3,gy=b.my+5;
+  /* onda de choque no chão em frente à boca (anel de poeira) e leque de terra levantada na direção do tiro */
+  parts.push({x:gx+ca*3,y:gy,vx:0,vy:0,t:0,max:b.big?.46:.36,size:b.big?17:12,k:'ring'});
+  const nd=b.big?9:6;for(let i=0;i<nd;i++){const sp=rnd(14,40),sd=rnd(-1,1);parts.push({x:gx+rnd(-2,2),y:gy+rnd(-1,1),vx:ca*sp*.7+nx*sd*sp*.9,vy:(sa*sp*.7+ny*sd*sp*.9)*.55-rnd(0,6),t:0,max:rnd(.5,1.1),size:rnd(2,3.8),k:'dust'})}
+  /* freio de boca do obuseiro: duas golfadas laterais */
+  if(b.big)for(const sg of[-1,1])parts.push({x:b.mx-ca*5,y:b.my-sa*5,vx:nx*sg*rnd(14,22)+ca*4,vy:ny*sg*rnd(14,22)*.6+sa*4,t:0,max:rnd(.5,.9),size:rnd(3,4.4),k:'gun'});
+  /* o cano continua a fumar: sopros finos (ver tickBattery) */
+  b.wisp=1.7}
  const n=b.big?7:5;
  for(let i=0;i<n;i++)parts.push({x:b.mx+b.d*rnd(0,6),y:b.my+rnd(-2,2),vx:b.d*rnd(6,20),vy:-rnd(2,8),t:0,max:rnd(1.4,2.4),size:b.big?rnd(3.4,5):rnd(2.4,3.8),k:'gun'});
  /* anel de poeira do choque no chão, em volta das rodas e do anel de sacos */
@@ -106,7 +120,7 @@ function fireShot(b){
  if(job.real){const d0=Math.hypot(job.x-mxw,job.y-myw),ft=flightTime(d0,b.big),kind=job.kind||'he';
   if(kind!=='he')b.sp[kind]=Math.max(0,b.sp[kind]-1);
   const r=kind==='shrap'?Math.round(cfg.r*1.15):kind==='smoke'?58:cfg.r,power=kind==='shrap'?Math.round(cfg.power*.6):kind==='smoke'?0:cfg.power;
-  shells.push({x:job.x,y:job.y,t:ft,r,power,team:b.team,bat:true,kind,man:!!job.manual});
+  shells.push({x:job.x,y:job.y,t:ft,r,power,team:b.team,bat:true,kind,man:!!job.manual,ox:mxw,oy:myw,T:ft,big:b.big});   // ox/oy/T/big: origem e duração para o arco em heavyfx.js
   if(!job.cb){cbHeat[b.team]+=b.big?1.4:1;b.hot=time}}
  gunSound(mxw,myw,b.big)}
 
@@ -143,6 +157,7 @@ function crewMove(b,dt){
 function tickBattery(b,dt){
  const n=alive(b),man=!!G&&G.b===b,can=n>0||man,f=n>0?crewRate(n):man?.3:0,hid=time<b.shelter;b.recoil=Math.max(0,b.recoil-dt*(b.cfg===CYC.h?20:15));b.shotT+=dt;
  if(b.live&&b.aimA!==undefined){const base=b.d>0?0:Math.PI,want=clamp(angDiff(b.aimA,base),-.6,.6);b.off+=(want-b.off)*Math.min(1,dt*(man?9:3.5));b.ang=base+b.off;tubeTip(b)}
+ if(b.wisp>0){b.wisp-=dt;if(Math.random()<dt*7)parts.push({x:b.mx+rnd(-1,1),y:b.my+rnd(-1,1),vx:rnd(-3,3)+b.d*2,vy:-rnd(5,11),t:0,max:rnd(.9,1.5),size:rnd(1.4,2.4),k:'smoke'})}
  b.spT+=dt;if(b.spT>50){b.spT=0;if(n>0&&!DEP[b.team].dead){const mx=b.big?[5,3]:[8,4];if(b.sp.shrap<mx[0])b.sp.shrap++;if(b.sp.smoke<mx[1])b.sp.smoke++}}
  if(b.ph===null){
   b.cool=Math.max(0,b.cool-dt);
@@ -156,7 +171,9 @@ function tickBattery(b,dt){
   if(b.t>=dur&&b.tgt&&b.tgt.hold&&!b.tgt.go&&PHASES[b.ph]==='ready')b.t=dur;     // peça carregada, cordel esticado: espera o disparo do jogador
   else if(b.t>=dur){b.ph++;b.t=0;
    if(b.ph>=PHASES.length){b.ph=null;b.tgt=null;b.cool=Math.max(0,b.cfg.total-(b.cfg.aim+b.cfg.load+b.cfg.ready+b.cfg.fire+b.cfg.recoil+b.cfg.eject))/Math.max(f,.2)}
-   else if(PHASES[b.ph]==='fire')fireShot(b)}}
+   else if(PHASES[b.ph]==='fire')fireShot(b)
+   else if(PHASES[b.ph]==='eject'&&b.live&&nearView(b.cx*2,b.cy*2)){   // culatra aberta: sopro de gás e fumaça saindo pela traseira
+    const ca=Math.cos(b.ang),sa=Math.sin(b.ang);for(let i=0;i<(b.big?4:3);i++)parts.push({x:b.pvx-ca*3+rnd(-1,1),y:b.pvy-sa*3-1+rnd(-1,1),vx:-ca*rnd(3,9)+rnd(-3,3),vy:-rnd(4,10),t:0,max:rnd(.9,1.6),size:rnd(2,3.2),k:'gun'})}}}
  crewMove(b,dt)}
 function tick(dt){
  if(!active)return;
@@ -394,7 +411,8 @@ function soldier(c,x,y,team,cr,b){
  if(!cr.alive){rect(c,x-4,y-1,8,3,P.sh);rect(c,x-3,y-1,6,2,P.u);rect(c,x+(d>0?3:-5),y-1,2,2,P.h);rect(c,x-4,y+2,8,1,'rgba(0,0,0,.28)');return}
  const ph=b.ph!==null?PHASES[b.ph]:'',pr=b.ph!==null?b.t/(b.cfg[ph]||1):0;
  const mv=Math.hypot(cr.x-(cr._lx??cr.x),cr.y-(cr._ly??cr.y))>.04;cr._lx=cr.x;cr._ly=cr.y;
- const step=mv?((time*10+b.i)|0)%2:0,kneel=cr.role==='gunner'||(cr.role==='loader'&&(ph==='load'||ph==='eject'));
+ const sk=b.shotT,duck=sk<.55&&time>=b.shelter;if(sk<.12)x-=d;      // pesados: o sopro da boca empurra a guarnição 1 px e todos se agacham até o recuo acabar
+ const step=mv?((time*10+b.i)|0)%2:0,kneel=duck||cr.role==='gunner'||(cr.role==='loader'&&(ph==='load'||ph==='eject'));
  rect(c,x-3,y+1,7,1,'rgba(0,0,0,.3)');                                                    // sombra
  /* pernas: agachado (joelho no chão) ou de pé/caminhando */
  if(kneel){rect(c,x-2,y-1,3,2,P.sh);rect(c,x+(d>0?1:-2),y-2,2,3,P.u);rect(c,x-3,y,2,1,P.boot);rect(c,x+(d>0?2:-3),y,2,1,P.boot)}
@@ -422,7 +440,9 @@ function soldier(c,x,y,team,cr,b){
   const pull=ph==='fire'||ph==='recoil';
   if(ph==='ready'||pull){const hx=x-d*(pull?6:4),hy=sy+1;arm(sx-d*2,sy,hx,hy);c.fillStyle='#d8d2b8';const tx=b.cx-b.d*12,x0=Math.min(hx,tx),x1=Math.max(hx,tx);c.fillRect(x0,hy,x1-x0,1);
    if(pull){rect(c,x-1,by-7,1,2,SKIN);rect(c,x+1,by-7,1,2,SKIN)}else arm(sx,sy,sx+d,sy+3)}
-  else{arm(sx,sy,sx+d,sy+3);arm(sx-d*3,sy,sx-d*3,sy+3)}}}
+  else{arm(sx,sy,sx+d,sy+3);arm(sx-d*3,sy,sx-d*3,sy+3)}}
+ /* tiro: todos abaixam e levam as mãos aos ouvidos (o chefe já gira o volante; o disparador já tapa) */
+ if(duck&&cr.role!=='firer'&&cr.role!=='gunner'){rect(c,x-2,by-7,1,2,SKIN);rect(c,x+2,by-7,1,2,SKIN);rect(c,x-2,by-6,1,1,SKD);rect(c,x+2,by-6,1,1,SKD)}}
 /* paiol de campanha junto às peças construídas (no mapa fortificado o paiol já vem pintado) */
 const AMMO=[null,null];
 function ammoSprite(team){if(AMMO[team])return AMMO[team];const cv=document.createElement('canvas');cv.width=16;cv.height=12;const g=cv.getContext('2d');
@@ -432,6 +452,7 @@ function ammoSprite(team){if(AMMO[team])return AMMO[team];const cv=document.crea
 function drawPart(c,ox,oy,p){const x=ox+Math.round(p.x),y=oy+Math.round(p.y),k=p.t/p.max;let r=Math.max(1,Math.round(p.size*(1+k*.7))),a,c0,c1;
  if(p.k==='spark'){c.globalAlpha=1-k*.6;rect(c,x,y,1,1,k<.4?'#fff2b8':'#e3a94a');c.globalAlpha=1;return}
  if(p.k==='burst'){c.globalAlpha=.85*(1-k);PX.disc(c,x,y,Math.round(p.size*(.6+k)),'#fff6d0');c.globalAlpha=1;return}
+ if(p.k==='ring'){const e=1-(1-k)*(1-k),rx=Math.max(2,Math.round(p.size*(.35+e*.9))),ry=Math.max(1,Math.round(rx*.38));c.globalAlpha=.55*(1-k);if(PX.ring)PX.ring(c,x,y,rx,ry,'#a89870');c.globalAlpha=.3*(1-k);if(PX.ring)PX.ring(c,x,y,Math.max(1,rx-2),Math.max(1,ry-1),'#d1c39a');c.globalAlpha=1;return}
  if(p.k==='gun'){a=k>.75?.25:k>.45?.5:.78;c0='#a8a496';c1='#d3cfc1';r=Math.max(1,Math.round(p.size*(1+k*1.1)))}
  else if(p.k==='smoke'){a=k>.6?.2:.5;c0='#8d8a82';c1='#b7b3a9'}
  else if(p.k==='black'){a=k>.7?.22:k>.4?.5:.8;c0='#2b2926';c1='#46423d';r=Math.max(1,Math.round(p.size*(1+k*1.2)))}
@@ -447,8 +468,9 @@ function drawCasing(c,ox,oy,s){if(s.wait>0)return;const x=ox+Math.round(s.x),y=o
  if(!s.landed)rect(c,x,y,1,s.ph?3:2,'#e0b84a');else{rect(c,x,y,s.ph?3:2,1,'#c79a32');rect(c,x,y,1,1,'#f0cf6a')}}
 /* canhão vivo: carro fixo + tubo que gira até o alvo e recua no berço hidropneumático */
 function drawGun(c,ox,oy,b){if(!b.live)return;const X=b;const K=PX.WW1.kit,g=GUN[b.big?'h':'f'];
- K.put(c,bodyOf(b.big),ox+X.gx0,oy+X.gy0,{flip:b.team===1});
- const a=X.ang,ca=Math.cos(a),sa=Math.sin(a),rc=b.recoil*.85,x0=ox+X.pvx-ca*rc,y0=oy+X.pvy-sa*rc,x1=x0+ca*g.len,y1=y0+sa*g.len,cols=TUBE[g.th],h=(g.th-1)/2,R=Math.round;
+ const rr=recoilOf(b),kick=Math.round(rr*.18)*-b.d;   // o carro também dá um tranco de 1 px para trás
+ K.put(c,bodyOf(b.big),ox+X.gx0+kick,oy+X.gy0,{flip:b.team===1});
+ const a=X.ang,ca=Math.cos(a),sa=Math.sin(a),rc=rr*.85,x0=ox+X.pvx+kick-ca*rc,y0=oy+X.pvy-sa*rc,x1=x0+ca*g.len,y1=y0+sa*g.len,cols=TUBE[g.th],h=(g.th-1)/2,R=Math.round;
  c.globalAlpha=.3;for(let k=-1;k<=1;k++)PX.pline(c,R(x0+3),R(y0+3+k),R(x1+3),R(y1+3+k),'#0b1207');c.globalAlpha=1;
  for(let k=-h;k<=h;k++){const oxk=R(-sa*k),oyk=R(ca*k);PX.pline(c,R(x0)+oxk,R(y0)+oyk,R(x1)+oxk,R(y1)+oyk,cols[k+h])}
  const bx=x1-ca*g.mb,by=y1-sa*g.mb,hb=h+1;   // freio de boca
@@ -479,7 +501,7 @@ function draw(c,ox,oy){
 function cycleKind(){const t=playerTeam,b=B.filter(x=>x.team===t);let k=KINDS[(KINDS.indexOf(cmdKind[t])+1)%3];
  if(k!=='he'&&!b.some(x=>x.sp[k]>0))k='he';cmdKind[t]=k;if(typeof toast==='function')toast('Artilharia: '+KNAME[k]+(k==='he'?'':' ('+b.reduce((n,x)=>n+x.sp[k],0)+' disponíveis)'))}
 window.addEventListener('keydown',e=>{if(!active||e.repeat||document.querySelector('dialog[open]')||typeof mode==='undefined'||mode!=='commander')return;if(e.key==='t'||e.key==='T'){cycleKind();e.preventDefault()}},true);
-window.PXBAT={addGun,removeGun,cycleKind,ammoKind:t=>cmdKind[t],hitDepot,get depots(){return DEP},get wagons(){return WG},steps:{alertCrews,crewHits,reinforce,logistics},coverActive:(team,y)=>smokes.some(c=>c.team===team&&smokeA(c)>.35&&Math.abs(c.y-y)<220),mission,tick,blast,draw,build,crewRate,flightTime,detonate,smokeBlocks,take,manning,manTick,key,release,active:()=>active,
+window.PXBAT={addGun,removeGun,cycleKind,recoilOf,get fx(){return{parts,flashes,casings}},ammoKind:t=>cmdKind[t],hitDepot,get depots(){return DEP},get wagons(){return WG},steps:{alertCrews,crewHits,reinforce,logistics},coverActive:(team,y)=>smokes.some(c=>c.team===team&&smokeA(c)>.35&&Math.abs(c.y-y)<220),mission,tick,blast,draw,build,crewRate,flightTime,detonate,smokeBlocks,take,manning,manTick,key,release,active:()=>active,
  get batteries(){return B},status:team=>{const r=B.filter(b=>b.team===team);return{total:r.length,operational:r.filter(operational).length,crew:r.reduce((n,b)=>n+alive(b),0),ammo:r.reduce((n,b)=>n+b.ammo,0),depot:!DEP[team].dead}}};
 
 /* ---------- ligações com o jogo ---------- */

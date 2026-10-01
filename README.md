@@ -1,5 +1,15 @@
 # Iron Front — Pixel Battlefield
 
+## Expansão da IA: liderança, reconhecimento e manobras
+
+Esquadrões têm líderes substituíveis, perfis discretos e moral coletiva. Perdas e supressão podem provocar uma reorganização local curta, enquanto outros grupos mantêm pressão. Intenções estáveis reduzem mudanças pequenas de destino, e grupos bloqueados tentam outro acesso. Ordens humanas, médicos, resgates e emergências locais conservam prioridade.
+
+O comando usa contatos com origem, idade e confiança, verifica obstáculos e recebe relatos distantes com atraso de 2 segundos. Posições não vistas ficam congeladas e expiram após 35 segundos; as antigas aparecem pontilhadas no minimapa. Patrulhas podem retornar diante de força superior. Infantaria tenta flanquear MGs quando há apoio real, recua alternando cobertura e avança por trechos ao combater na trincheira.
+
+Grupos selecionados com poucas granadas procuram depósitos aliados próximos, com estoque e sem inimigos observados nas imediações. A engenharia pode construir depósitos nativos conforme a necessidade e reconhece estruturas destruídas. O aprendizado diferencia terreno, visibilidade e ameaça observada, com influência limitada para manter iniciativa.
+
+O painel IA mostra os estados dos esquadrões; líderes aliados recebem marca e barra discreta de moral. A opção de táticas controla os sinais no campo. `?humanizar=0` desliga esta expansão para comparação. Memória apenas durante a partida. Escopo entregue e etapas futuras: `PLANO-EXPANSAO-IA.md`. Verificação conjunta: `node tools/verify-human.cjs`.
+
 ## Engenharia adaptativa e formações
 
 Durante o combate, a IA escolhe novas trincheiras, ninhos, abrigos, ligações de comunicação, postos médicos e apoio conforme a ocupação dos setores. Bunkers respondem à pressão; antiaéreas dependem de ataques aéreos observados e canhões só são propostos em mapas com baterias funcionais. Avanços com tropas suficientes podem receber cobertura perto da nova posição. O plano evita obras duplicadas, terreno alagado, inimigos observados próximos e impactos iminentes.

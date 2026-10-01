@@ -69,6 +69,13 @@ cross:['............','....kkkk....','....kRRk....','....kRRk....','.kkkkRRkkkk.
 const iconCache={};
 function icon(name,scale=1){const key=name+'@'+scale;if(iconCache[key])return iconCache[key];const rows=ICONS[name]||ICONS.star,c=mk(12*scale,12*scale),x=g2(c);rows.forEach((row,j)=>{for(let i=0;i<12;i++){const ch=row[i];if(ch&&ch!=='.'&&IC[ch])R(x,i*scale,j*scale,scale,scale,IC[ch])}});return iconCache[key]=c}
 const iconURL=(n,s=1)=>icon(n,s).toDataURL();
+/* ícone de bandeira da facção (12x12): usa a bandeira nacional de IFK.flagPx (life-kit.js, que carrega depois deste arquivo, por isso a leitura é preguiçosa).
+   Sem IFK devolve o ícone 'flag' antigo. Não é cacheado: o jogador pode trocar de lado no meio da batalha. */
+function flagIconURL(team){
+ const K=window.IFK;if(!K||typeof K.flagPx!=='function')return iconURL('flag');
+ const c=mk(12,12),x=g2(c);R(x,1,0,1,12,IC.g);R(x,1,0,1,1,IC.G);R(x,1,10,2,2,IC.y);
+ R(x,2,1,10,6,IC.k);for(let r=0;r<4;r++)for(let q=0;q<8;q++)R(x,3+q,2+r,1,1,K.flagPx(team?1:0,q,r,8,4));
+ return c.toDataURL()}
 
 /* ---------- logo: IRON / FRONT em placas de metal ---------- */
 const LET={
@@ -186,5 +193,5 @@ function portrait(kind){
  R(c,0,0,32,1,K);R(c,0,31,32,1,K);R(c,0,0,1,32,K);R(c,31,0,1,32,K);
  return cv}
 
-window.UIArt={hash,BAY,bay,mk,g2,R,clamp,hex,mixc,text,textW,icon,iconURL,ICONS,buildLogo,mapThumb,portrait,IC};
+window.UIArt={hash,BAY,bay,mk,g2,R,clamp,hex,mixc,text,textW,icon,iconURL,flagIconURL,ICONS,buildLogo,mapThumb,portrait,IC};
 })();

@@ -1,6 +1,18 @@
 # Plano de expansão da IA de batalha
 
-Proposta de 1 de outubro de 2026. Este documento planeja a evolução; os novos comportamentos ainda não foram implementados. Os valores abaixo são pontos de partida para calibração, não resultados de testes.
+Proposta de 1 de outubro de 2026, com primeiro pacote implementado. O roteiro abaixo continua descrevendo a expansão completa; a seção de andamento distingue as entregas disponíveis das próximas etapas. Os valores propostos são pontos de partida para calibração, não resultados de testes.
+
+## Andamento da implementação
+
+Disponíveis: intenções estáveis por esquadrão e tentativa de outro acesso após bloqueio; prioridade para comandos humanos, médicos, resgates, evasão e engenharia; líderes com substituição breve; perfis e moral coletiva com perdas, coesão, supressão e recuperação. O apito existente ajuda a recompor o grupo. A fadiga tem efeito máximo de 8% na avaliação de prontidão, sem modificar atributos das armas.
+
+O reconhecimento agora verifica obstáculos, preserva a posição realmente relatada, usa atraso de 2 segundos para contatos distantes, reduz confiança e expira após 35 segundos. Patrulhas retornam diante de resistência superior. Fixar/flanquear exige apoio de fogo aliado próximo; a retirada alterna cobertura e deslocamento. Contatos em trincheira permitem avançar por trechos. Depósitos nativos com estoque real servem ao reabastecimento e entram nas decisões de engenharia quando falta munição de granada. O aprendizado passa a distinguir terreno, visibilidade e ameaças observadas, com influência contextual limitada.
+
+O painel IA mostra liderança, recuperação e relatos; líderes aliados recebem um sinal discreto, e posições antigas aparecem com contorno pontilhado no minimapa. `?humanizar=0` permite comparar com o comando anterior. A memória é reiniciada em cada partida.
+
+Ainda previstas: protocolo completo de pedidos de apoio entre líderes, inteligência por sons, gestão dedicada de assalto a brechas, turnos de passagem estreita, fintas, avisos novos de fogo amigo e memória opcional entre partidas. As manobras entregues são decisões locais com requisitos e duração limitada; o roteiro de operações mais complexas permanece para as próximas versões.
+
+Verificação: testes de esquadrões e inteligência, regressão das suítes existentes e integração no navegador por `tools/verify-human.cjs`. A matriz de 108 cenários abaixo continua sendo uma validação futura de equilíbrio, não um resultado já obtido.
 
 ## Experiência desejada
 

@@ -14,4 +14,10 @@ c.time=70;E.choose(c);assert.equal(E.state(0).evaluated,1);assert.ok(E.state(0).
 E.reset();c=context();it=E.choose(c);project.segs[0].b={hp:0};E.committed(0,it,project,0);c.time=1;E.choose(c);assert.equal(E.state(0).scores.trench.value,-1);
 E.reset();c=context();it=E.choose(c);E.committed(0,{...it,cost:315},project,0);c.time=13;assert.equal(E.choose(c),null,'rolling budget protects reinforcement income');
 E.reset();assert.equal(E.state(0),null);
+// Ammunition shortages request the existing paid depot, and a destroyed one is a loss.
+E.reset();c=context();c.catalog={depot:{}};c.own=c.own.map(u=>({...u,gren:0}));c.cost=()=>90;
+it=E.choose(c);assert.equal(it.kind,'depot');assert.equal(it.cost,90);assert.ok(c.cash-it.cost>=140);
+const depot={done:true,segs:[{kind:'depot',x:it.x,y:it.y,stage:2,need:[8,18]}]};E.committed(0,it,depot,0);
+c.time=1;c.usable=()=>false;E.choose(c);assert.equal(E.state(0).scores.depot.value,-1,'native depot destruction is not rewarded as surviving cover');
+E.reset();c=context();c.catalog={depot:{}};c.cost=()=>90;c.own=c.own.map(u=>({...u,gren:0,cls:'medic'}));assert.equal(E.choose(c),null,'medical noncombatants do not create ammunition demand');
 console.log('Engineering: reserves, worker capacity, visibility safety, dry ground, duplicate prevention, measured use, loss learning and spending limits OK');

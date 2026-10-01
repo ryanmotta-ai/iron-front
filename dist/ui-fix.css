@@ -3,9 +3,9 @@
 #orders #selected{font:400 .8rem var(--font);letter-spacing:.08em;color:var(--accent);text-transform:uppercase}
 #orders .ord{display:grid;grid-template-columns:repeat(2,1fr);gap:.3rem}
 #orders .ord.two{grid-template-columns:repeat(2,1fr)}
-#orders .ord button{padding:.5rem .2rem;font-size:.78rem;white-space:nowrap;letter-spacing:.04em}
+#orders .ord button{padding:.5rem .2rem;font-size:.95rem;white-space:nowrap;letter-spacing:.04em}
 #orders #advance{grid-column:1/-1}
-#selinfo{display:flex;flex-direction:column;gap:.3rem;font:400 .68rem var(--font);color:var(--muted);letter-spacing:.05em}
+#selinfo{display:flex;flex-direction:column;gap:.3rem;font:400 .9rem var(--font);color:var(--muted);letter-spacing:.05em}
 #selinfo .big{display:flex;align-items:baseline;gap:.4rem;color:var(--text)}#selinfo .big b{font-size:1.9rem;line-height:1;color:var(--text)}
 #selinfo .chips{display:flex;flex-wrap:wrap;gap:.25rem}
 #selinfo .chip{background:rgba(111,126,78,.25);box-shadow:inset 0 0 0 2px rgba(111,126,78,.5);padding:.12rem .4rem;color:var(--text);text-transform:uppercase}
@@ -17,9 +17,9 @@
 .fieldtop #weather{display:none}
 #wxbar{position:absolute;left:.6rem;top:5.6rem;z-index:5;pointer-events:auto;display:flex;flex-direction:column;gap:.25rem;max-width:26rem}
 #wxbar .wxb{display:flex;gap:.2rem;flex-wrap:wrap}
-#wxbar button{font:400 .66rem var(--font);letter-spacing:.05em;padding:.3rem .5rem;background:rgba(10,13,8,.78);color:var(--muted);border:0;box-shadow:inset 0 0 0 2px #343b2f;cursor:pointer}
+#wxbar button{font:400 .85rem var(--font);letter-spacing:.05em;padding:.3rem .5rem;background:rgba(10,13,8,.78);color:var(--muted);border:0;box-shadow:inset 0 0 0 2px #343b2f;cursor:pointer}
 #wxbar button:hover{color:var(--text)}#wxbar button.on{color:#15190f;background:var(--accent);box-shadow:inset 0 0 0 2px var(--brassd)}
-#wxbar .wxs{font:400 .62rem var(--font);letter-spacing:.06em;color:var(--muted);background:rgba(10,13,8,.6);padding:.2rem .45rem;text-transform:uppercase;text-shadow:0 2px 0 #000;white-space:normal;line-height:1.4}
+#wxbar .wxs{font:400 .8rem var(--font);letter-spacing:.06em;color:var(--muted);background:rgba(10,13,8,.6);padding:.2rem .45rem;text-transform:uppercase;text-shadow:0 2px 0 #000;white-space:normal;line-height:1.4}
 /* minimapa */
 #mapbox{padding:.55rem;background:linear-gradient(#10140c,#0a0d07);box-shadow:0 0 0 2px #000,0 0 0 4px var(--brass),0 0 0 6px var(--brassdd),0 0 0 8px #000,0 .5rem 1rem rgba(0,0,0,.55),inset 0 0 0 2px var(--brassd),inset 0 0 0 4px #000;right:.9rem;bottom:.9rem}
 #mapbox::before,#mapbox::after{content:"";position:absolute;width:.5rem;height:.5rem;background:var(--brass);box-shadow:inset -2px -2px 0 var(--brassd),0 0 0 2px #000}
@@ -46,10 +46,10 @@
 .sbform{display:flex;flex-direction:column;gap:1rem}
 .sbsec{display:flex;flex-direction:column;gap:.7rem;padding:.8rem .9rem;background:rgba(0,0,0,.28);box-shadow:inset 0 0 0 2px rgba(111,126,78,.35)}
 .sbsec h4{margin:0;font:400 .8rem var(--font);letter-spacing:.14em;color:var(--brass2)}
-.sbgroup{display:flex;flex-direction:column;gap:.35rem}.sbcap{font:400 .62rem var(--fs);letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.sbgroup{display:flex;flex-direction:column;gap:.35rem}.sbcap{font:400 .8rem var(--fs);letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
 .sbopts{display:flex;flex-wrap:wrap;gap:.4rem}
 .sbopts button{flex:1 1 9rem;min-width:8rem;display:flex;flex-direction:column;align-items:flex-start;gap:.15rem;padding:.55rem .7rem;text-align:left;background:#14180f;color:var(--text);border:0;box-shadow:inset 0 0 0 2px #343b2f;cursor:pointer;font-family:var(--font)}
-.sbopts button b{font-weight:400;font-size:1.05rem;letter-spacing:.04em}.sbopts button small{font:400 .6rem var(--fs);color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.sbopts button b{font-weight:400;font-size:1.05rem;letter-spacing:.04em}.sbopts button small{font:400 .8rem var(--fs);color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
 .sbopts button:hover{box-shadow:inset 0 0 0 2px var(--brassd)}
 .sbopts button.on{background:#2c2312;box-shadow:inset 0 0 0 2px var(--brass);color:var(--brass2)}.sbopts button.on small{color:#cdb56a}
 .sbfoot{position:sticky;bottom:0;background:linear-gradient(0deg,rgba(14,18,10,.97) 70%,transparent);padding-top:.8rem}
@@ -58,3 +58,96 @@
 #wxbar .wxb{gap:.45rem}
 #wxbar button{padding:.42rem .8rem;margin:0}
 #wxbar .wxs{padding:.3rem .6rem;margin-bottom:.1rem}
+
+/* ======================================================================================
+   Passe de polish 1.9 — U1, U2, U7–U10, U16 (ui-fix.js constrói os nós; aqui só a aparência)
+   ====================================================================================== */
+/* U16: pisos de legibilidade (Jersey 10 abaixo de ~14 px e Silkscreen abaixo de ~12 px viravam ~6 px de altura de letra) */
+.tabs button{font-size:.95rem;letter-spacing:.03em}
+.ord button{font-size:.95rem}
+.team{font-size:1rem}
+.modetoggle button,.seg button{font-size:.95rem}
+.card b{font-size:1rem}.card .cost{font-size:.95rem}
+#prepbanner{font-size:.85rem!important}
+#prepbanner button{font-size:.85rem!important;padding:.2rem .5rem!important}
+
+/* U1: campanha cabe em 720p. A barra de INICIAR fica sempre visível (sticky) e as miniaturas encolhem conforme a altura */
+.opinfo{position:sticky;bottom:0;z-index:3}
+@media (max-height:940px) and (min-width:751px){
+ #v-campaign{gap:.6rem}
+ #v-campaign .vhead{gap:.8rem}
+ .opgrid{gap:.55rem}
+ .op{gap:.3rem;padding:.4rem .5rem .45rem}
+ .op canvas{aspect-ratio:auto;height:clamp(3.6rem,calc((100vh - 560px) / 2),12rem);object-fit:cover}
+ .op .t{font-size:1.15rem}
+ .opinfo{padding:.7rem 1.1rem;gap:.5rem 1.2rem}
+ .opinfo h3{font-size:1.5rem;margin:.15rem 0 .3rem}
+ .opinfo p{font-size:1rem;line-height:1.4;margin:0 0 .5rem}
+ .opinfo .go{gap:.4rem}
+ .opinfo .go .primary{font-size:1.1rem;padding:.65rem 1rem}
+}
+/* menu principal em telas baixas: os cinco botões cabem acima do rodapé */
+@media (max-height:860px) and (min-width:751px){
+ #mainmenu{margin-top:calc(8*var(--k));gap:calc(3*var(--k))}
+ #mainmenu .mbtn{height:max(2.55rem,calc(16*var(--k)))}
+ #mainmenu .mbtn.sm{height:max(2.2rem,calc(12*var(--k)))}
+ #mainmenu .mbtn .mt{font-size:max(1.45rem,calc(8*var(--k)))}
+ #mainmenu .mbtn .ico{width:1.9rem;height:1.9rem}
+}
+
+/* U2: o clima de depuração só existe no sandbox */
+body:not([data-run=sandbox]) #wxbar{display:none}
+/* cabeçalho do canto superior esquerdo: uma única coluna, nada se sobrepõe */
+#toplefts{position:absolute;left:.6rem;top:3.45rem;z-index:2;display:flex;flex-direction:column;align-items:flex-start;gap:.3rem;max-width:38vw;pointer-events:none}
+#toplefts>*{position:static!important;left:auto!important;top:auto!important;max-width:100%;margin:0}
+#toplefts>#wxbar{pointer-events:auto;gap:.3rem}
+#toplefts>#wxbar .wxb{gap:.3rem}
+#toplefts>#wxbar button{padding:.3rem .55rem}
+#toplefts>#wxpill{max-height:none;max-width:min(19rem,100%)}
+@media (max-width:750px){#toplefts{top:7.2rem;max-width:calc(100vw - 8rem)}#toplefts>.fieldtop,#toplefts>#wxpill{display:none}}
+
+/* U7: o aviso de preparação fica logo abaixo dos marcadores A/B/C (posição calculada em ui-fix.js) e o toast desce abaixo dele */
+#toast{z-index:41}
+
+/* U8: sem seleção o painel de ordens encolhe para uma linha de texto e uma grade de 3 colunas */
+#selinfo .idle{font-size:.9rem;line-height:1.15;color:var(--muted);text-transform:none}
+#orders:has(#selinfo.empty){padding:.45rem .55rem .5rem;gap:.3rem}
+#orders:has(#selinfo.empty) .ord,#orders:has(#selinfo.empty) .ord.two{grid-template-columns:repeat(3,minmax(0,1fr));gap:.25rem}
+#orders:has(#selinfo.empty) #advance{grid-column:auto}
+#orders:has(#selinfo.empty) .ord button{padding:.4rem .1rem;font-size:.9rem;letter-spacing:0}
+
+/* U9: renda por segundo sem corte */
+#income{max-width:none;overflow:visible;text-overflow:clip}
+#supply{white-space:nowrap}
+
+/* U10 + barra de cartões: quebra em linhas, nomes inteiros (até 2 linhas) e a barra não invade as ordens/suprimento nem o minimapa */
+#hotbar{left:calc(.6rem + 15.5rem + .9rem);right:calc(var(--mmw) + 1.6rem + 2.4rem);transform:none;max-width:none;width:auto;align-items:center}
+#hotbar .hb-row{width:fit-content;max-width:100%;margin:0 auto}
+#cards{flex-wrap:wrap;overflow:visible;justify-content:center;max-width:none!important;gap:.25rem!important;row-gap:.25rem!important}
+.card{min-width:0!important;height:3rem!important;flex:0 0 auto;grid-template-columns:2.1rem auto;padding:.2rem .55rem .2rem .3rem;gap:0 .3rem}
+.card canvas{width:2.1rem;height:2.1rem}
+.card b{max-width:5.6rem;white-space:normal;overflow:visible;text-overflow:clip;line-height:.95;align-self:end;font-size:.98rem}
+.card .cost{align-self:start}
+.card kbd{font:400 .75rem var(--fs);opacity:.7}
+.card kbd.kx{color:var(--brass2);opacity:.9}
+.placehint{white-space:normal}
+/* a linha de dicas sobe junto com a altura real da barra (var --hbh medida em ui-fix.js) e o painel tático fica acima dela */
+#hintline{bottom:calc(var(--hbh,3.6rem) + 1.1rem)}
+body:not([data-mode=soldier]) #hintline{left:calc(.6rem + 15.5rem + .9rem);right:calc(var(--mmw) + 1.6rem + 2.4rem);transform:none;max-width:none;justify-content:center}
+#tacticalStatus{bottom:calc(var(--hbh,3.6rem) + 2.7rem)!important}
+body[data-mode=soldier] #hintline{white-space:normal;text-overflow:clip;line-height:1.5;text-align:left}
+body[data-mode=soldier] #tacticalStatus{bottom:calc(var(--hbh,0px) + 1.1rem + 3.2rem)!important}
+@media (max-width:750px){#hotbar{left:.4rem;right:calc(var(--mmw) + 2.2rem)}#hotbar .hb-row{margin:0}#cards{flex-wrap:nowrap!important;overflow-x:auto;justify-content:flex-start}.card{height:3rem!important}.card b{max-width:4.4rem}}
+
+/* Guia de Campo reescrito (ui-fix.js): quatro colunas de teclas, rolagem interna */
+#guide{max-width:min(70rem,96vw)}
+#guide .guidegrid{display:block;column-count:2;column-gap:2rem;margin:.6rem 0 1rem}
+#guide .guidegrid section{break-inside:avoid;margin:0 0 1rem}
+#guide .guidegrid h3{font-size:1.4rem;margin:0 0 .35rem;border-bottom:var(--u) dashed rgba(111,126,78,.4);padding-bottom:.2rem}
+#guide .guidegrid p{font-size:1rem;line-height:1.45;margin:.25rem 0}
+#guide .keylist{list-style:none;margin:.1rem 0 .3rem;padding:0;display:flex;flex-direction:column;gap:.28rem}
+#guide .keylist li{display:grid;grid-template-columns:7.2rem 1fr;gap:.6rem;align-items:baseline;font-size:1rem;line-height:1.35;color:var(--muted)}
+#guide .keylist li>b{font-weight:400;display:flex;flex-wrap:wrap;gap:.2rem}
+#guide kbd{display:inline-block;font:400 .8rem var(--fs);color:var(--brass2);background:#0b0e08;box-shadow:inset 0 0 0 var(--u) var(--brassd);padding:.18rem .35rem;letter-spacing:.04em;white-space:nowrap}
+#guide .sub{font:400 .8rem var(--fs);letter-spacing:.1em;color:var(--brass2);text-transform:uppercase;margin:.5rem 0 .2rem}
+@media (max-width:1100px){#guide .guidegrid{column-count:1}#guide .keylist li{grid-template-columns:6rem 1fr}}

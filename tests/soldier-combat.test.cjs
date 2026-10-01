@@ -33,7 +33,7 @@ const sb = {
   },
   weapons: {
     rifle: { name: 'SPRINGFIELD M1903', mag: 5, reload: 2.4, rate: 1.7, damage: 30, range: 360, spread: 0.025 },
-    smg: { name: 'THOMPSON', mag: 20, reload: 2.3, rate: 0.12, damage: 12, range: 190, spread: 0.13 },
+    smg: { name: 'BAR M1918', mag: 20, reload: 2.3, rate: 0.12, damage: 12, range: 190, spread: 0.13 },
     pistol: { name: 'COLT M1911', mag: 7, reload: 1.4, rate: 0.42, damage: 18, range: 230, spread: 0.065 }
   },
   magazines: { rifle: 5, smg: 20, pistol: 7 },

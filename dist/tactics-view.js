@@ -28,6 +28,7 @@ window.minimap=function(...args){const r=mini0.apply(this,args),plan=Brain.lastP
  mini.globalAlpha=.85;const op=plan.operation,x=op.x*sx,y=op.y*sy;mini.strokeRect(Math.round(x)-4,Math.round(y)-4,8,8);
  const drawn=new Set();for(const o of plan.orders){if(drawn.has(o.squad))continue;drawn.add(o.squad);const u=units.find(u=>u.id===o.id);if(!u)continue;
   mini.beginPath();mini.moveTo(Math.round(u.x*sx),Math.round(u.y*sy));mini.lineTo(Math.round(o.tx*sx),Math.round(o.ty*sy));mini.stroke()}
+ for(const contact of plan.intelligence||[]){if(contact.status!=='ultima-posicao')continue;mini.globalAlpha=contact.confidence;mini.strokeStyle='#d8ac78';mini.setLineDash([2,2]);mini.strokeRect(Math.round(contact.x*sx)-3,Math.round(contact.y*sy)-3,6,6)}
  mini.restore();return r};
 window.IronFront.tactics={state:team=>Brain.operations.state(team??playerTeam),toggle:()=>toggle.onclick(),get visible(){return show}};
 })();

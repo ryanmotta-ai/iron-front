@@ -72,7 +72,7 @@ function bodyCanvas(team,facing,frame,top=false,gr=false){const up=(facing==='si
 function gunParts(kind){return kind==='smg'?[[-2,0,'#8a6238'],[0,7,'#5d645a'],[1,3,'#8b9282']]:kind==='pistol'?[[0,4,'#6a7166'],[-1,0,'#8a6238']]:kind==='mg'?[[-3,1,'#8a6238'],[1,13,'#59605a'],[3,9,'#9aa190']]:kind==='saber'?[[0,2,'#8a6238'],[2,13,'#d6dccf']]:kind==='lance'?[[-4,2,'#8a6238'],[2,19,'#b18a52'],[19,22,'#e3e8da']]:[[-3,1,'#8a6238'],[1,12,'#5d645a'],[2,6,'#9aa190']]}
 function drawGun(x,cx,cy,a,kind){const c=Math.cos(a),s=Math.sin(a);for(const[f,t,col]of gunParts(kind)){x.fillStyle=col;for(let d=f;d<=t;d+=.5){const px=Math.round(cx+c*d),py=Math.round(cy+s*d);x.fillRect(px,py,1,1);if(kind==='mg'&&d>1&&d<11){x.fillRect(px,py+(Math.abs(s)>.7?0:1),Math.abs(s)>.7?1:1,1)}}}}
 /* ---------- armas americanas da Grande Guerra, desenhadas por partes ----------
-   fuzil Springfield M1903 (carregador de lâmina, 5 tiros) · submetralhadora Thompson (pente reto, 20) ·
+   fuzil Springfield M1903 (carregador de lâmina, 5 tiros) · fuzil automático BAR M1918 (pente reto, 20) ·
    pistola Colt M1911 (carregador de 7). Eixos locais: f = ao longo da mira, s = lateral (direita da mira),
    d = pendurado na vertical da tela (pente, empunhadura, guarda-mato não giram com a mira).
    ph = fase da recarga (null = empunhada normal). Mãos em cor de pele mostram quem mexe em quê. */
@@ -94,7 +94,7 @@ P(1,0,1,W.steelD);P(2,0,1,W.steelD);if(de)P(1.5,0,2,W.steelD);/* guarda-mato (G9
 if(pr===2){R(-.5,3.5,0,0,-2,W.steelH);for(let i=0;i<5;i++)P(i*.75,0,-3,W.brass);P(1.5,0,-3,W.brassH)}/* lâmina cheia sobre a janela */
 if(pr===3){R(-.5,3.5,0,0,-2,W.steelH);P(.5,0,-3,W.brass);P(2.5,0,-3,W.brass)}/* cartuchos sendo empurrados */
 Hd(...(pr===2?[1.5,0,-4]:pr===3?[1.5,0,-2]:up?[bf+.5,3.5,-1]:[-1.5,0,0]));Hd(5.5,0,1)}
-else if(kind==='smg'){/* Thompson: pente reto embaixo, empunhadura dianteira, cano aletado com compensador */
+else if(kind==='smg'){/* BAR M1918 (slot 2 dos EUA): pente reto embaixo, empunhadura dianteira, cano aletado com compensador */
 const m=[0,3,4,1,0][Math.max(0,pr)],ch=pr===4?-1.5:1,fresh=pr>=2&&m>0;
 R(-4.5,-1.5,-.5,.5,0,W.wood);R(-4.5,-1.5,.5,.5,0,W.woodD);/* coronha */
 R(-1,3,-.5,.5,0,W.steelD);R(-1,3,0,0,-1,W.steel);P(ch,0,-2,W.steelH);/* caixa e alça de armar */

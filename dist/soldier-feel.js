@@ -89,7 +89,7 @@ function eAction(){if(!player)return '';const C=window.PXCAS;
  return 'E canhão/saquear'}
 function hintLine(){if(mode!=='soldier'||!player)return;const el=document.getElementById('hint');if(!el)return;
  const deep=player.lf&&player.lf.water===2,s=player.suppression||0;
- const parts=[deep?'ÁGUA FUNDA: sem tiro':s>1?'SOB FOGO: abaixe-se (Z) ou procure cobertura':'',eAction(),'WASD mover','R recarregar','G granada','Z deitar','X baioneta','T apito','F ordem','H curativo'].filter(Boolean);
+ const parts=[deep?'ÁGUA FUNDA: sem tiro':s>1?'SOB FOGO: abaixe-se (Z) ou procure cobertura':'',eAction(),'WASD mover','SHIFT correr','R recarregar','G granada (segure p/ cozinhar)','C cone de visão','Z deitar','X baioneta','T apito','F ordem','H curativo'].filter(Boolean);
  const t=parts.join(' · ');if(t!==lastHint){lastHint=t;el.textContent=t}}
 
 S.state=()=>({on:S.on,mg:MG?{belt:ammo,x:MG.x|0,y:MG.y|0}:null,shake:+shake.toFixed(2),threats:threats.length,stats:{...S.stats}});

@@ -20,6 +20,10 @@
    Assalto ........ Stoßtrupp / trench raiders: 25% mais rápidos, supressão some 2× mais rápido (seguem sob fogo), 4 granadas de
                     mão jogadas em quem está abrigado a 50–130 px, golpe corpo a corpo (pá, porrete, baioneta) a < 20 px
                     (55 de dano, 1,1 s) e infiltração: o inimigo não os escolhe como alvo a mais de 200 px enquanto avançam.
+   Por nação (CFG.NAT, 1.9b): EUA = Mk2 (pavio 1,05 s, raio 42), granada de fuzil VB, Springfield M1903 + Warner & Swasey (350 px, 0,022 rad),
+   Trench Raider com Winchester M1897 (6 balins, até 90 px), Corpsman; Alemanha = Stielhandgranate (pavio 0,56 s, raio 52), Gewehrgranate,
+   Gewehr 98 + Zielfernrohr (330 px, 0,027), Stoßtrupp com MP18 (rajada até 120 px, 1,30× de velocidade, mais furtivo), Sanitäter.
+   Capacete Brodie × Stahlhelm, braçal, bornal e armamento desenhados em mark() por cima do sprite.
    ?classes=0 desliga · IronFront.classes.state(). */
 (function(){
 if(!window.IFK)return;
@@ -31,7 +35,7 @@ const CFG={MEDIC_SAFE:60,GREN:{n:6,min:60,max:190,cd:6,bld:120,crew:60,r:34},MAR
 /* Variação por nação (1.9b). Base = os números acima (o "genérico" de antes); cada lado troca só o que o equipamento histórico muda.
    hand = granada de mão (fuse = multiplicador do pavio de 0,75 s depois de pousar; r/power do estouro; área×dano ∝ power·r²).
    rif = granada de fuzil (alcance, estouro, dano à obra e à guarnição). mark = atirador (alcance, dispersão, cadência mais lenta).
-   obs = observador (visão, redução de dispersão, intervalo entre pedidos). asl = assalto (velocidade, supressão, discrição,
+   obs = observador (visão, redução de dispersão, intervalo entre pedidos). asl = assalto (velocidade, supressão, hide = distância além da qual o inimigo não os escolhe enquanto avançam: menor = mais furtivo,
    granadas, golpe corpo a corpo e arma de curta distância). medic = zona em que o inimigo poupa o médico e fator de passo. */
 CFG.NAT=[
  {id:'EUA',hand:{name:'Mk2',fuse:1.4,r:42,power:135},                              // Mk2 "abacaxi": pavio longo (dá tempo ao inimigo), estouro curto e forte
@@ -44,7 +48,7 @@ CFG.NAT=[
   rif:{name:'Gewehrgranate',min:60,max:170,r:50,power:130,bld:120,crew:60},
   mark:{name:'Gewehr 98 + Zielfernrohr',range:330,spread:.027,slow:1.3},          // luneta de 4×: um pouco menos alcance, ferrolho mais rápido
   obs:{name:'Doppelfernrohr',see:560,spread:.5,cd:42},                                // binóculo de tesoura Zeiss: vê mais longe, corrige um pouco menos
-  asl:{name:'Stoßtrupp',speed:1.3,supp:2.3,hide:240,gren:5,hit:55,mcd:1.0,close:{kind:'smg',name:'MP18',range:120,dmg:17,spread:.11,cd:.38}},
+  asl:{name:'Stoßtrupp',speed:1.3,supp:2.3,hide:160,gren:5,hit:55,mcd:1.0,close:{kind:'smg',name:'MP18',range:120,dmg:17,spread:.11,cd:.38}},
   medic:{safe:75,speed:1}}];                                                         // Sanitäter com braçal bem visível, respeitado de mais longe
 const nat=t=>CFG.NAT[t?1:0];
 const natOf=u=>nat(u.team);

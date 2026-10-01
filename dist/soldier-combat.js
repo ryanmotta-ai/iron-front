@@ -428,7 +428,9 @@
 
     if (isSoldier) {
       // Estado de Mira Focada (ADS)
-      const wantsAim = !!(SC.rmbDown || (typeof keys !== 'undefined' && (keys.Shift || keys.shift)));
+      /* Shift parado = mira focada; Shift + andar = corrida (soldier-gear.js gasta fôlego). Em movimento, mire com o botão direito. */
+      const movingKeys = typeof keys !== 'undefined' && !!(keys.w || keys.a || keys.s || keys.d || keys.ArrowUp || keys.ArrowDown || keys.ArrowLeft || keys.ArrowRight);
+      const wantsAim = !!(SC.rmbDown || (typeof keys !== 'undefined' && (keys.Shift || keys.shift) && !(movingKeys && window.PXGEAR && PXGEAR.on)));
       player.aiming = wantsAim && player.hp > 0;
 
       // Estado de Apoio de Arma em Coberturas (Weapon Mounting)

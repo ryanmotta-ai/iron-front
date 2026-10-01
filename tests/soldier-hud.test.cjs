@@ -141,7 +141,7 @@ function setupSandbox(search = '') {
     weapon: 'rifle', ammo: 5, reload: 0, grenadeCooldown: 0,
     weapons: {
       rifle: { name: 'SPRINGFIELD M1903', mag: 5, reload: 2.4 },
-      smg: { name: 'THOMPSON', mag: 20, reload: 2.3 },
+      smg: { name: 'BAR M1918', mag: 20, reload: 2.3 },
       pistol: { name: 'COLT M1911', mag: 7, reload: 1.4 },
       shotgun: { name: 'WINCHESTER 1897', mag: 6, reload: 2.8 }
     },
@@ -386,7 +386,7 @@ console.log('--- Teste 4: Arsenal Completo, Slots & Munição ---');
   assert.equal(sb.weapon, 'smg', 'Clique no Slot 2 deve equipar smg');
   assert.equal(slot1.classList.contains('active'), false, 'Slot 1 não deve estar ativo');
   assert.equal(slot2.classList.contains('active'), true, 'Slot 2 deve estar ativo para smg');
-  assert.equal(ammo2.textContent, '20 / 20', 'Munição da Thompson/MP18 deve exibir 20 / 20');
+  assert.equal(ammo2.textContent, '20 / 20', 'Munição do BAR M1918/MP18 deve exibir 20 / 20');
 
   // Troca para Slot 3 (Pistola) via equipSlot
   HUD.equipSlot('3');

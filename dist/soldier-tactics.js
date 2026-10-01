@@ -325,15 +325,15 @@ function triggerDowned(u) {
   u.isDowned = true;
   u.down = true;
   u.bleedTimer = CFG.DOWNED_BLEED;
+  /* B4: weapon/ammo/reload são `let` do game.js: só se atribuem PELO NOME (window.x criaria uma propriedade sem efeito) */
   u.savedWeapon = typeof weapon !== 'undefined' ? weapon : 'rifle';
-  if (typeof weapon !== 'undefined') {
-    window.weapon = 'pistol';
+  if (typeof weapon !== 'undefined' && typeof ammo !== 'undefined' && typeof magazines !== 'undefined' && weapons && weapons.pistol) {
+    if (weapon !== 'pistol') magazines[weapon] = ammo;      // guarda o pente do fuzil para a revivida
+    weapon = 'pistol';
+    ammo = weapons.pistol.mag;                              // pistola de bolso: sempre com o pente cheio
+    magazines.pistol = ammo;
   }
-  if (typeof weapons !== 'undefined' && weapons.pistol) {
-    if (typeof ammo !== 'undefined') window.ammo = weapons.pistol.mag;
-    if (typeof magazines !== 'undefined') magazines.pistol = weapons.pistol.mag;
-  }
-  if (typeof reload !== 'undefined') window.reload = 0;
+  if (typeof reload !== 'undefined') reload = 0;
   S.stats.downedCount++;
   if (typeof toast === 'function') {
     toast('FERIDO EM AGONIA! Rasteje até um abrigo e aperte [E] por socorro.');
@@ -396,7 +396,7 @@ function revivePlayer(source) {
   if (player.savedWeapon && typeof window.changeWeapon === 'function') {
     try { window.changeWeapon(player.savedWeapon); } catch {}
   } else if (player.savedWeapon && typeof weapon !== 'undefined') {
-    window.weapon = player.savedWeapon;
+    weapon = player.savedWeapon;
   }
   S.stats.revivedCount++;
   if (typeof toast === 'function') {
@@ -490,14 +490,15 @@ function scavengeCorpse() {
 
   corpse.looted = true;
 
-  // Munição para a arma atual (+1 pente)
-  if (typeof weapons !== 'undefined' && typeof weapon !== 'undefined' && weapons[weapon]) {
-    if (typeof ammo !== 'undefined') window.ammo = weapons[weapon].mag;
+  // Munição (+1 pente na reserva da arma atual): com o soldier-gear.js a munição do jogador é finita e o saque entra na reserva;
+  // sem ele, mantém o comportamento antigo (pente cheio), agora atribuindo PELO NOME (window.ammo não afetava o `let` do game.js)
+  if (window.PXGEAR && typeof PXGEAR.loot === 'function' && PXGEAR.on) {
+    PXGEAR.loot();
+  } else if (typeof weapons !== 'undefined' && typeof weapon !== 'undefined' && weapons[weapon]) {
+    if (typeof ammo !== 'undefined') ammo = weapons[weapon].mag;
     if (typeof magazines !== 'undefined') magazines[weapon] = weapons[weapon].mag;
-  } else if (typeof ammo !== 'undefined') {
-    window.ammo = (window.ammo || 0) + 10;
+    if (typeof reload !== 'undefined') reload = 0;
   }
-  if (typeof reload !== 'undefined') window.reload = 0;
 
   // Recupera granadas se tiver menos de 2
   player.gren = Math.min(2, (player.gren || 0) + 1);

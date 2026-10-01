@@ -29,6 +29,7 @@ function choose(c){
   let front=s.front;
   if(advance&&force.length>=4){const xs=force.map(u=>u.x).sort((a,b)=>d*(a-b));front=xs[Math.floor(xs.length*.55)]-d*70}
   const choices=[['trench',15,6],['nest',55,3],['dugout',125,2],['mortar',190,1.5],['aid',170,1],['comm',105,1.5]];
+  if(force.filter(u=>u.type==='rifle'&&u.cls!=='medic'&&u.gren===0).length>=3)choices.push(['depot',170,4]);
   if(s.threat>=4)choices.push(['bunker',80,4]);
   if(c.airThreat)choices.push(['aa',240,6]);
   if(c.artillery&&op?.sector===s.id&&s.threat>=3)choices.push(['gunf',300,3]);
@@ -53,7 +54,7 @@ function choose(c){
  if(!best){m.reserve=Math.min(180,candidates[0]?.cost||0);m.note='Guardando suprimentos para a próxima obra';return null}
  m.reserve=best.cost;return best;
 }
-function committed(team,it,project,time){const m=memory(team,time);m.spent+=it.cost;m.next=time+12;m.reserve=0;m.works.push({project,kind:it.kind,x:it.x,y:it.y,cost:it.cost,at:time,last:time,use:0,evaluated:false});const names={trench:'trincheira',comm:'ligação protegida',nest:'ninho de metralhadora',dugout:'abrigo',aid:'posto médico',mortar:'posição de morteiro',bunker:'bunker',aa:'antiaérea',gunf:'canhão'};m.note='Construindo '+(names[it.kind]||it.kind)+' conforme a frente'}
+function committed(team,it,project,time){const m=memory(team,time);m.spent+=it.cost;m.next=time+12;m.reserve=0;m.works.push({project,kind:it.kind,x:it.x,y:it.y,cost:it.cost,at:time,last:time,use:0,evaluated:false});const names={depot:'depósito de munição',trench:'trincheira',comm:'ligação protegida',nest:'ninho de metralhadora',dugout:'abrigo',aid:'posto médico',mortar:'posição de morteiro',bunker:'bunker',aa:'antiaérea',gunf:'canhão'};m.note='Construindo '+(names[it.kind]||it.kind)+' conforme a frente'}
 function state(team){const m=memories[team];if(!m)return null;return {reserve:m.reserve,spent:m.spent,evaluated:m.evaluated,note:m.note,history:m.history.map(x=>({...x})),scores:JSON.parse(JSON.stringify(m.scores))}}
 const api={choose,committed,state,reset};root.IronFrontEngineering=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);

@@ -69,8 +69,21 @@ const server=http.createServer((req,res)=>{
   });
   assert.equal(economy.sandbox,false);assert.ok(economy.minCash>=0);assert.ok(economy.maxActive<=8);assert.ok(economy.engineering.some(e=>e?.spent>0));
   console.log(JSON.stringify({economy}));
+  const human=await page.evaluate(()=>{
+   const p=IronFrontBrain.lastPlans[playerTeam];JSON.stringify(p);
+   const groups=p.squadMind||[],reports=p.intelligence||[];
+   const protectedUnit=units.find(u=>u.team===playerTeam&&u.hp>0&&!u.down&&!u.sap&&!u.sapJob&&!u.rs&&u.cls!=='medic');
+   protectedUnit.manualUntil=0;protectedUnit.cls='medic';protectedUnit.tx=protectedUnit.x;protectedUnit.ty=protectedUnit.y;runCommander(playerTeam);
+   const medical=protectedUnit.tx===protectedUnit.x&&protectedUnit.ty===protectedUnit.y;
+   protectedUnit.cls=undefined;const savedMode=mode,savedPlayer=player;mode='soldier';player=protectedUnit;runCommander(playerTeam);
+   const controlled=protectedUnit.tx===protectedUnit.x&&protectedUnit.ty===protectedUnit.y;mode=savedMode;player=savedPlayer;
+   IronFrontHuman.on=false;runCommander(playerTeam);const switchWorks=IronFrontHuman.on===false;IronFrontHuman.on=true;
+   setup();const reset=IronFrontBrain.lastPlans.every(p=>p===null);running=false;
+   return {groups:groups.length,leaders:groups.filter(g=>g.leader!==null).length,morale:groups.every(g=>g.morale>=0&&g.morale<=1),reports:reports.length,medical,controlled,switchWorks,reset};
+  });
+  assert.ok(human.groups>0&&human.leaders>0&&human.morale&&human.medical&&human.controlled&&human.switchWorks&&human.reset);console.log(JSON.stringify({human}));
   assert.deepEqual(errors,[]);
-  fs.writeFileSync(path.join(out,'battle-report.json'),JSON.stringify({checkpoints,benchmark,economy,errors},null,2));
+  fs.writeFileSync(path.join(out,'battle-report.json'),JSON.stringify({checkpoints,benchmark,economy,human,errors},null,2));
   console.log('Browser: preparação, ataque/defesa, três mapas, papéis espelhados, ordens manuais e interface OK');
  }finally{await browser.close();server.close()}
 })().catch(e=>{console.error(e);server.close();process.exitCode=1});

@@ -58,7 +58,7 @@
     // Time 0: Estados Unidos
     {
       1: 'SPRINGFIELD M1903',
-      2: 'THOMPSON',
+      2: 'BAR M1918',
       3: 'COLT M1911',
       4: 'WINCHESTER 1897',
       G: 'MK II',
@@ -93,6 +93,11 @@
   const COLOR_GREEN = '#2ed573'; // Verde militar / Ciano tático (> 60%)
   const COLOR_AMBER = '#ffa502'; // Âmbar / Amarelo de alerta (30% a 60%)
   const COLOR_RED = '#ff4757';   // Vermelho sangue pulsante (< 30%)
+
+  /* reserva de munição do jogador (soldier-gear.js): " +30" ao lado do pente; vazio se o módulo não existe */
+  function reserveTxt(w) {
+    try { return window.PXGEAR && PXGEAR.on && typeof PXGEAR.reserveOf === 'function' ? PXGEAR.reserveOf(w) : ''; } catch (e) { return ''; }
+  }
 
   function getHpColor(ratio) {
     if (ratio > 0.6) return COLOR_GREEN;
@@ -724,7 +729,7 @@
               slotBtn.classList.add('reloading');
             } else {
               const liveAmmo = typeof ammo !== 'undefined' ? ammo : maxMag;
-              ammoEl.textContent = `${liveAmmo} / ${maxMag}`;
+              ammoEl.textContent = `${liveAmmo} / ${maxMag}${reserveTxt(slotWepId)}`;
               slotBtn.classList.remove('reloading');
             }
           } else {
@@ -732,7 +737,7 @@
             const magVal = (typeof magazines !== 'undefined' && magazines[slotWepId] !== undefined)
               ? magazines[slotWepId]
               : maxMag;
-            ammoEl.textContent = `${magVal} / ${maxMag}`;
+            ammoEl.textContent = `${magVal} / ${maxMag}${reserveTxt(slotWepId)}`;
           }
         }
       }

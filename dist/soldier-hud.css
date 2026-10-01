@@ -17,7 +17,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  width: 390px;
+  width: 480px;
   max-width: calc(100vw - 36px);
   padding: 12px 14px 10px;
   background: rgba(12, 17, 13, 0.88);
@@ -79,7 +79,7 @@ body[data-mode="commander"] #soldier-hud {
   position: absolute;
   bottom: -3px;
   right: -3px;
-  font-size: 8px;
+  font-size: 10px;
   padding: 1px 4px;
   background: #18221a;
   border: 1px solid #6f825e;
@@ -126,7 +126,7 @@ body[data-mode="commander"] #soldier-hud {
 .bf-status-badge {
   display: inline-block;
   align-self: flex-start;
-  font-size: 9px;
+  font-size: 11px;
   padding: 2px 7px;
   border-radius: 2px;
   font-weight: 700;
@@ -202,7 +202,7 @@ body[data-mode="commander"] #soldier-hud {
 }
 
 .bf-hp-label {
-  font-size: 9px;
+  font-size: 11px;
   color: #8c9e80;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -268,7 +268,7 @@ body[data-mode="commander"] #soldier-hud {
    ========================================================================== */
 .bf-weapon-slots {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1.55fr)) repeat(2, minmax(0, 1.2fr));
   gap: 4px;
   margin-top: 2px;
 }
@@ -278,7 +278,7 @@ body[data-mode="commander"] #soldier-hud {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: 5px 3px;
+  padding: 5px 2px;
   min-height: 48px;
   background: rgba(20, 26, 20, 0.75);
   border: 1px solid rgba(85, 102, 77, 0.4);
@@ -307,7 +307,7 @@ body[data-mode="commander"] #soldier-hud {
 }
 
 .bf-slot-key {
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 700;
   color: #839675;
   line-height: 1;
@@ -318,21 +318,25 @@ body[data-mode="commander"] #soldier-hud {
 }
 
 .bf-slot-name {
-  font-size: 7.5px;
+  font-size: 8.5px;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
   text-transform: uppercase;
   text-align: center;
-  white-space: nowrap;
+  white-space: normal;
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: clip;
   width: 100%;
   margin: 2px 0;
   line-height: 1.1;
+  min-height: 2.2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .bf-slot-ammo {
-  font-size: 9px;
+  font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.04em;
   color: #dbe5d0;
@@ -346,7 +350,7 @@ body[data-mode="commander"] #soldier-hud {
 
 .bf-slot.reloading .bf-slot-ammo {
   color: #f1c40f;
-  font-size: 7px;
+  font-size: 9px;
   letter-spacing: 0.02em;
   animation: bf-pulse 0.5s infinite alternate;
 }
@@ -381,7 +385,7 @@ body[data-mode="commander"] #soldier-hud {
   #soldier-hud {
     left: 8px;
     bottom: 8px;
-    width: 330px;
+    width: 380px;
     padding: 10px 12px 8px;
     gap: 6px;
   }
@@ -402,11 +406,11 @@ body[data-mode="commander"] #soldier-hud {
   }
 
   .bf-slot-name {
-    font-size: 6.5px;
+    font-size: 8.5px;
   }
 
   .bf-slot-ammo {
-    font-size: 8px;
+    font-size: 9.5px;
   }
 }
 
@@ -422,4 +426,10 @@ body[data-mode="commander"] #soldier-hud {
     grid-template-columns: repeat(3, 1fr);
     gap: 3px;
   }
+}
+
+/* U16: a linha de dicas do soldado começa depois do painel (480 px + 18 px de margem) */
+body[data-mode="soldier"] #hintline {
+  left: 31.5rem !important;
+  max-width: calc(100vw - 31.5rem - var(--mmw, 10rem) - 2rem) !important;
 }

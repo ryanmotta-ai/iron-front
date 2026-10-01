@@ -4,7 +4,7 @@
    a campanha, o modo história, o sandbox, as opções e o menu de pausa. */
 (function(){
 const $=id=>document.getElementById(id),A=UIArt,root=document.documentElement,body=document.body;
-const DIFF={easy:'Recruta',normal:'Veterano',hard:'General'},WX={dynamic:'Variável',clear:'Limpo',drizzle:'Garoa',rain:'Chuva',storm:'Tempestade',fog:'Neblina'},MAPN={trenches:'A última trincheira',forest:'Floresta de ferro',winter:'Inverno sem fim'};
+const DIFF={easy:'Recruta',normal:'Veterano',hard:'General'},WX={overcast:'Nublado',dynamic:'Variável',clear:'Limpo',drizzle:'Garoa',rain:'Chuva',storm:'Tempestade',fog:'Neblina'},MAPN={trenches:'A última trincheira',forest:'Floresta de ferro',winter:'Inverno sem fim'};
 
 /* ================= progresso e opções ================= */
 const KEY='ironfront.save.v1',DEF={campaign:{done:{}},story:{done:0},opts:{sound:0,ui:1,hints:1,mini:1,shake:1}};
@@ -15,10 +15,10 @@ let save=load();const store=()=>{try{localStorage.setItem(KEY,JSON.stringify(sav
 const OPS=[
  {id:'c1',name:'Amanhecer no arame',map:'trenches',thumb:'trenches',scale:80,diff:'easy',wx:'clear',side:0,txt:'Primeiro contato com a linha alemã. O arame farpado ainda está intacto e a artilharia inimiga é rara. Tome os pontos A, B e C antes que os reforços cheguem.'},
  {id:'c2',name:'Chuva de ferro',map:'trenches',thumb:'rain',scale:160,diff:'normal',wx:'rain',side:0,txt:'A chuva encharca as trincheiras e atola os reforços. Quem segurar o terreno alto mantém a logística. Cuidado com as crateras alagadas.'},
- {id:'c3',name:'Floresta de ferro',map:'forest',thumb:'forest',scale:160,diff:'normal',wx:'overcast',side:0,txt:'A neblina esconde tudo além de poucas dezenas de metros. A floresta oferece cobertura, mas também emboscadas. Use metralhadoras nas clareiras.'},
+ {id:'c3',name:'Neblina na mata',map:'forest',thumb:'forest',scale:160,diff:'normal',wx:'overcast',side:0,txt:'A neblina esconde tudo além de poucas dezenas de metros. A floresta oferece cobertura, mas também emboscadas. Use metralhadoras nas clareiras.'},
  {id:'c4',name:'Noite de trovões',map:'forest',thumb:'storm',scale:160,diff:'hard',wx:'storm',side:0,txt:'Tempestade sobre a floresta. Raios atingem tanques e aviões ficam em solo. O comandante inimigo é um general: não espere piedade.'},
- {id:'c5',name:'Inverno sem fim',map:'winter',thumb:'winter',scale:160,diff:'normal',wx:'dynamic',side:0,txt:'Nevascas e neblina gelada no extremo norte da frente. O tempo muda sem aviso; acompanhe a previsão no canto da tela.'},
- {id:'c6',name:'A última trincheira',map:'trenches',thumb:'trenches',scale:320,diff:'hard',wx:'dynamic',side:0,txt:'A grande ofensiva. Mais de trezentos homens de cada lado e um general do outro lado. Tudo o que você aprendeu vale agora.'}];
+ {id:'c5',name:'Nevasca do norte',map:'winter',thumb:'winter',scale:160,diff:'normal',wx:'dynamic',side:0,txt:'Nevascas e neblina gelada no extremo norte da frente. O tempo muda sem aviso; acompanhe a previsão no canto da tela.'},
+ {id:'c6',name:'A grande ofensiva',map:'trenches',thumb:'trenches',scale:320,diff:'hard',wx:'dynamic',side:0,txt:'A maior batalha da frente. Mais de trezentos homens de cada lado e um general do outro lado. Tudo o que você aprendeu vale agora.'}];
 const CH=[
  {id:'s1',name:'Primeira noite',map:'trenches',scale:80,diff:'easy',wx:'clear',side:0,mode:'soldier',pt:'us',
   txt:'"17 de abril. Chegamos ao anoitecer, eu e mais sete do pelotão. O sargento disse que a trincheira fica a meia hora de marcha, mas a lama tornou tudo mais longo.\n\nPrecisamos tomar as três posições antes do amanhecer. Fico na linha, fuzil na mão. Se eu cair, outro assume o meu lugar."',
@@ -124,7 +124,7 @@ function launch(cfg){
  toast(run&&run.kind==='story'?`Capítulo ${run.idx+1}: ${CH[run.idx].name}`:run&&run.kind==='campaign'?`Operação ${run.idx+1}: ${OPS[run.idx].name}`:'Operação iniciada. Capture os pontos A, B e C.')}
 function enterBattle(){
  try{IFTitle.stop()}catch{}
- setup();body.classList.toggle('is-sandbox',!!sandbox);body.dataset.screen='battle';body.classList.remove('qg-open');dispatchEvent(new Event('resize'));flashHint();syncMode();
+ setup();body.classList.toggle('is-sandbox',!!sandbox);body.dataset.run=(run&&run.kind)||'sandbox';body.dataset.screen='battle';body.classList.remove('qg-open');dispatchEvent(new Event('resize'));flashHint();syncMode();
  const t=$('toast');t.classList.remove('show');void t.offsetWidth;applyOpts()}
 function toTitle(view='main'){
  try{$('result').close()}catch{}try{$('menu').close()}catch{}
@@ -135,7 +135,10 @@ function syncMode(){body.dataset.mode=mode;$('hintline').classList.remove('fade'
 function flashHint(){const h=$('hintline');h.classList.remove('fade');clearTimeout(hintTimer);hintTimer=setTimeout(()=>h.classList.add('fade'),9000)}
 
 /* ================= pausa, resultado e opções ================= */
-function openPause(){if(!started||ended||dlgOpen())return;wasRunning=running;if(running)pause();$('menu').showModal()}
+function openPause(){if(!started||ended||dlgOpen())return;wasRunning=running;if(running)pause();
+ /* U14: o ícone de reiniciar usa a bandeira do lado do jogador (pode mudar no meio da batalha) */
+ try{const ic=document.querySelector('#pm-restart .ico');if(ic&&A.flagIconURL)ic.style.setProperty('--ico',`url(${A.flagIconURL(typeof playerTeam!=='undefined'?playerTeam:0)})`)}catch{}
+ $('menu').showModal()}
 function closePause(){$('menu').close()}
 $('menu').addEventListener('close',()=>{if(wasRunning&&started&&!ended&&!running&&!dlgOpen())pause();wasRunning=false});
 $('pm-continue').onclick=closePause;
@@ -179,7 +182,7 @@ addEventListener('keydown',e=>{
   return}
  if(inBattle()){
   if(e.key==='Escape'&&!dlgOpen()){if(typeof placement!=='undefined'&&placement)return;e.preventDefault();openPause();return}
-  if((e.key==='h'||e.key==='H')&&!dlgOpen())body.classList.toggle('qg-open')}
+  if((e.key==='h'||e.key==='H')&&!e.repeat&&!dlgOpen()&&mode==='commander')body.classList.toggle('qg-open')}
 },true);
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#title button,dialog button');if(b)snd('click')});
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));

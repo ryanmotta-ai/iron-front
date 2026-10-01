@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict'),I=require('../dist/intelligence.js');
+const own=[{id:1,team:0,x:100,y:100,hp:100}],enemy={id:2,team:1,x:650,y:100,hp:100,type:'mg'},seen=new Map(),pending=new Map();
+const state={team:0,time:0,visibilityRange:760,units:[...own,enemy]};
+I.observe(state,own,seen,pending,()=>false);assert.equal(seen.size,0);assert.equal(pending.size,0,'obstáculo bloqueia relato');
+I.observe(state,own,seen,pending,()=>true);assert.equal(seen.size,0);assert.equal(pending.size,1);
+enemy.x=700;state.time=2;I.observe(state,own,seen,pending,()=>true);assert.equal(seen.get(2).x,650,'relato atrasado preserva a posição observada, sem rastrear invisível');
+state.time=3;enemy.x=2200;I.observe(state,own,seen,pending,()=>true);assert.equal(seen.get(2).x,650);
+state.time=12;I.observe(state,own,seen,pending,()=>true);assert.equal(I.snapshot(seen,12)[0].status,'ultima-posicao');assert.ok(seen.get(2).confidence<1);
+state.time=36;I.observe(state,own,seen,pending,()=>true);assert.equal(seen.size,0);
+enemy.x=160;state.time=40;I.observe(state,own,seen,pending,()=>true);assert.equal(seen.get(2).x,160,'contato próximo chega imediatamente');
+enemy.down=true;I.observe(state,own,seen,pending,()=>true);assert.equal(seen.size,0);
+console.log('Intelligence: visão bloqueada, atraso, última posição sem rastreamento, confiança, expiração e reação próxima OK');
