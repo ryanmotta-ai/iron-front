@@ -73,6 +73,8 @@ K.trenchOf=function(u){if(typeof trenchGrid==='undefined')return null;
  for(const b of buildings)if(b.type==='trench'&&Math.abs(b.x-u.x)<52&&Math.abs(b.y-u.y)<22)return b;
  return null};
 K.inTrench=u=>!!K.trenchOf(u);
+/* prioridade do E no modo soldado: módulos registram "eu trato o E agora"; o soldier-tactics.js (saque) cede a vez */
+K.ePri=[];K.ePriority=()=>{try{return K.on&&K.ePri.some(f=>f())}catch{return false}};
 K.w2s=(x,y,ox,oy)=>[ox+Math.round(x*Z),oy+Math.round(y*Z)];
 
 /* desenho dos gritos por cima de tudo do campo */

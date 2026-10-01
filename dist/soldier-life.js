@@ -72,7 +72,7 @@ function think(u,dt){const L=lf(u);
 /* ---------- ligações ---------- */
 const PRE=[];
 wrap('update',(orig,dt)=>{if(!S.on||!started||ended)return orig(dt);
- PRE.length=0;for(const u of units){const L=u.lf;if(inf(u)&&(!L||L.water)&&depth(u)>=CFG.DEEP)u.cd=Math.max(u.cd||0,.3);   // água funda: trava o tiro já neste quadro
+ PRE.length=0;for(const u of units){const L=u.lf;if(inf(u)&&depth(u)>=CFG.DEEP)u.cd=Math.max(u.cd||0,.3);   // água funda: trava o tiro já neste quadro
   if(!L||!inf(u)||soldierP(u))continue;const f=L.duck>time?CFG.DUCKMOVE:L.trip>time?0:L.climb>time?CFG.CLIMBMOVE:1;if(f<1){u._lx=u.x;u._ly=u.y;u._lf=f;PRE.push(u)}}
  orig(dt);
  try{for(const u of PRE){if(u.hp<=0)continue;u.x=u._lx+(u.x-u._lx)*u._lf;u.y=u._ly+(u.y-u._ly)*u._lf}

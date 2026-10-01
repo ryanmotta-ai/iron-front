@@ -211,7 +211,7 @@ function playerTick(dt){if(!PD)return;const w=PD.w;
  if(PD.dx==null){PD.dx=player.x-w.x;PD.dy=player.y-w.y}trail(player,w,player.x+PD.dx*50,player.y+PD.dy*50,dt);player.angle=Math.atan2(w.y-player.y,w.x-player.x);
  for(const p of M.posts)if(p.team===player.team&&p.hp>0&&hyp(p.x-player.x,p.y+16-player.y)<CFG.HAND_R+8){handOver(player,w,{kind:'post',post:p,x:p.x,y:p.y});PD=null;
   toast(w.cz&&w.cz.st==='bed'?'Ferido entregue ao posto de socorro.':'Posto lotado: ferido deixado ao lado para os padioleiros.');return}}
-S.playerKey=playerKey;S.playerBusy=()=>!!PD;
+S.playerKey=playerKey;K.ePri.push(()=>S.on&&mode==='soldier'&&player&&(!!PD||player.type==='rifle'&&!player.down&&!!nearDown(player)));S.playerBusy=()=>!!PD;
 window.addEventListener('keydown',e=>{if((e.key||'').toLowerCase()!=='e'||e.repeat)return;if(document.querySelector('dialog[open]'))return;
  try{if(playerKey()){e.preventDefault();e.stopImmediatePropagation()}}catch(err){fail(err)}},true);
 

@@ -866,6 +866,7 @@ function handleKeyDown(e) {
       if (e.preventDefault) e.preventDefault();
     }
   } else if (k === 'e') {
+    if (!player.isDowned && window.IFK && IFK.ePriority && IFK.ePriority()) return; // 1.9: arrastar ferido / MG / abrigo têm prioridade sobre saquear (casualty.js, soldier-feel.js, shelter.js)
     if (player.isDowned) {
       callForHelp();
       if (e.preventDefault) e.preventDefault();

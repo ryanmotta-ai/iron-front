@@ -78,6 +78,7 @@ function playerKey(){if(!S.on||mode!=='soldier'||!player||player.down||player.ty
  if(player.sh){if(player.sh.st==='in'){leave(player,false);toast('Você sai do abrigo.')}return true}
  const h=SH.find(h=>h.team===player.team&&hyp(h.ex-player.x,h.ey-player.y)<22&&h.occ.length<CFG.CAP);if(!h)return false;
  enter(player,h);player.sh.st='down';player.sh.t=player.sh.T=CFG.DOWN;toast('Descendo ao abrigo · E sobe de volta.');return true}
+K.ePri.push(()=>S.on&&mode==='soldier'&&player&&player.type==='rifle'&&(!!player.sh||SH.some(h=>h.team===player.team&&hyp(h.ex-player.x,h.ey-player.y)<22)));
 window.addEventListener('keydown',e=>{if((e.key||'').toLowerCase()!=='e'||e.repeat||document.querySelector('dialog[open]'))return;try{if(playerKey()){e.preventDefault();e.stopImmediatePropagation()}}catch(err){fail(err)}},true);
 /* o jogador dentro do abrigo não anda nem atira; o tique dele é o mesmo dos outros, mas a saída é pela tecla */
 wrap('update',(orig,dt)=>{const p=player,inside=S.on&&p&&p.sh&&mode==='soldier';const keep=inside?{x:p.x,y:p.y}:null;orig(dt);

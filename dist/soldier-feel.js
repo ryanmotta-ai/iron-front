@@ -34,6 +34,7 @@ function keyE(){if(!active())return false;
  if(MG){dismount('Você deixou a metralhadora.');return true}
  if(player.type!=='rifle'||player.down||player.isDowned)return false;
  const m=nearMG();if(m){mount(m);return true}return false}
+K.ePri.push(()=>active()&&(!!MG||player.type==='rifle'&&!player.down&&!!nearMG()));
 window.addEventListener('keydown',e=>{if((e.key||'').toLowerCase()!=='e'||e.repeat)return;if(document.querySelector('dialog[open]'))return;
  try{if(keyE()){e.preventDefault();e.stopImmediatePropagation()}}catch(err){fail(err)}},true);
 wrap('changeWeapon',(orig,next)=>{if(MG&&S.on){try{toast('Na metralhadora: E para sair antes de trocar de arma.')}catch{}return}return orig(next)});
