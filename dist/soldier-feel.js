@@ -24,7 +24,7 @@ function shakeOn(){try{const s=JSON.parse(localStorage.getItem('ironfront.save.v
 
 /* ---------- metralhadora do jogador ---------- */
 if(typeof weapons!=='undefined'&&!weapons.mg)weapons.mg={get name(){return playerTeam===1?'MG 08':'M1917 BROWNING'},mag:CFG.BELT,reload:CFG.MG_RELOAD,rate:.11,damage:13,range:330,spread:.045};
-function nearMG(){let best=null,bd=CFG.MG_R*CFG.MG_R;for(const u of units){if(u===player||u.team!==player.team||u.type!=='mg'||u.hp<=0||u.down)continue;const d=(u.x-player.x)**2+(u.y-player.y)**2;if(d<bd){bd=d;best=u}}return best}
+function nearMG(){let best=null,bd=CFG.MG_R*CFG.MG_R;for(const u of units){if(u===player||u.team!==player.team||u.type!=='mg'||u.hp<=0||u.down||(u.mgr&&u.mgr!=='gun'))continue;const d=(u.x-player.x)**2+(u.y-player.y)**2;if(d<bd){bd=d;best=u}}return best}
 function mount(m){magazines[weapon]=ammo;MG={prev:player,prevWeapon:weapon,m,x:m.x,y:m.y};player=m;weapon='mg';ammo=m.belt??CFG.BELT;reload=0;m.cd=0;S.stats.mgMounts++;
  try{toast(`${weapons.mg.name} sob seu controle · fita de ${CFG.BELT} · E devolve o seu soldado`)}catch{}try{hud()}catch{}}
 function dismount(msg){if(!MG)return;const m=MG.m;m.belt=ammo;const back=MG.prev&&MG.prev.hp>0&&!MG.prev.down?MG.prev:null;

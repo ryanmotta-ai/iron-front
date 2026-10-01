@@ -116,7 +116,9 @@ function drawMG(c,u,sp,sx,sy,vis,bob,d0){
   const fx=Ox+Math.round(sq*2.4),fy=Oy+Math.round(-cq*2.4),bx=Ox+t.bx,by=Oy+t.by,mv=time-(u._mgT||-9)<.35?((time*26)|0)%2:0;
   for(let i=0;i<=6;i++){const k=i/6,x=Math.round(bx+(fx-bx)*k),y=Math.round(by+(fy-by)*k-Math.sin(k*Math.PI)*2.2);c.fillStyle=(i+mv)%2?'#c2a64e':'#5f553b';c.fillRect(x,y,1,1)}}
  S.stats.mgDrawn++;return true}
-if(window.PHYS&&window.PX&&PX.cached&&PX.outlined)(function(){const d0=PHYS.draw||(()=>false);PHYS.draw=function(c,u,sp,sx,sy,vis,bob){
+if(window.PHYS&&window.PX&&PX.cached&&PX.outlined)(function(){const d0=PHYS.draw||(()=>false);S.crewHook=true;PHYS.draw=function(c,u,sp,sx,sy,vis,bob){
+ /* auxiliar da guarnição (mgcrew.js) parado: ajoelhado de fuzil ao lado da arma, sem tripé nem MG própria */
+ if(u.type==='mg'&&u.mgr&&u.mgr!=='gun'&&!u.moving&&window.PXCREW&&PXCREW.on&&PXCREW.drawStill)try{return PXCREW.drawStill(c,u,sp,sx,sy,vis,bob,d0)}catch(e){fail(e)}
  if(!S.on||u.type!=='mg'||!mgOk(u)){if(u.type==='mg'&&u.moving)u._mgS=time;return d0.call(PHYS,c,u,sp,sx,sy,vis,bob)}
  try{return drawMG(c,u,sp,sx,sy,vis,bob,d0)}catch(e){fail(e);return d0.call(PHYS,c,u,sp,sx,sy,vis,bob)}}})();
 wrapOpt('shoot',(orig,u,target,manual)=>{const r=orig(u,target,manual);try{if(S.on&&(u.type==='mg'||u.type==='bunker'))mgShot(u)}catch(e){fail(e)}return r});

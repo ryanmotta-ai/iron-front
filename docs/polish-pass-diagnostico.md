@@ -104,12 +104,15 @@ Fora deste passe, registrados como pendentes: suporte aéreo expandido, constru�
 | B1 bandeira do QG e do posto | **Corrigido**: bandeiras nacionais | `ww1-ambient.js` `flag()` + `IFK.flagPx` |
 | B2 bandeira de setor | **Corrigido** | `assault.js` |
 | B3 tremor de tela ignorado | **Parcial**: o modo soldado tem tremor próprio, que respeita a opção; o comandante continua sem tremor (o `ui-fix.js` é de outra sessão) | `soldier-feel.js` |
-| B4 pistola do caído fictícia | Pendente (`soldier-tactics.js` é de outra sessão) | — |
+| B4 pistola do caído fictícia | **Corrigido** (coberto pelo teste `soldier-gear`) | `soldier-gear.js` |
 | B5 caído duplicado | **Parcial**: resgate, arraste e cadeia médica tratam o `u.down`; o caído próprio do `soldier-tactics.js` continua para o jogador | `casualty.js` |
 | B6 tiro em água funda | **Corrigido** (IA e jogador) | `soldier-life.js` |
-| B7 soldado nasce na retaguarda | Pendente | — |
+| B7 / U13 soldado nasce na retaguarda | **Corrigido**: entra num fuzileiro da linha de contato, com seta para a frente | `soldier-gear.js` |
 | B8 morteiro sem projétil em voo | **Corrigido**: arco, rastro, fumaça de boca, "tum" e assobio de chegada | `heavyfx.js`, `soundscape.js` |
-| B9–B12 | Pendentes | — |
+| B9 avião de reconhecimento genérico | **Corrigido** por outra sessão (Salmson 2A2 / Rumpler C.IV modelados; ainda não commitado) | `anim-air.js` |
+| B10 Thompson anacrônica | **Corrigido** (teste `soldier-gear`) | `soldier-gear.js` |
+| B11, B12 | Pendentes | — |
+| MG pesada carregada por um homem (seções 1 e 8) | **Corrigido**: a carta vira uma arma servida por 3 (ver seção 7) | `mgcrew.js` |
 | U3 dica sob o painel do soldado | **Corrigido**: linha movida e contextual | `soldier-feel.js` |
 | U4 E sem aviso | **Corrigido**: prompts "[E] ARRASTAR", "[E] ABRIGO", "E assumir a MG"… | `casualty.js`, `shelter.js`, `soldier-feel.js` |
 | U5 tremor | Parcial (ver B3) | — |
@@ -117,4 +120,43 @@ Fora deste passe, registrados como pendentes: suporte aéreo expandido, constru�
 | U11 resultado pobre | **Corrigido**: relatório médico | `casualty.js` |
 | U1, U2, U7–U10, U12–U16 | Pendentes (arquivos de UI de outras sessões) | — |
 
-Seções do pedido que **não** foram feitas neste passe: 8 além do morteiro (canhão, MG pesada e animação da guarnição), parte de 12 (fôlego, ferrolho, munição finita, granada cozida, cone de visão), parte de 15 (passos, lama, chuva no novo mixer) e o restante de 9 (UI).
+Seções do pedido que **ainda não** foram feitas: parte de 15 (passos, lama e chuva no novo mixer), o restante de 9 (UI) e B11/B12. A parte de 12 que faltava (fôlego, ferrolho, munição finita, granada cozida, cone de visão) entrou no `soldier-gear.js`; a parte visual de 8 para blindados, aviões e explosões está nas camadas `anim-*.js` de outra sessão (ainda não commitadas).
+
+## 7. Guarnição de MG — arma coletiva (`dist/mgcrew.js`, 01/10/2026 à noite)
+
+**Problema.** A carta "Metralhadora · Equipe · 3 soldados" punha em campo 3 unidades `mg`, e cada homem atirava a sua própria MG. O pedido pede o contrário: "metralhadoras pesadas devem parecer armas coletivas".
+
+**O que mudou.** Os 3 homens continuam `type 'mg'`, então custo, contagem da IA, poder nas operações (2,5 cada) e antiaérea não mudam. Eles passam a ser uma guarnição em volta de **uma** arma:
+
+| Papel | Função | O que isso muda |
+|---|---|---|
+| Atirador | Só ele dispara a MG. Não atira andando e leva 1 s para montar o tripé depois de parar. A IA para e monta quando tem alvo durante um deslocamento (no máximo a cada 8 s) | MG em marcha fica muda: avançar com ela custa tempo |
+| Municiador | Ajoelhado do lado esquerdo da arma, com a caixa | Com ele: cadência de 0,13 s e troca de fita em 3 s. Sem ele: 0,30 s e troca em 8 s. Matar o municiador rende |
+| Remuniciador | Atrás, de fuzil. Faz as corridas de água para o cano (a corrida abstrata do `frontline.js` vira um homem que pode morrer no caminho) e de caixas de munição | Sem ele, a água volta a ser corrida abstrata, 30% mais longa, e as caixas chegam 1 a cada 45 s |
+| Sucessão | Se o atirador cai, o municiador vai até a arma e assume depois de 1,4 s. O calor e a água do cano passam para ele | Derrubar o atirador cala a arma por alguns segundos, mas não a elimina |
+
+Também:
+- cano travado: troca em 10 s com guarnição e em 28 s sozinho (antes eram 20 s);
+- sobras de guarnições se juntam, e reforços entram na guarnição incompleta mais próxima;
+- auxiliar postado num ninho que chega lá vira o atirador;
+- ordem dada só a um auxiliar vale para a arma inteira;
+- no Modo Soldado, **E** só assume o atirador.
+
+**Desenho.** Em marcha, os auxiliares andam de fuzil, com a marcha de fuzileiro do `anim-infantry.js` e a caixa na mão. Parados, ajoelham ao lado da arma com a caixa, e o municiador a ergue na troca de fita (gancho de 1 linha no `heavyfx.js`). `?guarnicao=0` volta ao comportamento antigo.
+
+**Medido** (`tests/mgcrew.test.cjs`, mini-motor, alvo fixo):
+
+| Medida | Valor |
+|---|---|
+| 1 min com alvo, guarnição completa | arma 428 tiros (dano 13) + auxiliares 75 tiros de fuzil (dano 30) |
+| 1 min, atirador sozinho | 156 tiros |
+| Primeiro tiro depois de parar | 1,10 s (30 tentativas bloqueadas em movimento) |
+| Atirador morto → arma volta a atirar | 2,63 s |
+| Corrida de água pelo remuniciador | 8,3 s (a abstrata sorteada no teste era de 20 s) |
+| Caixas acabaram | o remuniciador recuou 178 px e voltou com 2 caixas |
+
+**Batalha real** (Edge headless, mesmo código, com e sem guarnição):
+- `balance-battle`, 4 batalhas determinísticas de 180 s: baixas causadas no total, 84 sem guarnição × 107 com; perdas parecidas. Dentro do ruído.
+- Batalhas de 160 unidades por 400 s (seeds 907 e 4242): os tiros de MG caem de 1101 → 108 e de 326 → 38. Uma arma servida vê alvo menos vezes que três espalhadas: 11 × 24 amostras com alvo. As baixas variam para os dois lados (40/51 → 60/17 e 61/63 → 38/133); essas batalhas longas são caóticas. É a consequência esperada de transformar três armas em uma. Fica registrado para quem ajusta o balanço: se as defesas ficarem fracas, o ajuste natural é o custo da carta ou o limite de compra de MG da IA (`ai.js:368`), não voltar a dar uma MG a cada homem.
+- `verify-battle` (cópia no scratchpad): passou com e sem guarnição, 41,6 × 58,9 ms por quadro em média, com as duas rodando em paralelo (ruído de máquina). Uma rodada anterior falhou em "engenharia continua construindo durante combate" enquanto outras sessões editavam `engineering.js`/`fortify.js`; não se repetiu.
+- Suíte: 33 de 34 passam. A falha é `works-manage.test.cjs`, teste novo de outra sessão em edição, que não carrega o `mgcrew.js`. `operations.test.cjs` falhou 1 vez em 21 enquanto o `coordination.js` era gravado (flake).
