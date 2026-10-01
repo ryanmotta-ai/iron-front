@@ -431,3 +431,98 @@ Substitui o HUD de combatente por uma interface completa inspirada em Battlefiel
 ### 4. Verificação
 - `node tests/soldier-hud.test.cjs`: Identidade, avatar, barra de vida, arsenal, status e kill switch 100% OK.
 - Todas as 13 suítes de testes do repositório aprovadas sem regressões.
+
+## Versão 1.9 — Vida, feridos, classes e Modo Soldado (passe de polish)
+
+Diagnóstico completo (auditoria, bugs, review de UI P0–P3 e brainstorm do Soldier Mode) em `docs/polish-pass-diagnostico.md`. Tudo entra por módulos novos que fazem *wrap* das funções globais e carregam numa linha própria do `index.html`, depois de `soldier-hud.js`: `life-kit.js`, `casualty.js`, `soldier-life.js`, `classes.js`, `soldier-feel.js`, `soundscape.js`, `aviation.js`, `works.js` e `shelter.js`. Cada um tem chave para desligar (`?vida=0`, `?feridos=0`, `?classes=0`, `?sensacao=0`, `?som2=0`, `?aviacao=0`, `?obras=0`, `?abrigos=0`) e estado em `IronFront.<módulo>.state()`.
+
+**Feridos e resgate (`casualty.js`).** Usa o mesmo estado de caído do `medics.js` (`u.down`). O ferido tem gravidade:
+- leve: rasteja sozinho até a cobertura;
+- grave: chama por socorro ("MEDIC!" / "SANI!");
+- crítico: desmaia.
+
+Na cobertura o sangramento corre a 45%. Companheiros a até 130 px decidem ajudar conforme moral, supressão, inimigos perto e ordem atual. O resgate é físico: correm, ajoelham e agarram (1,1 s), arrastam de costas a 40% da velocidade e levam para trincheira, cratera ou posto. Explosão perto ou supressão extrema interrompem o resgate. A maca vinda da retaguarda assume quando chega. A cadeia médica:
+- posto avançado: triagem de 6–9 s;
+- ambulância: 14–22 s;
+- hospital de campanha: 10 leitos, 2 cirurgiões por prioridade e estoque de 24 kits.
+
+Os desfechos são volta ao combate, incapacitado, evacuado (metade volta como reforço em 120 s) ou morte. O resultado da batalha mostra o relatório médico. No modo soldado, **E** arrasta (você anda a 40% e não atira) e o médico jogador faz primeiros socorros.
+
+**Classes (`classes.js`).** A cada 16 fuzileiros saem 2 granadeiros, 1 médico e 1 atirador; a cada 48, 1 observador. Isso vale também para as compras da IA. Há duas cartas novas, Tropas de assalto e Especialistas.
+- Médico: não combatente; não é alvo a mais de 60 px.
+- Granadeiro: granada de fuzil de 60 a 190 px contra ninho e bunker.
+- Atirador: 340 px, dispersão 0,025.
+- Observador: corrige a artilharia em −50% e pede fogo.
+- Assalto: 25% mais rápido, supressão some 2× mais rápido, granadas em quem está abrigado, corpo a corpo e infiltração.
+
+**Vida (`soldier-life.js`).**
+- Água funda: fuzil erguido acima da cabeça e sem tiro.
+- Trincheira: posturas com proteção real. Abrigado: só o capacete, proteção 0,18. Observando: 0,28. Mirando no degrau de tiro, encostado ou correndo abaixado: proteção normal.
+- Escalada do parapeito ao sair para a frente.
+- Abaixar com explosão, depois de 0,1–0,35 s de reação.
+- Gritos ("GET DOWN!", "MG!", "SANI!") e microanimações: capacete, limpar o fuzil, olhar em volta, fumar, tropeçar na lama.
+
+**Modo Soldado (`soldier-feel.js`).**
+- Bala que passa perto levanta terra, dá um tranco na câmera, marca na borda da tela de onde veio o fogo e soma supressão.
+- A sua mira piora sob fogo.
+- O tremor da câmera é próprio e respeita a opção do menu.
+- **E** assume a MG aliada: fita de 250, tripé que não anda.
+- A linha de dicas saiu de baixo do painel e diz o que o E fará.
+
+**Som (`soundscape.js`).**
+- Barramentos sobre o mestre do `assault.js`, com limitador e reverb por convolução.
+- Distância com ganho, ar, panorama e atraso acústico.
+- Timbre por arma e nação; explosões por tamanho.
+- Limite de vozes com prioridade e ducking.
+- Calma com vento e pássaros, caos com leito de fogo distante.
+- Gritos por formantes.
+
+**Aviação (`aviation.js`).**
+- Patrulha de caça: persegue e derruba aeronaves; as bombas ainda não largadas caem com o bombardeiro.
+- Ataque ao solo: voa ao longo da trincheira inimiga, com rajadas, supressão e bombas nos ninhos.
+- Observação de artilharia: orbita 45 s, corrige −65% e pede salvas.
+- A IA usa os três e passa a chamar o bombardeiro leve.
+
+**Construção (`works.js`, aba DEFESAS).**
+- Toca individual.
+- Depósito de munição: remunicia infantaria, granadas, MG e artilharia; explode se for atingido.
+- Posto de observação: revela a névoa e corrige a artilharia.
+- Cavalo de frisa.
+
+**Abrigos e bunkers (`shelter.js`).**
+- Sob barragem, a infantaria vai à entrada do abrigo e desce degrau a degrau. Lá dentro recebe 8% do dano e não é alvo.
+- Sobe quando a barragem acaba ou no alarme (corrida ao parapeito) e volta ao posto.
+- O bunker só atira com guarnição e chama até 2 homens ociosos para guarnecê-lo.
+- No modo soldado, **E** na entrada desce ou sobe.
+
+**Bandeiras.** O QG, o posto e as bandeiras de setor deixaram de ser panos azul ou vermelho lisos e passaram a ser bandeiras nacionais: EUA (13 listras) e Império Alemão (preto, branco e vermelho).
+
+**Medido** (suítes em `tests/*.test.cjs`, as 15 antigas mais 8 novas, todas passando):
+
+| Recurso | Resultado |
+|---|---|
+| Resgate (A/B, 30 feridos, 150 s) | 25 mortos sem o sistema, 15 com resgate |
+| Resgate em batalha IA × IA (~3 min de combate) | 47 resgates iniciados: 11 entregues, 10 passados à maca, 16 interrompidos (13 por explosão), 5 feridos morreram |
+| Atirador × fuzileiro, alvo de 7 px | 59% × 17% a 230 px; a 300 px, 51% × 0 tiros |
+| Granadeiro | limpa um ninho de MG a 170 px e derruba um bunker de 1000 HP com 3 granadas (o fuzileiro não alcança) |
+| Assalto × fuzileiro | 59,5 × 47,6 px/s |
+| Trincheira sob supressão 1,2 | exposição 0,35 → 0,18 |
+| Água funda | 0 tiros (7 no seco, no mesmo intervalo) |
+| Explosão a 60 px | avança 15 px em 1 s (47 longe dela) |
+| Mira do jogador | erro de 0,000 → 0,040 rad sob supressão 1,6 |
+| MG operada pelo jogador | 15 tiros em 2 s, 0 px de deslocamento |
+| Corpo do disparo | Springfield 509 Hz × Gewehr 98 411 Hz |
+| Render offline, mesmos eventos | som antigo: pico 0,19, −41 dB chapado; novo: calmo −45 dB, tiroteio −37,5 dB, barragem −18,5 dB com pico 0,66 |
+| Áudio com 300 unidades | 349 nós/s |
+| Caça × bombardeiro | abate em 7,7 s |
+| Ataque ao solo | rota a 90°, supressão 0,68 na vala |
+| Observação | dispersão 60 → 21 px |
+| Bunker | vazio: 0 rajadas; guarnecido: 19 em 5 s |
+| Barragem de 60 s sobre 8 homens | 8 mortos sem abrigo, 6 com |
+
+**Custo e limites.**
+- Custo de CPU com 318 unidades: cerca de +1 ms por `update` (12,2–13,2 × 11,5 ms). O render não teve diferença mensurável.
+- O `verify-battle` passa com os módulos ligados: 4 de 4 rodadas, média de 23,4–30,1 ms por quadro com a máquina ocupada (sem os módulos: 19,2–23,5 ms).
+- Uma falha intermitente (4 de 7 rodadas) acontecia dentro de `operations.js`/`learning.js` (`reading 'invasion'` / `'losses'`). A causa era do `aviation.js`: com passo de 0,1 s, o avião de observação pousava exatamente no ponto de órbita, e no quadro seguinte `dx/d` com d=0 dava NaN. Abatido por um caça inimigo, ele gerava uma explosão em NaN que contaminava a posição de todas as unidades. Corrigido, com teste de regressão (`dt=0,1` e caça inimigo).
+- **E** no modo soldado, por prioridade: ferido > MG > abrigo > saque (gancho de 1 linha no `soldier-tactics.js`) > canhão/tanque.
+- Pendentes: itens de UI U1, U2, U7–U10 e U12–U16 do diagnóstico; auditoria visual de morteiro e canhão (projétil em voo, quadros da guarnição); fôlego, ferrolho e munição finita; cone de visão; granada cozida; passos e lama no áudio; variações de classe por nação além dos nomes.
