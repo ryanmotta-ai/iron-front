@@ -122,6 +122,21 @@ const shotsBy = (sb, us) => sb.bullets.filter(b => us.includes(b.by));
   ld.post = { x: ld.x, y: ld.y }; sb.run(.1);
   assert.equal(c.gun, ld, 'quem chegou ao ninho assume a arma'); assert.equal(old.mgr, 'ld');
 }
+/* ---------- Modo Soldado: o jogador municia uma MG sozinha ---------- */
+{
+  const sb = engine(); const g = sb.newUnit('mg', 0, 1000, 800); sb.run(.6); sb.dummy(1200, 800);
+  const me = sb.newUnit('rifle', 0, 1000, 815); me.noFire = true; sb.player = me; sb.mode = 'soldier'; sb.run(.6);
+  assert.equal(C(sb).length, 1, 'o fuzileiro do jogador não entra na guarnição sozinho');
+  const count = sec => { const n0 = sb.PXCREW.state().stats.gunShots; sb.run(sec); return sb.PXCREW.state().stats.gunShots - n0; };
+  const solo = count(10);
+  assert.equal(sb.PXCREW.feedLabel(g), 'E municiar a MG'); assert.ok(sb.PXCREW.feed(g)); assert.ok(sb.PXCREW.feeding());
+  const fed = count(10);
+  me.x = 1080; sb.run(.1); assert.ok(!sb.PXCREW.feeding(), 'longe da arma para de municiar');
+  console.log(`  jogador municiando: ${fed} tiros em 10 s (atirador sozinho: ${solo})`);
+  assert.ok(fed > solo * 1.8, 'o jogador municiando dá cadência cheia');
+  me.x = 1000; sb.PXCREW.feed(g); sb.shoot(me, { x: 1200, y: 800 }, true); assert.ok(!sb.PXCREW.feeding(), 'atirar larga a fita');
+  const sb2 = engine(); sb2.squad('mg', 0, 1000, 800); sb2.run(.6); assert.equal(sb2.PXCREW.feedable(C(sb2)[0].gun), false, 'guarnição completa: E assume a arma');
+}
 /* ---------- desligado: comportamento antigo (3 MGs) ---------- */
 {
   const sb = engine(); sb.PXCREW.on = false; sb.squad('mg', 0, 1000, 800); sb.dummy(1200, 800); sb.run(5);

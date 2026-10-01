@@ -15,15 +15,17 @@
      fica muda nesse intervalo; o calor e a água do cano passam para o novo atirador;
    - cano travado (frontline.js): com guarnição a troca leva metade dos 20 s; sozinho, 1,4×;
    - sobras de guarnições diferentes se juntam; reforços e feridos que voltam entram na guarnição mais próxima;
-   - se um auxiliar é postado num ninho (fortify.js) e chega lá, ele passa a ser o atirador e a guarnição vai junto.
+   - se um auxiliar é postado num ninho (fortify.js) e chega lá, ele passa a ser o atirador e a guarnição vai junto;
+   - Modo Soldado: E numa MG sem municiador faz o jogador municiá-la (conta como municiador enquanto estiver a até 30 px;
+     atirar larga a fita); com a guarnição completa, o E continua assumindo a arma (soldier-feel.js).
    Desenho: em movimento, os auxiliares andam de fuzil (com a caixa na mão); parados, ajoelham ao lado da arma
    (gancho de 1 linha no heavyfx.js). ?guarnicao=0 desliga; IronFront.mgcrew.state() mostra contagens. */
 (function(){
 if(typeof units==='undefined'||typeof defs==='undefined'||!defs.mg)return;
 const CFG={JOIN:110,MERGE:70,SETUP:1.0,MOVE_V:6,RATE:.13,RATE_SOLO:.3,BELT:250,CHANGE:3,CHANGE_SOLO:8,BOXES:6,RESUP:2,SOLO_RESUP:45,
- TAKE:1.4,HALT:5,HALT_CD:8,RIFLE_RATE:1.6,RIFLE_DMG:30,RIFLE_RANGE:250,SWAP_CREW:.5,SWAP_SOLO:1.4,FILL:2.5,FETCH:3,REAR:190};
+ TAKE:1.4,FEED_R:30,HALT:5,HALT_CD:8,RIFLE_RATE:1.6,RIFLE_DMG:30,RIFLE_RANGE:250,SWAP_CREW:.5,SWAP_SOLO:1.4,FILL:2.5,FETCH:3,REAR:190};
 const S=window.PXCREW={on:!/[?&]guarnicao=0/.test(location.search),version:'1.9',cfg:CFG,
- stats:{crews:0,joins:0,merges:0,promotions:0,beltChanges:0,soloChanges:0,blockedMove:0,halts:0,gunShots:0,crewShots:0,water:0,waterLost:0,ammoRuns:0,soloResup:0,swaps:0,posted:0,errors:0}};
+ stats:{crews:0,joins:0,merges:0,promotions:0,beltChanges:0,soloChanges:0,blockedMove:0,halts:0,gunShots:0,crewShots:0,water:0,waterLost:0,ammoRuns:0,soloResup:0,swaps:0,posted:0,feeds:0,feedLost:0,errors:0}};
 const hyp=Math.hypot,rnd=(a,b)=>a+Math.random()*(b-a);
 let CR=[],seq=0,errs=0,joinT=0;
 function fail(e){S.stats.errors++;if(++errs<=3)console.error('mgcrew.js:',e);if(errs>=12){S.on=false;release();console.error('mgcrew.js desligado após erros repetidos')}}
@@ -31,6 +33,9 @@ const wrap=(name,fn)=>{const orig=window[name];if(typeof orig!=='function'){cons
 const ok=u=>!!u&&u.hp>0&&!u.down&&!u.evac;
 const soldierMe=u=>typeof mode!=='undefined'&&mode==='soldier'&&u===player;
 const busy=u=>!!(u.post||u.sh||u.rs||u.sap||u.sapJob||u.pinned||u.lunge||soldierMe(u));
+/* jogador municiando (E numa MG sem municiador, via soldier-feel.js): conta como municiador enquanto estiver ao lado */
+const feeding=C=>!!C.feeder&&C.feeder===player&&soldierMe(player)&&ok(player)&&!!C.gun&&hyp(player.x-C.gun.x,player.y-C.gun.y)<CFG.FEED_R;
+const hasLd=C=>ok(C.ld)||feeding(C);
 const heatOf=u=>{try{return window.PXFL&&PXFL.on&&PXFL.st?PXFL.st(u):null}catch{return null}};
 const G=()=>(window.PXFL&&PXFL.cfg&&PXFL.cfg.MG)||{AMB:15,WAT:4,SWAP:20};
 function release(){for(const C of CR)for(const u of members(C))if(u){u.mgc=null;u.mgr=null}CR=[]}
@@ -109,10 +114,11 @@ function tick(dt){
   for(const k of['ld','br']){const u=C[k];if(!u||!u.post||gun.post||soldierMe(gun)||soldierMe(u))continue;if(hyp(u.x-u.post.x,u.y-u.post.y)>20)continue;
    C.gun=u;u.mgr='gun';C[k]=gun;gun.mgr=k;copyHeat(gun,u);coolAux(gun);S.stats.posted++;break}
   /* cano travado: a troca depende de quem está lá */
-  const a=heatOf(C.gun);if(a){if(a.seized&&!a._mcSw){a._mcSw=1;a.swapUntil=time+G().SWAP*(C.ld?CFG.SWAP_CREW:CFG.SWAP_SOLO);S.stats.swaps++}else if(!a.seized)a._mcSw=0}
+  const a=heatOf(C.gun);if(a){if(a.seized&&!a._mcSw){a._mcSw=1;a.swapUntil=time+G().SWAP*(hasLd(C)?CFG.SWAP_CREW:CFG.SWAP_SOLO);S.stats.swaps++}else if(!a.seized)a._mcSw=0}
   /* ordem manual dada só a um auxiliar vale para a arma inteira */
   for(const k of['ld','br']){const u=C[k];if(!u||!(u.manualUntil>time)||u._mcFwd===u.manualUntil||soldierMe(C.gun))continue;u._mcFwd=u.manualUntil;
    if(!(C.gun.manualUntil>=u.manualUntil-.05)){C.gun.order=u.order;C.gun.tx=u.tx;C.gun.ty=u.ty;C.gun.manualUntil=u.manualUntil;C.gun.target=null}}
+  if(C.feeder&&!feeding(C)){if(C.feeder===player&&soldierMe(player)&&ok(player)){S.stats.feedLost++;try{toast('Longe da arma: você parou de municiar.')}catch{}}C.feeder=null}
   errands(C,dt);
   for(const k of['ld','br']){const u=C[k];if(!u)continue;coolAux(u);if(busy(u)||(C.errand&&C.errand.u===u))continue;steer(u,slot(C,u))}}
  CR=CR.filter(C=>{if(!C.dead)return true;for(const u of members(C)){u.mgc=null;u.mgr=null}return false})}
@@ -120,14 +126,15 @@ wrap('setup',(orig,...a)=>{CR=[];seq=0;joinT=0;return orig(...a)});
 wrap('update',(orig,dt)=>{const r=orig(dt);if(S.on&&started&&!ended)try{tick(dt)}catch(e){fail(e)}return r});
 /* ---------- tiro ---------- */
 wrap('shoot',(orig,u,target,manual)=>{
+ if(S.on&&manual&&u===player)for(const C of CR)if(C.feeder===player){C.feeder=null;try{toast('Você largou a fita para atirar.')}catch{}}
  if(!S.on||!u||u.type!=='mg'||!u.mgc||manual)return orig(u,target,manual);
  try{const C=u.mgc;
   if(u.mgr==='gun'){
    if(time-C.lastMove<CFG.SETUP){u.cd=Math.max(u.cd,.15);S.stats.blockedMove++;return}
    if(C.chg>time){u.cd=Math.max(u.cd,C.chg-time);return}
-   if(C.belt<=0){if(C.boxes>0){C.boxes--;C.belt=CFG.BELT;const solo=!ok(C.ld);C.chg=time+(solo?CFG.CHANGE_SOLO:CFG.CHANGE);S.stats[solo?'soloChanges':'beltChanges']++;u.cd=C.chg-time}else u.cd=.5;return}
+   if(C.belt<=0){if(C.boxes>0){C.boxes--;C.belt=CFG.BELT;const solo=!hasLd(C);C.chg=time+(solo?CFG.CHANGE_SOLO:CFG.CHANGE);S.stats[solo?'soloChanges':'beltChanges']++;u.cd=C.chg-time}else u.cd=.5;return}
    const n=bullets.length,r=orig(u,target,manual);
-   if(bullets.length>n){C.belt--;S.stats.gunShots++;u.cd*=(ok(C.ld)?CFG.RATE:CFG.RATE_SOLO)/(defs.mg.rate||.22)}
+   if(bullets.length>n){C.belt--;S.stats.gunShots++;u.cd*=(hasLd(C)?CFG.RATE:CFG.RATE_SOLO)/(defs.mg.rate||.22)}
    return r}
   if(u.mgr==='take'||(C.errand&&C.errand.u===u&&C.errand.ph!=='fill')){u.cd=Math.max(u.cd,.4);return}
   if(!target||hyp(target.x-u.x,target.y-u.y)>CFG.RIFLE_RANGE){u.cd=Math.max(u.cd,.4);return}
@@ -157,6 +164,12 @@ if(window.PHYS){const d0=PHYS.draw||(()=>false);PHYS.draw=function(c,u,sp,sx,sy,
   if(!r)c.drawImage(r2.c,0,0,r2.c.width,vis,sx-r2.ax,sy-r2.ay+bob,r2.c.width,vis);
   if(!(window.PXW&&PXW.depth&&PXW.depth(u.x,u.y)>=.25)){const side=Math.cos(u.angle||0)>=0?-1:1;tin(c,sx+side*5,sy+2+bob+(((time*8+u.id)|0)%2),u.team,0)}
   return true}catch(e){u.type='mg';fail(e);return d0.call(PHYS,c,u,sp,sx,sy,vis,bob)}}}
+const gunName=()=>{try{return weapons.mg?weapons.mg.name:'MG'}catch{return 'MG'}};
+S.feedable=m=>!!(S.on&&m&&m.mgc&&m.mgr==='gun'&&!m.mgc.take&&(m.mgc.feeder===player||!ok(m.mgc.ld)));
+S.feed=m=>{if(!S.feedable(m))return false;const C=m.mgc;if(C.feeder===player){C.feeder=null;try{toast('Você parou de municiar.')}catch{}return true}
+ C.feeder=player;S.stats.feeds++;try{toast(`Municiando a ${gunName()}: cadência cheia e troca de fita em ${CFG.CHANGE} s. Fique ao lado da arma · E para parar.`)}catch{}return true};
+S.feedLabel=m=>!S.feedable(m)?'':m.mgc.feeder===player?'E parar de municiar':'E municiar a MG';
+S.feeding=()=>CR.some(feeding);
 S.crews=()=>CR;
 S.state=()=>({on:S.on,crews:CR.length,full:CR.filter(C=>size(C)>=3).length,solo:CR.filter(C=>size(C)===1).length,
  list:CR.map(C=>({id:C.id,team:C.team,gun:C.gun&&C.gun.id,ld:C.ld&&C.ld.id,br:C.br&&C.br.id,take:C.take&&C.take.u.id,belt:C.belt,boxes:C.boxes,errand:C.errand&&C.errand.kind})),stats:{...S.stats}});

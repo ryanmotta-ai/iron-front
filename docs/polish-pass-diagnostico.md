@@ -120,7 +120,7 @@ Fora deste passe, registrados como pendentes: suporte aéreo expandido, constru�
 | U11 resultado pobre | **Corrigido**: relatório médico | `casualty.js` |
 | U1, U2, U7–U10, U12–U16 | Pendentes (arquivos de UI de outras sessões) | — |
 
-Seções do pedido que **ainda não** foram feitas: parte de 15 (passos, lama e chuva no novo mixer), o restante de 9 (UI) e B11/B12. A parte de 12 que faltava (fôlego, ferrolho, munição finita, granada cozida, cone de visão) entrou no `soldier-gear.js`; a parte visual de 8 para blindados, aviões e explosões está nas camadas `anim-*.js` de outra sessão (ainda não commitadas).
+Seções do pedido que **ainda não** foram feitas: o restante de 9 (UI) e B11/B12. Passos por superfície (terra, lama, água, tábuas da trincheira, neve) e chuva no mixer já entraram no `soundscape.js`. A parte de 12 que faltava (fôlego, ferrolho, munição finita, granada cozida, cone de visão) entrou no `soldier-gear.js`; a parte visual de 8 para blindados, aviões e explosões está nas camadas `anim-*.js` de outra sessão (ainda não commitadas).
 
 ## 7. Guarnição de MG — arma coletiva (`dist/mgcrew.js`, 01/10/2026 à noite)
 
@@ -140,7 +140,7 @@ Também:
 - sobras de guarnições se juntam, e reforços entram na guarnição incompleta mais próxima;
 - auxiliar postado num ninho que chega lá vira o atirador;
 - ordem dada só a um auxiliar vale para a arma inteira;
-- no Modo Soldado, **E** só assume o atirador.
+- no Modo Soldado, **E** só assume o atirador. Numa MG sem municiador, o **E** faz o jogador municiá-la: ele conta como municiador enquanto fica a até 30 px, e atirar larga a fita. No jogo real: E → "Municiando a M1917 BROWNING…", dica "E parar de municiar", e o segundo E encerra. No mini-motor: 75 tiros em 10 s municiado × 30 sozinho.
 
 **Desenho.** Em marcha, os auxiliares andam de fuzil, com a marcha de fuzileiro do `anim-infantry.js` e a caixa na mão. Parados, ajoelham ao lado da arma com a caixa, e o municiador a ergue na troca de fita (gancho de 1 linha no `heavyfx.js`). `?guarnicao=0` volta ao comportamento antigo.
 

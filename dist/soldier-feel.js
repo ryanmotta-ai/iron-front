@@ -33,7 +33,7 @@ function dismount(msg){if(!MG)return;const m=MG.m;m.belt=ammo;const back=MG.prev
 function keyE(){if(!active())return false;
  if(MG){dismount('Você deixou a metralhadora.');return true}
  if(player.type!=='rifle'||player.down||player.isDowned)return false;
- const m=nearMG();if(m){mount(m);return true}return false}
+ const m=nearMG();if(m){if(window.PXCREW&&PXCREW.feed&&PXCREW.feed(m))return true;mount(m);return true}return false}   // MG sem municiador: E municia (mgcrew.js)
 K.ePri.push(()=>active()&&(!!MG||player.type==='rifle'&&!player.down&&!!nearMG()));
 window.addEventListener('keydown',e=>{if((e.key||'').toLowerCase()!=='e'||e.repeat)return;if(document.querySelector('dialog[open]'))return;
  try{if(keyE()){e.preventDefault();e.stopImmediatePropagation()}}catch(err){fail(err)}},true);
@@ -84,7 +84,7 @@ function eAction(){if(!player)return '';const C=window.PXCAS;
  if(MG&&player===MG.m)return 'E sair da MG';
  if(C&&C.playerBusy&&C.playerBusy())return 'E soltar o ferido';
  if(player.type==='rifle'){for(const w of units)if(w!==player&&w.down&&w.team===player.team&&!w.inBed&&(w.x-player.x)**2+(w.y-player.y)**2<30*30)return player.cls==='medic'?'E socorrer':'E arrastar o ferido';
-  if(nearMG())return 'E assumir a MG'}
+  const nm=nearMG();if(nm)return(window.PXCREW&&PXCREW.feedLabel&&PXCREW.feedLabel(nm))||'E assumir a MG'}
  if(units.some(u=>u!==player&&u.team===player.team&&u.type===(player.type==='tank'?'rifle':'tank')&&hyp(u.x-player.x,u.y-player.y)<100))return player.type==='tank'?'E sair do tanque':'E tanque';
  return 'E canhão/saquear'}
 function hintLine(){if(mode!=='soldier'||!player)return;const el=document.getElementById('hint');if(!el)return;
