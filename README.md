@@ -567,3 +567,16 @@ Os desfechos são volta ao combate, incapacitado, evacuado (metade volta como re
   - trincheira suprimida fica mais protegida, mas para de atirar a partir de supressão 0,9.
 - **E** no modo soldado, por prioridade: ferido > MG > abrigo > saque (gancho de 1 linha no `soldier-tactics.js`) > canhão/tanque.
 - Pendentes: itens de UI U1, U2, U7–U10 e U12–U16 do diagnóstico; auditoria visual de canhão, MG pesada e animação da guarnição (o morteiro já tem projétil em voo); fôlego, ferrolho e munição finita; cone de visão; granada cozida; passos e lama no áudio; variações de classe por nação além dos nomes.
+
+### Gás mostarda 2.0 e máscaras visíveis (`dist/assault.js`)
+- **Nuvem:** cada rolo é desenhado em duas camadas (corpo rente ao chão e coroa mais clara), em amarelo-oliva mostarda. As bordas são irregulares por ruído de valor e o miolo "rola", com as variantes trocando por cross-fade. No impacto, os rolos se abrem para fora e a nuvem cresce até ~88 px por rolo, indo com o vento e escorrendo para as crateras.
+- **Chão:**
+  - névoa rasteira mais densa onde o gás se acumula (crateras, trincheiras);
+  - respingo do líquido no impacto;
+  - **resíduo persistente:** a terra fica manchada de amarelo por ~90 s depois que a nuvem passa (só visual).
+  - Névoa e resíduo são manchas redondas sobrepostas, sem grade aparente.
+- **Dano do gás:** sai direto da vida, sem o clarão de impacto nem o sangue a cada tique. Só o golpe final passa pelo `damage()`.
+- **Máscara no sprite:** quem está de máscara (`u.mask`) é desenhado com ela. O rosto é achado nas fileiras de pele mais altas do sprite e recolorido, com cache por sprite, então funciona em toda vista e todo quadro.
+  - EUA: respirador SBR cáqui-acinzentado com mangueira.
+  - Alemanha: Gummimaske de borracha escura com filtro redondo.
+  - Os dois têm lentes de vidro com reflexo.

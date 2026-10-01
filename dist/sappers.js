@@ -163,7 +163,7 @@ function crewTick(p,dt){
   if(u.target&&u.target.hp>0){u.sapState='fight';dig+=CFG.FIGHT}
   else{u.sapState='dig';dig++;u.angle=Math.atan2(s.y-u.y,s.x-u.x);if(Math.random()<dt*3.2)spoil(u,s,fc)}}
  if(quit)p.crew=p.crew.filter(id=>id>0);
- s.work+=dt*rate(dig)*(CFG.WORKX||1)*(CFG.BUILDX||1);/* obras mais rápidas: x1,7 na campanha, x3,2 no sandbox */
+ s.work+=dt*rate(dig)*(CFG.WORKX||1)*(CFG.BUILDX||1);/* obras mais rápidas: x1,7 na campanha, x7 no sandbox (ui-fix.js ajusta BUILDX) */
  while(s.stage<p.target&&s.work>=s.need[s.stage])stageUp(s)}
 /* terra jogada para o lado do inimigo (é assim que o parapeito nasce) */
 function spoil(u,s,fc){if(FXD.length>320)return;const[nx,ny]=enemyNormal(s.ax,s.ay,fc);

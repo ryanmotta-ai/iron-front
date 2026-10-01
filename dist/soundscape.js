@@ -18,16 +18,25 @@
                    (depois de 25 s sem explosão perto). Caos: o leito de fogo distante e o ronco de artilharia sobem com G.
    Vozes ......... gritos curtos por formantes (serra + 3 passa-bandas + ruído de consoante) para os gritos do life-kit:
                    "MEDIC!", "SANI!", "GRENADE!", "DECKUNG!"… voz própria por soldado (f0 150–230 Hz), no máximo 2 juntas.
+   Passos ........ unidades perto do ouvinte (≤ 520 px; tanques ≤ 800 px) soltam um passo a cada "passada" de deslocamento real
+                   (21 px: a cadência segue a velocidade — mais lenta na lama, rápida na carga). Superfície: terra seca, lama
+                   (PXW.mudAt: chape + sucção), água rasa (chapinhar) e funda (braçadas), trincheira (tábuas ocas, IFK.inTrench),
+                   neve (estalo). Tanque: baque da lagarta + clanque, e chiado patinando na lama. Equipamento (cantil, cartucheiras)
+                   discreto, só muito perto. Barramento próprio "step" (8 vozes, prioridade baixa, ganho/ar/panorama por distância,
+                   ducking com tiros e explosões) e orçamento: no máximo 14 passos/s (balde de 6), os mais próximos primeiro; o
+                   jogador tem prioridade. Chuva: duas camadas em laço (chiado + tamborilar) cujo timbre muda com a superfície sob
+                   o ouvinte (terra, lama, tábuas, água); neve não tem. Sem nós novos por segundo.
    ?som2=0 desliga (volta o som antigo) · IronFront.soundscape.state() (vozes, descartes, roubos, nós/s, intensidade). */
 (function(){
 const hyp=Math.hypot,rnd=(a,b)=>a+Math.random()*(b-a),clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const wrap=(name,fn)=>{const orig=window[name];if(typeof orig!=='function'){console.warn('soundscape.js: função ausente: '+name);return}window[name]=function(...a){return fn(orig,...a)}};
-const CFG={MIX:.55,R0:{gun:160,mg:220,boom:400,voice:180},MAXD:{gun:1400,boom:3200,voice:800},BUS:{gun:16,boom:6,voice:2},GAP:.05,
- PRI:{player:10,howitzer:6,mortar:4,mg:3,rifle:2,voice:5},TAU:6,CALM_BIRDS:25,DUCK:{gun:.5,amb:.25,voice:.7}};
+const CFG={MIX:.55,R0:{gun:160,mg:220,boom:400,voice:180,step:90,track:200},MAXD:{gun:1400,boom:3200,voice:800,step:520,track:800},BUS:{gun:16,boom:6,voice:2,step:8},GAP:.05,
+ PRI:{player:10,howitzer:6,mortar:4,mg:3,rifle:2,voice:5},TAU:6,CALM_BIRDS:25,DUCK:{gun:.5,amb:.25,voice:.7,step:.3},
+ STEP:{VOL:.2,PS:14,BURST:6,WET:.25,DEEP:.55,MUD:.35,GEAR:.14,STRIDE:{inf:21,mg:24,cav:27,tank:28,deep:36}}};
 const S=window.SNDSCAPE={on:!/[?&]som2=0/.test(location.search),version:'1.9',cfg:CFG,
- stats:{voices:0,dropped:0,stolen:0,nodes:0,shots:0,booms:0,shouts:0,errors:0,peakI:0,peakG:0}};
+ stats:{voices:0,dropped:0,stolen:0,nodes:0,shots:0,booms:0,shouts:0,errors:0,peakI:0,peakG:0,steps:0,stepSkip:0,stepDrop:0,tankSteps:0,gear:0,stepsBy:{dry:0,mud:0,shallow:0,deep:0,board:0,snow:0}}};
 let A=null,MIX=null,BUS={},REV=null,NOISE=null,PINK=null,BROWN=null,AMB=null,errs=0,mute=0,I=0,G=0,lastBoomNear=-99,lastGap=0,nodesT=0,nodesN=0;
-const ACT={gun:[],boom:[],voice:[]};
+const ACT={gun:[],boom:[],voice:[],step:[]};
 function fail(e){S.stats.errors++;if(++errs<=3)console.error('soundscape.js:',e);if(errs>=20){S.on=false;console.error('soundscape.js desligado após erros repetidos')}}
 const live=()=>{try{return S.on&&soundOn&&audio&&audio.state!=='closed'}catch{return false}};
 const node=n=>{S.stats.nodes++;nodesN++;return n};
@@ -43,7 +52,7 @@ function init(){if(A===audio&&MIX)return true;if(!audio)return false;A=audio;
  try{const m=A.__ifm;if(m&&!m.__lim){const lim=A.createDynamicsCompressor();lim.__raw=1;lim.threshold.value=-10;lim.knee.value=6;lim.ratio.value=12;lim.attack.value=.002;lim.release.value=.2;
    m.disconnect();m.connect(lim);lim.connect(A.destination);m.__lim=lim}}catch(e){fail(e)}
  REV=A.createConvolver();REV.buffer=ir();const rg=A.createGain();rg.gain.value=.55;REV.connect(rg);rg.connect(MIX);
- for(const k of ['gun','boom','voice','amb']){const g=A.createGain(),dk=A.createGain();g.gain.value={gun:.8,boom:.9,voice:.85,amb:.5}[k];g.connect(dk);dk.connect(MIX);BUS[k]={g,dk}}
+ for(const k of ['gun','boom','voice','amb','step']){const g=A.createGain(),dk=A.createGain();g.gain.value={gun:.8,boom:.9,voice:.85,amb:.5,step:.6}[k];g.connect(dk);dk.connect(MIX);BUS[k]={g,dk}}
  NOISE=buf('white');PINK=buf('pink');BROWN=buf('brown');startAmb();return true}
 
 /* ---------- espaço ---------- */
@@ -80,7 +89,7 @@ function gunshot(u,manual){if(!live()||!init())return;const sp=space(u.x,u.y,u.t
  v.srcs.push(layer(c.inp,NOISE,t,'bandpass',R.body*det*(1-.5*far),R.q,.002,.6,R.short?.07:.16));
  if(far<.8)v.srcs.push(thump(c.inp,t,R.f0*det,R.f1,R.short?.05:.08,.5*(1-far)));
  v.srcs.push(layer(c.inp,PINK,t,'lowpass',far>.5?600:900,0,.01,R.tg*(1+far*1.5),R.tail*(1+far)));
- bump(u.x,u.y,u.type==='mg'?.06:.12)}
+ if(sp.d<260)duckStep(.55,.12);bump(u.x,u.y,u.type==='mg'?.06:.12)}
 
 /* ---------- morteiro: "tum" do tubo e assobio de chegada ---------- */
 function mortarLaunch(x,y){if(!live()||!init())return;const sp=space(x,y,'boom');if(sp.d>CFG.MAXD.gun)return;const t=A.currentTime+sp.delay,v=claim('gun',CFG.PRI.mortar*(1-sp.d/CFG.MAXD.gun)**2,.6,t);if(!v)return;S.stats.shots++;
@@ -102,7 +111,7 @@ function boom(x,y,r){if(!live()||!init())return;const sp=space(x,y,'boom');if(sp
  if(far<.5){const n=[7,12,20][size];for(let i=0;i<n;i++){const tt=t+.15+Math.random()*[.9,1.5,2.5][size];v.srcs.push(layer(c.inp,NOISE,tt,'bandpass',rnd(2000,4000),3,.001,.12,.004))}}
  else{for(const [dt,gk] of [[.35,.3],[.9,.15]])v.srcs.push(layer(c.inp,BROWN,t+dt,'lowpass',far>.8?250:400,0,.05,gk,.8))}
  if(sp.d<400){duck(size)}bump(x,y,[.5,.9,1.5][size]);if(sp.d<800)lastBoomNear=time}
-function duck(size){const now=A.currentTime,back=[.4,.8,1.2][size];for(const [k,lv] of [['gun',CFG.DUCK.gun],['amb',CFG.DUCK.amb],['voice',CFG.DUCK.voice]]){const g=BUS[k].dk.gain;
+function duck(size){const now=A.currentTime,back=[.4,.8,1.2][size];for(const [k,lv] of [['gun',CFG.DUCK.gun],['amb',CFG.DUCK.amb],['voice',CFG.DUCK.voice],['step',CFG.DUCK.step]]){const g=BUS[k].dk.gain;
  g.cancelScheduledValues(now);g.setValueAtTime(g.value,now);g.linearRampToValueAtTime(lv,now+.01);g.setTargetAtTime(1,now+.05,back)}}
 
 /* ---------- vozes por formantes ---------- */
@@ -121,10 +130,58 @@ function shout(txt,u){if(!live()||!init())return;const sp=space(u.x,u.y,'voice')
  amp.linearRampToValueAtTime(0,tt+.06);o.start(t);vib.start(t);o.stop(tt+.1);vib.stop(tt+.1);v.srcs.push(o,vib)}
 if(window.IFK)IFK.voice=(key,u)=>{try{if(S.on)shout(IFK.lang(u.team,key),u)}catch(e){fail(e)}};
 
+/* ---------- passos, lama, água e chuva sobre as superfícies ---------- */
+const ST=CFG.STEP,EVS=[];let stepTok=ST.BURST,stepLast=0,stepsN=0,lastSD=-9,rainAt=0,rainSurf='dry',stepFoot=0;
+const RAINK={dry:[.6,1400,.6,4200],mud:[.35,700,.45,2800],shallow:[1,2400,1,6500],deep:[1.1,2600,1.1,6500],board:[.8,900,.8,4000],snow:[0,1400,0,4200]};
+/* superfície sob (x,y) da unidade: água > trincheira (tábuas) > neve > lama > terra seca */
+function surfaceAt(u){const w=window.PXW;let d=0,m=0;try{if(w){d=w.depth?w.depth(u.x,u.y):0;m=w.mudAt?w.mudAt(u.x,u.y):0}}catch{}
+ if(d>=ST.DEEP)return 'deep';if(d>=ST.WET)return 'shallow';
+ try{if(window.IFK&&IFK.inTrench&&IFK.inTrench(u))return 'board'}catch{}
+ if((w&&w.state&&w.state.snow)||(typeof map!=='undefined'&&map==='winter'))return 'snow';
+ return m>ST.MUD?'mud':'dry'}
+/* saída leve de um passo: filtro do ar → ganho → pan → barramento "step" (sem envio de reverb: são sons de perto) */
+function chainLite(sp,vol){const lp=node(A.createBiquadFilter());lp.type='lowpass';lp.frequency.value=sp.lp;const g=node(A.createGain());g.gain.value=vol;let out=g;
+ if(A.createStereoPanner){const p=node(A.createStereoPanner());p.pan.value=sp.pan;g.connect(p);out=p}lp.connect(g);out.connect(BUS.step.g);return {inp:lp,g}}
+function duckStep(lv,back){const now=A.currentTime;if(now-lastSD<.08||!BUS.step)return;lastSD=now;const g=BUS.step.dk.gain;g.cancelScheduledValues(now);g.setValueAtTime(g.value,now);g.linearRampToValueAtTime(lv,now+.01);g.setTargetAtTime(1,now+.05,back)}
+/* um passo (ou passada de lagarta); devolve false se o limite de vozes o descartou */
+function stepSound(u,surf,tank,jit=0){if(!live()||!init())return false;const L=listener(),isP=u===player&&mode==='soldier',sp0=space(u.x,u.y,tank?'track':'step'),maxd=tank?CFG.MAXD.track:CFG.MAXD.step;if(sp0.d>maxd)return false;
+ const foot=(stepFoot++)&1,sp={...sp0,pan:clamp(isP?(foot?.14:-.14):sp0.pan+(foot?.05:-.05),-1,1)},t=A.currentTime+jit+sp.delay,pri=(tank?1.5:1)*(1-sp.d/maxd)+(isP?4:0),dur=tank?.7:.4;
+ const v=claim('step',pri,dur,t);if(!v)return false;
+ const cav=u.type==='cavalry',cnt=typeof defs!=='undefined'&&defs[u.type]&&defs[u.type].count||1,mult=tank?1.5:cav?1.3:clamp(.6+.18*cnt,.7,1.8),fm=cav?.6:1,det=rnd(.9,1.1)*fm,near=sp.d<260;
+ const vol=sp.gain*ST.VOL*mult*rnd(.8,1.2)*(isP?1.3:1),c=chainLite(sp,vol);v.g=c.g;const o=c.inp,P=v.srcs,SS=S.stats;
+ if(tank){SS.tankSteps++;P.push(layer(o,BROWN,t,'lowpass',150*det,0,.004,.9,.22),layer(o,NOISE,t,'bandpass',1700*det,4,.002,.28,.06));        // baque da esteira + clanque
+  if(surf==='mud'||surf==='shallow'||surf==='deep')P.push(layer(o,NOISE,t+.03,'bandpass',1100*det,1.5,.1,.3,.35,500));                          // chiado patinando na lama / marolas
+  if(surf==='mud')P.push(layer(o,PINK,t+.1,'bandpass',600,5,.03,.22,.2,220))}
+ else if(surf==='mud'){P.push(layer(o,BROWN,t,'lowpass',520*det,0,.006,.8,.12,190));                                                                   // pé afundando
+  if(near)P.push(layer(o,PINK,t+.07,'bandpass',760*det,5,.02,.3,.17,260))}                                                                           // sucção ao puxar o pé
+ else if(surf==='shallow'){P.push(layer(o,NOISE,t,'bandpass',1250*det,.9,.004,.5,.17,620));if(near)P.push(layer(o,NOISE,t+.04,'highpass',3600,0,.002,.14,.05))}  // chapinhar
+ else if(surf==='deep')P.push(layer(o,PINK,t,'lowpass',520*det,0,.07,.4,.35,260));                                                                       // braçada n'água
+ else if(surf==='board'){P.push(layer(o,BROWN,t,'bandpass',170*det,2.2,.003,.9,.09));if(near)P.push(layer(o,NOISE,t,'highpass',1800*det,0,.002,.16,.025))}   // tábuas ocas
+ else if(surf==='snow'){P.push(layer(o,NOISE,t,'highpass',2400*det,0,.005,.34,.1));if(near)P.push(layer(o,NOISE,t+.035,'bandpass',3200*det,1,.004,.22,.07),layer(o,BROWN,t,'lowpass',160*det,0,.004,.2,.07))}
+ else{P.push(layer(o,BROWN,t,'lowpass',280*det,0,.003,.9,.07));if(near)P.push(layer(o,NOISE,t,'bandpass',2300*det,.9,.002,.3,.04))}                  // terra seca: calcanhar + grão
+ if(!tank&&sp.d<160&&Math.random()<ST.GEAR){SS.gear++;const gt=t+rnd(.02,.07);                                                                          // equipamento: cantil / cartucheiras
+  if(Math.random()<.5)P.push(layer(o,NOISE,gt,'bandpass',4200,10,.001,.05,.04),layer(o,PINK,gt,'bandpass',650,3,.03,.05,.1,900));
+  else P.push(layer(o,NOISE,gt,'bandpass',1150,4,.002,.07,.05),layer(o,NOISE,gt+.045,'bandpass',1400,4,.002,.05,.04))}
+ SS.steps++;SS.stepsBy[surf]++;stepsN++;return true}
+/* a cada quadro: deslocamento real de cada unidade perto do ouvinte → passadas → passos (balde de fichas, mais próximos primeiro) */
+function stepsTick(){if(!live()||!A)return;const L=listener(),now=A.currentTime;stepTok=Math.min(ST.BURST,stepTok+(now-stepLast)*ST.PS);stepLast=now;EVS.length=0;
+ for(const u of units){let s=u._ss;if(!s){u._ss={x:u.x,y:u.y,a:0};continue}const mv=hyp(u.x-s.x,u.y-s.y);s.x=u.x;s.y=u.y;
+  if(!(mv>.02)||mv>60||u.hp<=0||u.down){if(!(mv>.02))s.a=0;continue}
+  const tank=u.type==='tank',maxd=tank?CFG.MAXD.track:CFG.MAXD.step,dx=u.x-L.x,dy=u.y-L.y;if(dx>maxd||dx<-maxd||dy>maxd||dy<-maxd)continue;const d=hyp(dx,dy);if(d>maxd)continue;
+  s.a+=mv;if(s.a<14)continue;const surf=tank?(s.sf=surfaceAt(u)):surfaceAt(u),K=ST.STRIDE,sl=tank?K.tank:surf==='deep'?K.deep:u.type==='mg'?K.mg:u.type==='cavalry'?K.cav:K.inf;
+  if(s.a>=sl){s.a%=sl;EVS.push({u,surf,tank,d:u===player&&mode==='soldier'?-1:d,jit:0})}}
+ if(!EVS.length)return;if(EVS.length>1)EVS.sort((a,b)=>a.d-b.d);const win=Math.min(.05,.03*EVS.length);
+ for(const e of EVS){const cost=e.tank?2:1;if(stepTok<cost){S.stats.stepSkip++;continue}stepTok-=cost;if(!stepSound(e.u,e.surf,e.tank,rnd(0,win)))S.stats.stepDrop++}}
+/* chuva sobre a superfície sob o ouvinte: chiado (ar/folhas) + tamborilar; timbre troca com terra, lama, tábuas ou água */
+function rainTick(now){const w=window.PXW,I=w&&w.state&&!w.state.snow?clamp(+w.state.I||0,0,1):0;if(!AMB||!AMB.rainH)return;
+ if(now-rainAt>.5){rainAt=now;try{rainSurf=surfaceAt(listener())}catch{}}const k=RAINK[rainSurf]||RAINK.dry;
+ AMB.rainH.g.gain.setTargetAtTime(I*.04*k[0],now,.4);AMB.rainH.fl.frequency.setTargetAtTime(k[3],now,.4);
+ AMB.rainP.g.gain.setTargetAtTime(I*.07*k[2],now,.4);AMB.rainP.fl.frequency.setTargetAtTime(k[1],now,.4)}
+
 /* ---------- ambiente e intensidade ---------- */
 function bump(x,y,w){const L=listener(),d=hyp(x-L.x,y-L.y);I+=w*Math.max(0,1-d/1500);G+=w}
 function startAmb(){const now=A.currentTime,mk=(b,type,f,q,vol)=>{const s=A.createBufferSource();s.buffer=b;s.loop=true;const fl=A.createBiquadFilter();fl.type=type;fl.frequency.value=f;if(q)fl.Q.value=q;const g=A.createGain();g.gain.value=vol;s.connect(fl);fl.connect(g);g.connect(BUS.amb.g);s.start(now,Math.random());return {s,fl,g}};
- AMB={wind:mk(PINK,'bandpass',400,.7,.05),bed:mk(BROWN,'lowpass',600,0,.015),rumble:mk(BROWN,'lowpass',120,0,.02),birdAt:A.currentTime+rnd(3,8),thumpAt:A.currentTime+rnd(2,6)}}
+ AMB={wind:mk(PINK,'bandpass',400,.7,.05),bed:mk(BROWN,'lowpass',600,0,.015),rumble:mk(BROWN,'lowpass',120,0,.02),rainH:mk(NOISE,'highpass',4200,0,0),rainP:mk(PINK,'bandpass',1400,.8,0),birdAt:A.currentTime+rnd(3,8),thumpAt:A.currentTime+rnd(2,6)}}
 function bird(){const now=A.currentTime,n=3+(Math.random()*5|0),pan=rnd(-.8,.8);for(let i=0;i<n;i++){const t=now+i*rnd(.08,.14),o=node(A.createOscillator()),g=node(A.createGain());o.type='sine';o.frequency.setValueAtTime(rnd(2400,2800),t);o.frequency.exponentialRampToValueAtTime(rnd(4000,4700),t+.04);
   env(g,t,.004,rnd(.012,.025),.05);let out=g;if(A.createStereoPanner){const p=node(A.createStereoPanner());p.pan.value=pan;g.connect(p);out=p}o.connect(g);out.connect(BUS.amb.g);o.start(t);o.stop(t+.08)}}
 function ambTick(dt){const k=Math.exp(-dt/CFG.TAU);I*=k;G*=k;const In=I/(I+2),Gn=G/(G+6);S.stats.peakI=Math.max(S.stats.peakI,In);S.stats.peakG=Math.max(S.stats.peakG,Gn);
@@ -133,7 +190,8 @@ function ambTick(dt){const k=Math.exp(-dt/CFG.TAU);I*=k;G*=k;const In=I/(I+2),Gn
  AMB.bed.g.gain.setTargetAtTime(.012+.08*Gn,now,.4);AMB.rumble.g.gain.setTargetAtTime(.015+.1*Gn,now,.6);
  if(calm>.75&&time-lastBoomNear>CFG.CALM_BIRDS&&now>AMB.birdAt){AMB.birdAt=now+rnd(3,8);bird()}
  if(Gn>.15&&now>AMB.thumpAt){AMB.thumpAt=now+rnd(1.5,6)/(.4+Gn);/* tiro de artilharia muito distante */const c={inp:BUS.amb.g};layer(c.inp,BROWN,now,'lowpass',180,0,.05,.12*Gn+.03,1.4)}
- if(time-nodesT>=1){S.nodesPerSec=nodesN/(time-nodesT||1);nodesT=time;nodesN=0}
+ rainTick(now);stepsTick();
+ if(time-nodesT>=1){const el=time-nodesT||1;S.nodesPerSec=nodesN/el;S.stepsPerSec=stepsN/el;nodesT=time;nodesN=0;stepsN=0}
  MIX.gain.setTargetAtTime(soundOn?CFG.MIX:0,now,.05)}
 S.calm=()=>1-clamp((I/(I+2)-.15)/.35,0,1);
 
@@ -147,7 +205,7 @@ wrap('sound',(orig,kind)=>{if(S.on&&mute&&(kind==='shot'||kind==='boom'))return;
  return orig(kind)});
 wrap('update',(orig,dt)=>{orig(dt);try{if(S.on&&dt>0)ambTick(dt)}catch(e){fail(e)}});
 wrap('setup',(orig,...a)=>{I=0;G=0;lastBoomNear=-99;return orig(...a)});
-S.state=()=>({on:S.on,live:live(),voices:Object.fromEntries(Object.entries(ACT).map(([k,v])=>[k,v.length])),intensity:+(I/(I+2)).toFixed(2),global:+(G/(G+6)).toFixed(2),calm:+S.calm().toFixed(2),nodesPerSec:Math.round(S.nodesPerSec||0),stats:{...S.stats}});
-S.gunshot=gunshot;S.boom=boom;S.shout=shout;S.space=space;S.init=init;
+S.state=()=>({on:S.on,live:live(),voices:Object.fromEntries(Object.entries(ACT).map(([k,v])=>[k,v.length])),intensity:+(I/(I+2)).toFixed(2),global:+(G/(G+6)).toFixed(2),calm:+S.calm().toFixed(2),nodesPerSec:Math.round(S.nodesPerSec||0),stepsPerSec:+(S.stepsPerSec||0).toFixed(1),stats:{...S.stats}});
+S.gunshot=gunshot;S.surfaceAt=surfaceAt;S.stepSound=stepSound;S.boom=boom;S.shout=shout;S.space=space;S.init=init;
 if(window.IronFront)window.IronFront.soundscape=S;
 })();

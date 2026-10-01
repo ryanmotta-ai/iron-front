@@ -28,7 +28,7 @@ const face=t=>t?-1:1;
 const CFG={
  PIN:{on:1.15,off:.45,crawl:13,seek:110,prot:.6,crater:.45},
  OTT:{cd:90,aiCd:210,ladder:[.2,2.6],stop:30,hold:10},
- GAS:{life:75,grow:22,r0:18,r1:58,dmg:5,maskDelay:[.6,2.8],fail:.12,maskDmg:.1,shells:4,spread:70,cost:170,aiCd:120,alarm:700},
+ GAS:{residue:90,life:75,grow:30,r0:22,r1:88,dmg:5,maskDelay:[.6,2.8],fail:.12,maskDmg:.1,shells:4,spread:70,cost:170,aiCd:120,alarm:700},
  CONC:{reach:2.2,min:.15},
  MELEE:{range:16,cd:[.8,1.3],dmg:[30,58],player:[60,80],preach:24},
  DUG:{pull:34,in:8,r:60,dmg:150,bunker:600},
@@ -135,12 +135,15 @@ function launchGas(team,x,y){const C=CFG.GAS;S.stats.gas++;
  for(let i=0;i<C.shells;i++){const t=2.2+i*.3+rnd(0,.2);GS.push({x:clamp(x+rnd(-C.spread,C.spread),20,W-20),y:clamp(y+rnd(-C.spread,C.spread),20,H-20),t,team,wh:false})}
  gasAt[team]=time}
 function gasLand(s){const C=CFG.GAS;plop(near(s.x,s.y,800));
- for(let i=0;i<5;i++)PUFFS.push({x:s.x+rnd(-14,14),y:s.y+rnd(-14,14),vx:0,vy:0,age:0,r:C.r0,c:1,team:s.team,ph:Math.random()*TAU});
+ for(let i=0;i<5;i++){const a=Math.random()*TAU,v=rnd(18,42);PUFFS.push({x:s.x+Math.cos(a)*rnd(4,16),y:s.y+Math.sin(a)*rnd(4,12),vx:Math.cos(a)*v,vy:Math.sin(a)*v*.7,age:0,r:C.r0,c:1,team:s.team,ph:Math.random()*TAU})}
  particles.push({x:s.x,y:s.y,vx:0,vy:-10,t:.4,max:.4,color:'#d8d08a',size:7});
+ for(let i=0;i<12;i++){const a=Math.random()*TAU,v=rnd(20,70);particles.push({x:s.x,y:s.y,vx:Math.cos(a)*v,vy:Math.sin(a)*v*.7-12,t:rnd(.3,.6),max:.6,color:i%3?'#b8a64e':'#8a7a3c',size:2})}
+ const k=gkey(s.x,s.y);RES.set(k,Math.min(1.2,(RES.get(k)||0)+.8));             // o líquido encharca o chão onde a granada cai
  for(let t=0;t<2;t++){let hit=false;for(const u of units)if(u.team===t&&u.hp>0&&hyp(u.x-s.x,u.y-s.y)<C.alarm){hit=true;break}
   if(!hit)continue;if(time-alarm[t]>12){alarm[t]=time;if(t===playerTeam){bugle();toast('GÁS! GÁS! GÁS! Máscaras! (G / M)')}}
   for(const u of units)if(u.team===t&&infantry(u)&&!u.mask&&u.maskAt==null&&!controlled(u)&&hyp(u.x-s.x,u.y-s.y)<C.alarm*.5)u.maskAt=time+(Math.random()<C.fail?rnd(5,9):rnd(...C.maskDelay))}}
 const gkey=(x,y)=>Math.floor(x/64)*1000+Math.floor(y/64);
+const RES=new Map();let rT=.5;
 function gasGrid(){GGRID.clear();for(const p of PUFFS){const r=p.r,x0=Math.floor((p.x-r)/64),x1=Math.floor((p.x+r)/64),y0=Math.floor((p.y-r)/64),y1=Math.floor((p.y+r)/64);
  for(let gx=x0;gx<=x1;gx++)for(let gy=y0;gy<=y1;gy++){const cx=gx*64+32,cy=gy*64+32,d=hyp(cx-p.x,cy-p.y);if(d>r+32)continue;const k=gx*1000+gy;GGRID.set(k,Math.min(1.6,(GGRID.get(k)||0)+p.c*clamp(1-d/(r+32),0,1)))}}}
 const gasAtPos=(x,y)=>GGRID.get(gkey(x,y))||0;
@@ -150,19 +153,21 @@ function puffTick(dt){const C=CFG.GAS,w=window.PXW&&PXW.windVec?PXW.windVec():{x
   let ax=w.x*.3,ay=w.y*.3;const cr=craterNear(p.x,p.y,70);if(cr){const d=hyp(cr.x-p.x,cr.y-p.y)||1;ax+=(cr.x-p.x)/d*10;ay+=(cr.y-p.y)/d*10}
   p.vx+=(ax-p.vx)*Math.min(1,dt*.6);p.vy+=(ay-p.vy)*Math.min(1,dt*.6);p.x=clamp(p.x+p.vx*dt,0,W);p.y=clamp(p.y+p.vy*dt,0,H)}
  PUFFS=PUFFS.filter(p=>p.age<C.life);if(PUFFS.length>360)PUFFS.splice(0,PUFFS.length-360)}
+function gasHurt(u,n,team){if(n<=0||u.hp<=0)return;if(u.hp-n>.5){u.hp-=n;u.underFire=Math.max(u.underFire||0,2);return}damage(u,n,team)}
 function exposure(dt){const C=CFG.GAS;
  for(const u of units){if(u.hp<=0||u.type==='tank')continue;
   if(u.maskAt!=null&&!u.mask&&time>=u.maskAt){u.mask=1;u.maskAt=null}
   const g=PUFFS.length?gasAtPos(u.x,u.y):0;
   if(g>.05){u.gasSeen=time;
    if(!u.mask){if(u.maskAt==null&&!controlled(u))u.maskAt=time+(Math.random()<C.fail?rnd(4,8):rnd(...C.maskDelay));
-    damage(u,C.dmg*g*dt,PUFFS.find(p=>hyp(p.x-u.x,p.y-u.y)<p.r+30)?.team);u.cough=time+1.2;
+    gasHurt(u,C.dmg*g*dt,PUFFS.find(p=>hyp(p.x-u.x,p.y-u.y)<p.r+30)?.team);u.cough=time+1.2;
     if(u.type!=='cavalry')u.suppression=Math.min(2,(u.suppression||0)+g*dt*1.4)}          // tosse: cai no chão
-   else damage(u,C.dmg*C.maskDmg*g*dt)}
+   else gasHurt(u,C.dmg*C.maskDmg*g*dt)}
   else if(u.mask&&time-(u.gasSeen||0)>25&&!controlled(u)){u.mask=0;u.maskAt=null}}}
 function gasTick(dt){
  for(const s of GS){s.t-=dt;if(!s.wh&&s.t<1.1){s.wh=true;const v=near(s.x,s.y,900);if(v>.05)try{shellWhistle(v)}catch{}}if(s.t<=0){s.done=true;gasLand(s)}}GS=GS.filter(s=>!s.done);
- if(!PUFFS.length)return;puffTick(dt);gT-=dt;if(gT<=0){gT=.25;gasGrid()}eT+=dt;if(eT>=.25){exposure(eT);eT=0}}
+ if(RES.size){rT-=dt;if(rT<=0){const d=(.5-rT)/CFG.GAS.residue;rT=.5;for(const[k,v]of RES){const n=v-d;if(n<=.02)RES.delete(k);else RES.set(k,n)}}}
+ if(!PUFFS.length)return;puffTick(dt);gT-=dt;if(gT<=0){gT=.25;gasGrid();for(const[k,v]of GGRID)if(v>.2)RES.set(k,Math.max(RES.get(k)||0,v*.55))}eT+=dt;if(eT>=.25){exposure(eT);eT=0}}
 function shellWhistle(v){const a=ac();if(!a)return;const t=a.currentTime,o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.setValueAtTime(2100,t);o.frequency.exponentialRampToValueAtTime(700,t+1.05);
  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.03*v,t+.2);g.gain.exponentialRampToValueAtTime(.0005,t+1.1);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+1.12)}
 /* IA: gás contra grupo inimigo em terra de ninguém perto da própria linha, só com vento a favor */
@@ -242,7 +247,7 @@ function tick(dt){
  if(CONC.t>0)CONC.t=Math.max(0,CONC.t-dt);
  if(PL.maskT&&time>=PL.maskT){PL.maskT=0;if(player&&mode==='soldier'){player.mask=1;PL.breathT=0}}
  if(player&&mode==='soldier'&&player.mask){PL.breathT-=dt;if(PL.breathT<=0){PL.breathT=3.3;breath()}}}
-function reset(){WAVES=[];FLARES=[];GS=[];PUFFS=[];FX=[];GGRID.clear();ottAt=[-999,-999];gasAt=[-999,-999];alarm=[-99,-99];aiT=[6,9];sT=1;CONC.t=0;PL.prone=false;
+function reset(){WAVES=[];FLARES=[];GS=[];PUFFS=[];RES.clear();FX=[];GGRID.clear();ottAt=[-999,-999];gasAt=[-999,-999];alarm=[-99,-99];aiT=[6,9];sT=1;CONC.t=0;PL.prone=false;
  try{canvas.style.filter=''}catch{}
  refresh()}
 /* frente, abrigos do mapa e setores: no início e de novo quando as linhas construídas na preparação ficam prontas */
@@ -258,13 +263,44 @@ const BAYER=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
 const PUFFSPR=new Map();let HALO=null;
 function haloSprite(R){if(HALO)return HALO;HALO=mkc(R*2+1,R*2+1);const g=HALO.getContext('2d');g.fillStyle='#a8ff7a';
  for(let y=-R;y<=R;y++)for(let x=-R;x<=R;x++){const d=hyp(x,y)/R;if(d<=1&&BAYER[((y+64)&3)*4+((x+64)&3)]/16<(1-d)*.8)g.fillRect(x+R,y+R,1,1)}return HALO}
-function puffSprite(r,lv){const k=r+'|'+lv;let c=PUFFSPR.get(k);if(c)return c;const s=r*2+1;c=mkc(s,s);const g=c.getContext('2d');
- for(let y=-r;y<=r;y++)for(let x=-r;x<=r;x++){const d=hyp(x,y)/r;if(d>1)continue;const dens=(1-d*d)*(1-d*.5)*(lv+1)/7,th=BAYER[((y+64)&3)*4+((x+64)&3)]/16;if(th>=dens)continue;
-  g.fillStyle=th<dens*.35?'#cfc778':th<dens*.7?'#aaa75e':'#8f8f52';g.fillRect(x+r,y+r,1,1)}PUFFSPR.set(k,c);return c}
+/* ruído de valor (bordas irregulares e miolo que ondula) */
+const vhash=(i,j)=>((Math.imul(i,374761393)+Math.imul(j,668265263))>>>0)%1009/1009;
+function vnoise(x,y){const i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j,sx=fx*fx*(3-2*fx),sy=fy*fy*(3-2*fy);
+ return(vhash(i,j)*(1-sx)+vhash(i+1,j)*sx)*(1-sy)+(vhash(i,j+1)*(1-sx)+vhash(i+1,j+1)*sx)*sy}
+/* rolo de gás: elipse achatada, base escura e topo claro (luz de cima), pontilhado de Bayer com densidade pelo ruído.
+   layer 0 = corpo, 1 = coroa (mais clara, menor). v = variante do ruído; as variantes trocam devagar (cross-fade) */
+const GP=['#5f5a33','#7a7038','#958744','#b2a050','#c8b664'];
+function puffSprite(r,lv,v=0,layer=0){const k=r+'|'+lv+'|'+v+'|'+layer;let c=PUFFSPR.get(k);if(c)return c;const rx=r,ry=Math.max(3,Math.round(r*(layer?.7:.62))),W2=rx*2+1,H2=ry*2+1;
+ c=mkc(W2,H2);const g=c.getContext('2d');
+ for(let y=-ry;y<=ry;y++)for(let x=-rx;x<=rx;x++){const q=Math.hypot(x/rx,y/ry);if(q>1)continue;
+  const n=vnoise((x+v*17)*.21,(y+v*11)*.27)*.65+vnoise((x-v*5)*.5,(y+v*3)*.5)*.35,edge=1-q,dens=edge*(.35+.95*n)*(lv+1)/4*(layer?.85:1);
+  const th=BAYER[((y+64)&3)*4+((x+64)&3)]/16;if(th>=dens)continue;
+  const lit=clamp(.5-(y/ry)*.45-(x/rx)*.12+(n-.5)*.4+(layer?.25:0),0,.999);g.fillStyle=GP[Math.min(4,Math.floor(lit*5))];g.fillRect(x+rx,y+ry,1,1)}
+ PUFFSPR.set(k,c);return c}
+/* névoa rasteira e resíduo: ladrilhos de 32 px de arte (uma célula de 64 px do mundo) */
+const TILE=[];
+function hazeTile(kind,v){const k=kind*4+v;if(TILE[k])return TILE[k];const R0=26,c=mkc(R0*2+1,R0*2+1),g=c.getContext('2d');
+ for(let y=-R0;y<=R0;y++)for(let x=-R0;x<=R0;x++){const n=vnoise((x+v*23)*.12+kind*9,(y+v*17)*.15),q=Math.hypot(x,y*1.25)/R0+(n-.5)*.5;if(q>=1)continue;
+  const d=(1-q)*(kind?.55:.75)*(.5+n*.6);if(BAYER[((y+64)&3)*4+((x+64)&3)]/16>=d)continue;
+  g.fillStyle=kind?(n<.5?'#7a6c34':'#958744'):(n<.4?'#7a7038':n<.75?'#958744':'#b2a050');g.fillRect(x+R0,y+R0,1,1)}
+ return TILE[k]=c}
+const cellJ=k=>[(vhash(k,7)*12-6)|0,(vhash(k,13)*10-5)|0,(vhash(k,3)*4)|0];
+function drawGround(c,ox,oy){if(!S.on)return;
+ /* resíduo: terra manchada de amarelo onde o líquido caiu e a nuvem assentou */
+ if(RES.size){for(const[k,v]of RES){const gx=Math.floor(k/1000),gy=k-gx*1000,x=ox+Math.round(gx*64*Z)-1,y=oy+Math.round(gy*64*Z)-1;
+  if(x<-60||y<-60||x>vw+30||y>vh+30)continue;const[jx,jy,vv]=cellJ(k),t2=hazeTile(1,vv);c.globalAlpha=clamp(v*.3,0,.3);c.drawImage(t2,x+16-26+jx,y+16-26+jy)}c.globalAlpha=1}
+ /* névoa rasteira: mais densa onde o gás se acumula (crateras, trincheiras) */
+ if(PUFFS.length){for(const[k,v]of GGRID){if(v<.12)continue;const gx=Math.floor(k/1000),gy=k-gx*1000,x=ox+Math.round(gx*64*Z)-1,y=oy+Math.round(gy*64*Z)-1;
+  if(x<-60||y<-60||x>vw+30||y>vh+30)continue;const[jx,jy,vv]=cellJ(k),t2=hazeTile(0,vv);c.globalAlpha=clamp(v*.22,0,.3);c.drawImage(t2,x+16-26+jx+Math.round(Math.sin(time*.4+gx)*1.5),y+16-26+jy)}c.globalAlpha=1}}
 function drawOver(c,ox,oy){if(!S.on)return;
  /* gás: puffs em pontilhado amarelado, ondulando */
  for(const p of PUFFS){const x=ox+Math.round(p.x*Z),y=oy+Math.round(p.y*Z),r=Math.max(4,Math.round(p.r*Z/4)*4);if(x<-r||y<-r||x>vw+r||y>vh+r)continue;
-  const lv=clamp(Math.round(p.c*3),0,3),sp=puffSprite(r,lv);c.globalAlpha=.34*clamp(p.c*1.3,0,1);c.drawImage(sp,x-r+Math.round(Math.sin(time*.7+p.ph)*1.5),y-r)}
+  const lv=clamp(Math.round(p.c*3),0,3),A=.24*clamp(p.c*1.3,0,1),ph=time*.12+p.ph,v0=Math.floor(ph)%4,v1=(v0+1)%4,f=ph-Math.floor(ph),dx=Math.round(Math.sin(time*.7+p.ph)*1.5);
+  /* corpo (rente ao chão) e coroa (mais clara, sobe e desce devagar); variantes do ruído trocam com cross-fade = o miolo rola */
+  const b0=puffSprite(r,lv,v0,0),b1=puffSprite(r,lv,v1,0),ry=b0.height>>1;
+  c.globalAlpha=A*(1-f);c.drawImage(b0,x-r+dx,y-ry+Math.round(ry*.25));c.globalAlpha=A*f;c.drawImage(b1,x-r+dx,y-ry+Math.round(ry*.25));
+  const rc=Math.max(3,Math.round(r*.62)),c0=puffSprite(rc,lv,(v0+2)%4,1),c1=puffSprite(rc,lv,(v1+2)%4,1),bob=Math.round(Math.sin(time*.5+p.ph*2));
+  c.globalAlpha=A*.9*(1-f);c.drawImage(c0,x-rc-dx-Math.round(r*.12),y-ry-Math.round(ry*.35)+bob);c.globalAlpha=A*.9*f;c.drawImage(c1,x-rc-dx-Math.round(r*.12),y-ry-Math.round(ry*.35)+bob)}
  c.globalAlpha=1;
  for(const s of GS)if(s.t<.8){const x=ox+Math.round(s.x*Z),y=oy+Math.round(s.y*Z);rect(c,x,y-Math.round(s.t*40),1,2,'#2b2e28')}
  for(const p of FX){const x=ox+Math.round(p.x*Z),y=oy+Math.round(p.y*Z);c.globalAlpha=clamp(p.t/.6,0,1)*.8;rect(c,x,y,1,1,'#e8e4c8')}c.globalAlpha=1;
@@ -289,6 +325,25 @@ function drawUnit(c,u,sp,sx,sy,vis,bob,orig){
   c.drawImage(r,sx-(r.width>>1)+wig,sy-(r.height>>1)+4);return true}
  if(u.lunge){c.drawImage(sp.c,0,0,sp.c.width,vis,sx-sp.ax,sy-sp.ay+bob,sp.c.width,vis);return true}
  return orig()}
+/* máscara no próprio sprite: acha o rosto (as fileiras mais altas de pele, longe das mãos) e troca por máscara.
+   EUA = respirador de caixa SBR (cáqui-acinzentado, mangueira descendo para a bolsa no peito);
+   Alemanha = Gummimaske (borracha escura, filtro redondo rosqueado no queixo). Lentes de vidro com reflexo. Cache por sprite. */
+const MASKED=[new WeakMap(),new WeakMap()],SKIN=new Set(['220,182,144','173,135,99']);
+const MK=[{m:'#77745a',M:'#5a5843',g:'#9fbcc2',G:'#e6f2f2',f:'#4a4636',f2:'#5f5a45'},{m:'#3f413c',M:'#2b2d29',g:'#9fbcc2',G:'#e6f2f2',f:'#5b625c',f2:'#7d857e'}];
+function maskedSprite(sp,team){const m=MASKED[team&1];let r=m.get(sp.c);if(r)return r;r=sp;
+ try{const w=sp.c.width,h=sp.c.height,src=sp.c.getContext('2d').getImageData(0,0,w,h).data,skin=[];let top=h;
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=(y*w+x)*4;if(src[i+3]>200&&SKIN.has(src[i]+','+src[i+1]+','+src[i+2])){skin.push([x,y]);if(y<top)top=y}}
+  const face=skin.filter(([x,y])=>y<=top+2);
+  if(face.length){const c=mkc(w,h),g=c.getContext('2d'),P=MK[team&1];g.drawImage(sp.c,0,0);
+   const px=(x,y,col)=>{g.fillStyle=col;g.fillRect(x,y,1,1)};
+   for(const[x,y]of face)px(x,y,y===top?P.m:P.M);
+   const row=face.filter(([,y])=>y===top).map(([x])=>x).sort((a,b)=>a-b),x0=row[0],x1=row[row.length-1];
+   if(row.length>=3){px(x0,top,P.g);px(x1,top,P.g);px(x0,top,P.G)}            // frente: duas lentes, uma com reflexo
+   else if(row.length)px(row[row.length-1],top,P.g);                            // perfil: a lente da frente
+   const xs=face.map(([x])=>x),cx=Math.round((Math.min(...xs)+Math.max(...xs))/2),by=Math.max(...face.map(([,y])=>y));
+   if(team&1){px(cx,by,P.f);px(cx,by+1,P.f2);px(cx-1,by+1,P.f)}else{px(cx,by,P.f);px(cx,by+1,P.f);px(cx,by+2,P.f2)}   // filtro / mangueira
+   r=Object.assign({},sp,{c})}}catch{}
+ m.set(sp.c,r);return r}
 /* máscara de gás do jogador: duas lentes embaçadas; fora delas, o escuro da borracha */
 let MASK=null;
 function maskCanvas(){if(MASK&&MASK.width===vw&&MASK.height===vh)return MASK;MASK=mkc(vw,vh);const g=MASK.getContext('2d'),cy=vh*.47,rx=vw*.2,ry=vh*.36,L=[vw/2-vw*.215,vw/2+vw*.215];
@@ -349,17 +404,20 @@ wrap('hud',orig=>{orig();try{if(!S.on||mode!=='soldier'||!player)return;const el
  if(player.mask)bits.push('MÁSCARA');else if(PL.maskT>time)bits.push('MÁSCARA…');else if(gasAtPos(player.x,player.y)>.05)bits.push('GÁS! (G)');
  if(bits.length)el.textContent=el.textContent+' · '+bits.join(' · ')}catch(e){fail(e)}});
 wrap('render',(orig,...a)=>{const r=orig(...a);try{drawScreen();screenFilter()}catch(e){fail(e)}return r});
-if(window.WW1A){const over=WW1A.over;WW1A.over=function(c,ox,oy,dt){over.call(this,c,ox,oy,dt);try{drawOver(c,ox,oy)}catch(e){fail(e)}}}
+if(window.WW1A){const over=WW1A.over,under=WW1A.under;WW1A.over=function(c,ox,oy,dt){over.call(this,c,ox,oy,dt);try{drawOver(c,ox,oy)}catch(e){fail(e)}};
+ WW1A.under=function(c,ox,oy,dt){under.call(this,c,ox,oy,dt);try{drawGround(c,ox,oy)}catch(e){fail(e)}}}
 if(!window.PHYS)window.PHYS={on:false,draw:()=>false};
-{const orig=PHYS.draw||(()=>false);PHYS.draw=function(c,u,sp,sx,sy,vis,bob){const o=()=>orig.call(PHYS,c,u,sp,sx,sy,vis,bob);
- if(!S.on||!(u.pinned||u.lunge||(u===player&&PL.prone)))return o();try{return drawUnit(c,u,sp,sx,sy,vis,bob,o)}catch(e){fail(e);return o()}}}
+{const orig=PHYS.draw||(()=>false);PHYS.draw=function(c,u,sp,sx,sy,vis,bob){
+ const ms=S.on&&u.mask&&u.type!=='tank'?maskedSprite(sp,u.team):sp,o=()=>orig.call(PHYS,c,u,ms,sx,sy,vis,bob);
+ const own=()=>{if(o())return true;if(ms===sp)return false;c.drawImage(ms.c,0,0,ms.c.width,vis,sx-ms.ax,sy-ms.ay+bob,ms.c.width,vis);return true};
+ if(!S.on||!(u.pinned||u.lunge||(u===player&&PL.prone)))return own();try{return drawUnit(c,u,ms,sx,sy,vis,bob,own)}catch(e){fail(e);return own()}}}
 /* botão AO ATAQUE ao lado de AVANÇAR */
 try{const adv=document.getElementById('column')||document.getElementById('advance');if(adv){const b=document.createElement('button');b.id='overtop';b.textContent='ATAQUE · V';b.title='Pistola Very + apitos: os pelotões saem da trincheira (Shift+V com fumaça)';
  b.onclick=e=>{if(started&&!ended)overTop(playerTeam,{smoke:e.shiftKey})};adv.after(b)}}catch{}
 
 S.state=()=>({on:S.on,pinned:units.filter(u=>u.pinned).length,waves:WAVES.length,puffs:PUFFS.length,gasShells:GS.length,masked:[0,1].map(t=>units.filter(u=>u.team===t&&u.mask).length),
  sectors:SECT.map(s=>s.name+s.team+'→'+s.holder),front:[...FRONT],conc:+CONC.t.toFixed(2),stats:{...S.stats}});
-S.refresh=refresh;S.overTop=overTop;S.launchGas=launchGas;S.tick=tick;S.reset=reset;S.aiTick=aiTick;S.gasAt=gasAtPos;S.player=PL;
+S.refresh=refresh;S.maskedSprite=maskedSprite;S.residue=RES;S.overTop=overTop;S.launchGas=launchGas;S.tick=tick;S.reset=reset;S.aiTick=aiTick;S.gasAt=gasAtPos;S.player=PL;
 Object.defineProperties(S,{puffs:{get:()=>PUFFS},sectors:{get:()=>SECT},entrances:{get:entrances}});
 if(window.IronFront)window.IronFront.assault=S;
 })();
