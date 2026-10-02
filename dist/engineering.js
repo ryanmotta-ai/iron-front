@@ -6,7 +6,7 @@ function memory(t,time){let m=memories[t];if(!m||time<m.time)m=memories[t]={time
 function reset(){memories.fill(null)}
 function assess(c,m){
  for(const w of m.works){if(w.evaluated)continue;const p=w.project;
-  const complete=p.segs?.every(s=>s.stage>=s.need.length);
+  const complete=p.segs?.every(s=>s.stage>=(p.target||s.need.length));
   if(complete&&!w.ready)w.ready=c.time;
   if(w.ready){const usable=p.segs.filter(s=>(!s.b||s.b.hp>0)&&(!c.usable||c.usable(s)));
    w.use+=Math.min(5,Math.max(0,c.time-w.last))*c.own.filter(u=>!u.sap&&usable.some(s=>distance(u,s)<85)).length;
@@ -35,14 +35,14 @@ function choose(c){
   if(c.artillery&&op?.sector===s.id&&s.threat>=3)choices.push(['gunf',300,3]);
   for(const [kind,back,priority] of choices){
    if(!c.catalog[kind]||force.length<2)continue;
-   const x=Math.max(80,Math.min(2320,front-d*back)),y=Math.max(80,Math.min(1520,s.y+(s.id%2?35:-35)));
-   const radius=kind==='trench'?110:kind==='nest'?260:kind==='mortar'||kind==='gunf'?480:360;
+   const x=Math.max(80,Math.min(2320,front-d*back)),y=Math.max(80,Math.min((c.height||1600)-80,s.y+(s.id%2?35:-35)));
+   const wounded=(c.wounded||c.own).filter(u=>Math.abs(u.y-s.y)<200&&(u.down||u.hp/u.maxhp<.65)).length;
+   const radius=kind==='trench'?110:kind==='nest'?260:kind==='mortar'||kind==='gunf'?480:kind==='aid'&&wounded>=5?160:360;
    if(c.assets.some(a=>a.kind===kind&&distance(a,{x,y})<radius)||c.projects.some(p=>!p.done&&p.kind===kind&&p.segs.some(a=>distance(a,{x,y})<radius)))continue;
    const pts=kind==='trench'?[[x,y-42],[x,y+42]]:kind==='comm'?[[x,y],[x-d*65,y+25]]:[[x,y]],it={kind,pts,line:kind==='comm'?'comm':'adaptive',pri:0};
    if(pts.some(([px,py])=>!c.dry(px,py)||c.enemies.some(e=>distance(e,{x:px,y:py})<240)||c.shells.some(e=>distance(e,{x:px,y:py})<(e.r||65)+60)))continue;
    const cover=force.filter(u=>c.assets.some(a=>a.kind==='trench'&&distance(a,u)<80)).length;
-   const wounded=force.filter(u=>u.hp/u.maxhp<.65).length;
-   const score=priority+Math.min(4,force.length/4)+(s.threat||0)*.15+(advance?2:0)+(kind==='trench'?(force.length-cover)*.25:0)+(kind==='aid'?wounded*.8:0)+(m.scores[kind]?.value||0)*2-m.danger.filter(a=>distance(a,{x,y})<200).length*5;
+   const score=priority+Math.min(4,force.length/4)+(s.threat||0)*.15+(advance?2:0)+(kind==='trench'?(force.length-cover)*.25:0)+(kind==='aid'?Math.min(12,wounded*1.4):0)+(m.scores[kind]?.value||0)*2-m.danger.filter(a=>distance(a,{x,y})<200).length*5;
    candidates.push({...it,x,y,score,cost:c.cost(it)});
   }
  }

@@ -23,6 +23,7 @@ function engine() {
       for (const u of sb.units) { u.cd = Math.max(0, u.cd - dt); u.moving = false; if (u.down) continue;
         let tg = null, bd = sb.defs[u.type].range; for (const e of sb.units) if (e.team !== u.team && e.hp > 0) { const d = Math.hypot(e.x - u.x, e.y - u.y); if (d < bd) { bd = d; tg = e; } }
         u.target = tg; if (tg && u.cd <= 0 && !u.noFire) sb.shoot(u, tg);
+        if (u.aiStepAt > sb.time && u.manualUntil <= sb.time) continue;   // como no game.js: pula o passo, não o tiro
         if (u.order === 'move') { const dx = u.tx - u.x, dy = u.ty - u.y, d = Math.hypot(dx, dy); if (d > 12) { const s = Math.min(d, sb.defs[u.type].speed * dt); u.x += dx / d * s; u.y += dy / d * s; u.moving = true; } else u.order = 'hold'; } }
     },
   };
@@ -62,7 +63,7 @@ const shotsBy = (sb, us) => sb.bullets.filter(b => us.includes(b.by));
 {
   const sb = engine(); sb.squad('mg', 0, 1000, 800); sb.run(.6); sb.aiEnabled[0] = false; const c = C(sb)[0];
   c.gun.order = 'move'; c.gun.tx = 1000; c.gun.ty = 1400; sb.dummy(1250, 800);
-  sb.update(1 / 30); for (const b of sb.bullets) b._m = 1;   // no 1º quadro o tiro sai antes do passo (ordem do update do jogo)
+  sb.run(.4); for (const b of sb.bullets) b._m = 1;   // arrancada: até a arma sair 8 px da âncora (≈0,25 s) ainda pode sair 1 tiro
   let fired = 0; for (let t = 0; t < 4; t += 1 / 30) { sb.update(1 / 30); fired += shotsBy(sb, [c.gun]).filter(b => !b._m && (b._m = 1)).length; }
   assert.equal(fired, 0, 'arma em movimento não dispara');
   c.gun.order = 'hold'; c.gun.tx = c.gun.x; c.gun.ty = c.gun.y; const t0 = sb.time; let first = null;
@@ -76,6 +77,20 @@ const shotsBy = (sb, us) => sb.bullets.filter(b => us.includes(b.by));
   c.gun.order = 'move'; c.gun.tx = 1000; c.gun.ty = 1500; sb.dummy(1200, 900); sb.run(.2);
   assert.equal(c.gun.order, 'hold', 'parou para montar');
   assert.equal(sb.PXCREW.state().stats.halts, 1);
+}
+/* ---------- a IA reordena 'move' a cada 0,5 s (como o planejador real): a parada tem de segurar, e empurrões não desmontam ---------- */
+{
+  const sb = engine(); sb.squad('mg', 0, 1000, 800); sb.run(.6); const c = C(sb)[0]; sb.dummy(1230, 800); let shots = 0, first = null;
+  const t0 = sb.time;
+  for (let t = 0; t < 12; t += 1 / 30) {
+    if (Math.round(t * 30) % 15 === 0) { c.gun.order = 'move'; c.gun.tx = 1000; c.gun.ty = 1500; }
+    const bx = c.gun.x - Math.sin((t - 1 / 30) * 7) * 1.2, by = c.gun.y - Math.cos((t - 1 / 30) * 5) * 1.2;   // separação do physics.js: oscila ~1 px (p90 medido 9 px/s)
+    c.gun.x = bx + Math.sin(t * 7) * 1.2; c.gun.y = by + Math.cos(t * 5) * 1.2;
+    sb.update(1 / 30); const n = sb.bullets.filter(b => b.by === c.gun && !b._r && (b._r = 1)).length; shots += n; if (n && first === null) first = sb.time - t0;
+  }
+  console.log(`  IA reordenando a cada 0,5 s + empurrões: 1º tiro em ${first.toFixed(2)} s, ${shots} tiros em 12 s, deslocamento ${Math.hypot(c.gun.x - 1000, c.gun.y - 800).toFixed(0)} px`);
+  assert.ok(first < 1.6, 'monta e atira apesar das reordens'); assert.ok(shots > 60, 'continua atirando durante a parada');
+  assert.ok(Math.hypot(c.gun.x - 1000, c.gun.y - 800) < 30, 'a arma não sai andando enquanto tem alvo');
 }
 /* ---------- sucessão: o atirador cai, o municiador vai até a arma e assume ---------- */
 {

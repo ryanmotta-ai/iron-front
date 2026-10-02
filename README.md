@@ -690,3 +690,15 @@ O catálogo da aba DEFESAS passou de 17 para 25 obras (`PXFORT.KINDS`), todas fe
 **Verificação:** 36 suítes em `tests/*.test.cjs` passam e o `verify-battle` passa com os três módulos ligados. CPU: 0,23 ms por quadro nas defesas, 0,008–0,06 ms na logística e 0,023 ms na gestão.
 
 **Limites:** na partida IA×IA real, cozinha e posto de atirador não foram construídos na guerra por falta de caixa acima da reserva (a reação só está provada em teste); nas partidas de 60 s de preparo as defesas quase não dispararam; a gestão foi interrompida durante o ajuste final do modelo de prioridade (o teste passa, mas o painel não teve revisão visual final).
+
+## Batalhas dinâmicas e conversas — 01/10/2026
+
+A frente padrão passou de 2400 × 1600 para **2400 × 2000**: 25% mais área, mantendo a distância entre os exércitos. Os cinco setores, objetivos, nascimentos, terreno, clima, minimapa e grades de física acompanham a nova altura. `?mapa=classico` permite comparar com a altura anterior.
+
+Os esquadrões têm perfis equilibrado, prudente, impetuoso e protetor, memória temporária dos locais de perdas, experiência sob fogo e confiança após conquistar uma posição. Prudentes procuram cobertura sob pressão; protetores podem retirar grupos feridos; experiência reduz moderadamente o tempo de recuperação. Ordens humanas e socorro conservam prioridade.
+
+Conversas em português aparecem junto dos soldados e em legendas, com nomes persistentes durante a partida. As falas descrevem liderança, perdas, manobras reais e conquistas; respostas exigem outro participante disponível próximo. Há limites por esquadrão e facção, expiração das mensagens e botão **CONVERSAS** no painel IA. Não há voz falada gerada nem conexão a um serviço externo.
+
+A infantaria pode ocupar trechos de trincheira observados e acessíveis. Capturas atualizam tanto a bandeira quanto o dono das âncoras usadas pelo comando. Uma reserva pode explorar um acesso lateral observado quando o avanço principal progrediu, conservando pelo menos outra reserva. Compromissos têm prazo, controle de perdas e interrupção por prioridade local.
+
+Arquivos novos: `battlefield.js`, `battle-stories.js`, `battle-opportunities.js` e `battle-dialogue.js`. Testes: `node tests/battle-stories.test.cjs`; integração nos três mapas e captura controlada: `node tools/verify-dynamic.cjs`. Resultados próprios em `tests/artifacts/dynamic-report.json` e `dynamic-dialogue.png`. Essas verificações cobrem integração; diversão, frequência de viradas e equilíbrio exigem partidas jogadas e uma matriz maior de simulações.

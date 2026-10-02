@@ -184,7 +184,7 @@ function aiGas(team){const C=CFG.GAS;if(time<60||time-gasAt[team]<C.aiCd)return;
 function strike(u,e,dmg){damage(e,dmg,u.team);u.lunge={t:.16,dx:(e.x-u.x),dy:(e.y-u.y)};u.angle=Math.atan2(e.y-u.y,e.x-u.x);S.stats.melee++;
  particles.push({x:e.x,y:e.y-2,vx:rnd(-20,20),vy:rnd(-20,5),t:.18,max:.18,color:'#e9d6a5',size:4});thud(near(u.x,u.y,450))}
 function meleeTick(dt){const M=CFG.MELEE;
- for(const u of units){if(!infantry(u)&&!(u.sap&&u.hp>0))continue;if(u.lunge){u.lunge.t-=dt;if(u.lunge.t<=0)u.lunge=null}
+ for(const u of units){if(u.down||u.rs||!infantry(u)&&!(u.sap&&u.hp>0))continue;if(u.lunge){u.lunge.t-=dt;if(u.lunge.t<=0)u.lunge=null}
   u.mcd=(u.mcd||0)-dt;if(u.mcd>0||controlled(u))continue;u.mcd=.12;
   const e=typeof nearest==='function'?nearest(u,M.range):null;if(!e||e.type==='tank'||e.hp<=0)continue;
   strike(u,e,rnd(...M.dmg)*(e.pinned?1.25:1));u.mcd=rnd(...M.cd)}}
@@ -212,12 +212,12 @@ function confined(s){const D=CFG.DUG,e=s.inside;S.stats.dugouts++;let kills=0;
  if(s.team===playerTeam)toast(kills?`Explosão no abrigo: ${kills} baixa${kills>1?'s':''}. A metralhadora silenciou.`:'Explosão dentro do abrigo.')}
 /* setores da linha: âncoras da primeira linha agrupadas em faixas de 200 px */
 function buildSectors(){SECT=[];for(let t=0;t<2;t++){const map=new Map();
- for(const a of fieldTrenches){if(a.team!==t||(a.line&&a.line!=='front'))continue;const k=Math.floor(a.y/CFG.SECTOR);let s=map.get(k);if(!s)map.set(k,s={team:t,holder:t,anchors:[],x:0,y:0,n:0,since:0});s.anchors.push(a);s.x+=a.x;s.y+=a.y;s.n++}
+ for(const a of fieldTrenches){const origin=a.originalTeam??a.team;if(origin!==t||(a.line&&a.line!=='front'))continue;a.originalTeam=origin;const k=Math.floor(a.y/CFG.SECTOR);let s=map.get(k);if(!s)map.set(k,s={team:t,holder:a.team,anchors:[],x:0,y:0,n:0,since:a.capturedAt||0});s.anchors.push(a);s.x+=a.x;s.y+=a.y;s.n++}
  for(const s of map.values()){s.x/=s.n;s.y/=s.n;const a=s.anchors.reduce((b,c)=>Math.abs(c.y-s.y)<Math.abs(b.y-s.y)?c:b);s.fx=a.x;s.fy=a.y;s.name=String.fromCharCode(65+SECT.filter(q=>q.team===t).length);SECT.push(s)}}}
 function sectorTick(){for(const s of SECT){const c=[0,0];
- for(const u of units){if(!infantry(u)&&!(u.sap&&u.hp>0))continue;if(Math.abs(u.x-s.x)>70||Math.abs(u.y-s.y)>CFG.SECTOR*.7)continue;
+ for(const u of units){if(u.down||u.rs||!infantry(u)&&!(u.sap&&u.hp>0))continue;if(Math.abs(u.x-s.x)>70||Math.abs(u.y-s.y)>CFG.SECTOR*.7)continue;
   for(const a of s.anchors)if(Math.abs(a.x-u.x)<(a.hw||16)+14&&Math.abs(a.y-u.y)<(a.hh||16)+14){c[u.team]++;break}}
- const other=1-s.holder;s.pend=c[other]>=2&&c[s.holder]===0?(s.pend||0)+1:0;if(s.pend>=3){s.pend=0;s.holder=other;s.since=time;S.stats.flags++;
+ const other=1-s.holder;s.pend=c[other]>=2&&c[s.holder]===0?(s.pend||0)+1:0;if(s.pend>=3){s.pend=0;s.holder=other;s.since=time;for(const a of s.anchors){a.team=other;a.capturedAt=time}S.stats.flags++;
   toast(other===s.team?`Setor ${s.name} da linha ${s.team?'alemã':'aliada'} retomado.`:`Bandeira hasteada no setor ${s.name} da linha ${s.team?'alemã':'aliada'}!`)}}}
 
 /* ======================================================================================

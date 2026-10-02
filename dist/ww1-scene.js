@@ -118,8 +118,8 @@ WW.scene=function(c,G,out){const items=[],over=[],Lyt=Lay(),P=Lyt.P,pl=plan();
     if(commNear(y))continue;
     if(hv<.13)add(A.ladder(9),rx,ry+4);else if(hv<.30)add(A.ammoBoxes(),rx+(team?2:-2),ry+2);else if(hv<.38)add(A.periscope(),ex,ey);else if(hv<.44)add(A.trenchSign(),rx,ry+3);else if(hv<.49)add(A.rifles(),rx,ry+3);else if(hv<.52&&kind==='front')add(A.brazier(),rx,ry+3)}}
   /* ===== ÁRVORES E VEGETAÇÃO DA RETAGUARDA ===== */
-  for(let y=20;y<790;y+=34){if(WW.ROADY.some(r=>Math.abs(r-y)<13))continue;if(H(y,team,S+80)>.78)continue;const tone=y%3===0?'worn':'ok';add(A.poplar(y%4,tone),X(113+(H(y,1,3)%3-1)),y+10);dec(X(113),y+10,'tree',18,y+team)}
-  for(let y=86,n=0;y<740;y+=27){if(H(y,team,S+81)>.8||!pick(n++))continue;add(A.apple(y%3),X(8+(y%2)*8),y+6);dec(X(10),y+6,'tree',14,y)}
+  for(let y=20;y<WW.PH-10;y+=34){if(WW.ROADY.some(r=>Math.abs(r-y)<13))continue;if(H(y,team,S+80)>.78)continue;const tone=y%3===0?'worn':'ok';add(A.poplar(y%4,tone),X(113+(H(y,1,3)%3-1)),y+10);dec(X(113),y+10,'tree',18,y+team)}
+  for(let y=86,n=0;y<WW.PH-60;y+=27){if(H(y,team,S+81)>.8||!pick(n++))continue;add(A.apple(y%3),X(8+(y%2)*8),y+6);dec(X(10),y+6,'tree',14,y)}
   for(const[x,y]of[[20,404],[30,452],[102,432],[38,600],[104,560],[100,700],[18,560],[24,690]]){add(A.oak(9+((x+y)%4),(x*3+y)%5),X(x),y);dec(X(x),y,'tree',22,x+y)}
   for(const[x,y,l]of[[30,58,30],[90,58,28],[70,752,50],[24,752,24]])addC(A.hedge(l),X(x),y);
   for(const[x,y]of[[122,78],[122,690],[122,760],[150,44],[154,758]])add(A.shrub((x+y)%4),X(x),y);
@@ -156,7 +156,7 @@ WW.scene=function(c,G,out){const items=[],over=[],Lyt=Lay(),P=Lyt.P,pl=plan();
  if(cap('crates',1))add(A.cratesBig(),610,470);
  for(const[v,x,y]of[[4,430,640],[5,770,340]].slice(0,cap('rubble',2)))add(A.rubble(v),x,y);
  // juncos e vegetação às margens do rio
- for(let y=10;y<800;y+=18){const rv=PX.riverX(y),rh=PX.riverHW(y);if(H(y,1,S+98)<.5)add(A.reeds(),rv-rh-3+H(y,2,S)*3,y);if(H(y,3,S+98)<.45)add(A.reeds(),rv+rh+3-H(y,4,S)*3,y+4)}
+ for(let y=10;y<WW.PH;y+=18){const rv=PX.riverX(y),rh=PX.riverHW(y);if(H(y,1,S+98)<.5)add(A.reeds(),rv-rh-3+H(y,2,S)*3,y);if(H(y,3,S+98)<.45)add(A.reeds(),rv+rh+3-H(y,4,S)*3,y+4)}
  for(const[x,y]of[[616,110],[600,250],[548,460],[580,540],[640,700],[560,740]])add(A.willow(x%3),x,y);
 
  /* ---- desenho: camadas por profundidade ---- */

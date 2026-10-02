@@ -70,7 +70,7 @@ function gradAt(x,y){const e=4;GRAD.x=(heightAt(x+e,y)-heightAt(x-e,y))/(2*e);GR
    ESTÁTICOS: caixas rígidas e obstáculos balísticos numa grade de 64 px
    bunker/ruína = sólidos para tropas e blindados · saco de areia = só para balas e para o esmagamento dos tanques
    ====================================================================================== */
-const SC=64,SGX=Math.ceil(2400/SC)+1,SGY=Math.ceil(1600/SC)+1;
+const SC=64,SGX=Math.ceil(W/SC)+1,SGY=Math.ceil(H/SC)+1;
 let sGrid=[],statics=[],sigLast='',qid=0;
 function sInsert(s){const x0=Math.max(0,Math.floor(s.x0/SC)),x1=Math.min(SGX-1,Math.floor(s.x1/SC)),y0=Math.max(0,Math.floor(s.y0/SC)),y1=Math.min(SGY-1,Math.floor(s.y1/SC));
  for(let gy=y0;gy<=y1;gy++)for(let gx=x0;gx<=x1;gx++){const i=gy*SGX+gx;(sGrid[i]||(sGrid[i]=[])).push(s)}}
@@ -123,7 +123,7 @@ function ground(u){const B=CFG.BASE[u.type]||CFG.BASE.rifle,w=window.PXW;let acc
    A movimentação original (game.js + clima) continua decidindo PARA ONDE cada unidade quer ir; aqui o deslocamento do
    quadro é relido como velocidade desejada e integrado com aceleração limitada:  v ← v + (v_des − v)·(1−e^(−α·dt))
    ====================================================================================== */
-const UC=56,UGX=Math.ceil(2400/UC)+2,UGY=Math.ceil(1600/UC)+2;
+const UC=56,UGX=Math.ceil(W/UC)+2,UGY=Math.ceil(H/UC)+2;
 let uHead=new Int32Array(UGX*UGY),uNext=new Int32Array(1024),cHead=new Int32Array(UGX*UGY),cNext=new Int32Array(512);
 let RA=new Float32Array(1024),MA=new Float32Array(1024),SX=new Float32Array(1024),SY=new Float32Array(1024);
 const ucell=(x,y)=>clamp(Math.floor(y/UC),0,UGY-1)*UGX+clamp(Math.floor(x/UC),0,UGX-1);

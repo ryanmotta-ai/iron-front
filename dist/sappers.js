@@ -42,6 +42,13 @@ const CFG={
 };
 const S=window.PXSAP={on:!/[?&]sapadores=0/.test(location.search),version:'1.2',cfg:CFG,stats:{errors:0},cAt:[-99,-99],boughtAt:[-99,-99]};
 let P=[],SEGS=[],POSTS=[],FXD=[],TRK=new Map(),BR=[],FRONT=[724,1676],aiT=[1.5,4],hk=0,sec=0,pid=0,toastAt=0,errs=0;
+const Policy=window.IronFrontSupport;
+function supportContext(team,observer){const known=window.IronFrontBrain?.operations?.contacts(team)||[],seen=new Map(known.map(e=>[e.id,e]));
+ const visibility=Math.min(350,typeof observationRange==='function'?observationRange():350);
+ if(observer)for(const e of units){if(e.team===team||e.hp<=0||e.down||hyp(e.x-observer.x,e.y-observer.y)>visibility)continue;if(window.IronFrontBrain?.clearShot&&!IronFrontBrain.clearShot(observer,e,typeof decor==='undefined'?[]:decor,buildings))continue;seen.set(e.id,e)}
+ return {team,time,enemies:[...seen.values()],shells,buildings,trenches:fieldTrenches,depth:window.PXW?.depth,wounded:units.filter(u=>u.team===team&&u.down).length,ammoShort:units.filter(u=>u.team===team&&u.type==='rifle'&&!u.down&&u.cls!=='medic'&&u.gren===0).length,
+  clear:window.IronFrontBrain?.clearShot?(a,b)=>IronFrontBrain.clearShot(a,b,typeof decor==='undefined'?[]:decor,buildings):null};
+}
 const UI={mode:null,drag:null};
 const face=t=>t?-1:1;
 const cost=n=>{try{return defs[n]?defs[n].cost:0}catch{return 0}};
@@ -118,28 +125,41 @@ function stageUp(s){
 /* ======================================================================================
    SAPADORES
    ====================================================================================== */
-function sappers(team){const r=[];for(const u of units)if(u.sap&&u.team===team&&u.hp>0)r.push(u);return r}
+function sappers(team){const r=[];for(const u of units)if(u.sap&&u.team===team&&u.hp>0&&!u.down&&!u.rs&&u.cls!=='medic')r.push(u);return r}
 const overridden=u=>u.manualUntil>time&&u.manualUntil!==u.sapStamp;                       // ordem manual do jogador por cima
-function freeSapper(u){return !u.sapJob&&(u.sapFree||0)<=time&&!overridden(u)&&!(u===player&&mode==='soldier')}
+function freeSapper(u){return u.hp>u.maxhp*.35&&!u.down&&!u.rs&&u.cls!=='medic'&&!u.pinned&&!u.sapJob&&(u.sapFree||0)<=time&&!overridden(u)&&!(u===player&&mode==='soldier')}
 function assign(){
  IDX=new Map();for(const u of units)IDX.set(u.id,u);
  /* obras do jogador primeiro; obras da IA de um lado sem IA ficam paradas (e devolvem os pioneiros) até a IA voltar */
- for(const p of [...P].sort((a,b)=>(b.src==='player')-(a.src==='player'))){if(p.done)continue;
+ const contexts=[supportContext(0),supportContext(1)];
+ const priority=p=>{const s=p.segs[p.cur]||p.segs[0];return Policy?Policy.workScore(contexts[p.team],p,s):p.src==='player'?80:0};
+ for(const p of [...P].sort((a,b)=>priority(b)-priority(a)||a.t0-b.t0||a.id-b.id)){if(p.done)continue;
   if(p.src!=='player'&&!p.keep&&!aiEnabled[p.team]){if(p.crew.length){for(const id of p.crew)release(byId(id));p.crew=[]}continue}
-  p.crew=p.crew.filter(id=>{const u=byId(id);if(!u||u.hp<=0)return false;
+  p.crew=p.crew.filter(id=>{const u=byId(id);if(!u||u.hp<=0||u.down||u.rs||u.cls==='medic'){release(u);return false}
    if(overridden(u)){u.sapJob=null;u.sapState='';u.sapFree=time+25;return false}
    if(u===player&&mode==='soldier'){u.sapJob=null;u.sapState='';return false}
    return true});
   const s=curSeg(p);if(!s){if(p.extend&&extendSap(p))continue;finish(p);continue}
+  if(Policy){const ctx=contexts[p.team],local=sappers(p.team).find(u=>hyp(u.x-s.x,u.y-s.y)<350),observed=local?supportContext(p.team,local):ctx;
+   if(Policy.risk(observed,s)>=7){p.pauseUntil=time+6;p.reason='Obra sob fogo: recolher equipe';for(const id of p.crew)release(byId(id));p.crew=[];continue}
+   if(time<(p.pauseUntil||0))continue;
+   if(p.src!=='player'&&time-p.t0>90&&!p.crew.length&&!units.some(u=>u.team===p.team&&u.hp>0&&!u.down&&!u.sap&&hyp(u.x-s.x,u.y-s.y)<500)){p.reason='Frente mudou: suspender obra distante';cancel(p);continue}
+  }
   if(p.src!=='player'&&!p.keep){p.idle=p.crew.length?0:(p.idle||0)+.5;p.hot=enemiesNear(p.team,s.x,s.y,200)>=4?(p.hot||0)+.5:0;
    if(p.idle>45||p.hot>20){cancel(p);continue}}
   const want=p.kind==='repair'?2:CFG.CREW;if(p.crew.length>=want)continue;
-  const pool=sappers(p.team).filter(freeSapper).sort((a,b)=>hyp(a.x-s.x,a.y-s.y)-hyp(b.x-s.x,b.y-s.y));
-  for(const u of pool){if(p.crew.length>=want)break;if(hyp(u.x-s.x,u.y-s.y)>1500)break;u.sapJob=p.id;u.sapHp=u.hp;p.crew.push(u.id)}}
+  if(Policy&&p.src==='player'&&p.crew.length<Math.min(2,want)){
+   for(const other of P.filter(q=>!q.done&&q.team===p.team&&q.src!=='player').sort((a,b)=>priority(a)-priority(b))){
+    while(other.crew.length>1&&p.crew.length<Math.min(2,want)){const id=other.crew.pop(),u=byId(id);release(u);if(u&&freeSapper(u)){u.sapJob=p.id;u.sapHp=u.hp;u.sapWalk={id:s.id,distance:hyp(u.x-s.x,u.y-s.y),progress:time};p.crew.push(id)}}
+    if(p.crew.length>=Math.min(2,want))break;
+   }
+  }
+  const pool=sappers(p.team).filter(u=>freeSapper(u)&&!(u.sapAvoid?.id===p.id&&u.sapAvoid.until>time)).sort((a,b)=>hyp(a.x-s.x,a.y-s.y)-hyp(b.x-s.x,b.y-s.y));
+  for(const u of pool){if(p.crew.length>=want)break;if(hyp(u.x-s.x,u.y-s.y)>1500)break;u.sapJob=p.id;u.sapHp=u.hp;u.sapWalk={id:s.id,distance:hyp(u.x-s.x,u.y-s.y),progress:time};p.crew.push(u.id)}}
  /* IA: pioneiros ociosos esperam atrás da primeira linha em vez de irem para o assalto */
  for(let t=0;t<2;t++){if(!aiEnabled[t])continue;const fx=FRONT[t],fc=face(t);
   for(const u of sappers(t)){if(!freeSapper(u))continue;
-   if((u.x-(fx-fc*60))*fc>0){u.tx=fx-fc*rnd(90,140);u.ty=clamp(u.y,120,H-120);u.order='move'}
+   if((u.x-(fx-fc*60))*fc>0){if(Policy){if(!u.sapWait||Math.abs(u.sapWait.front-fx)>60)u.sapWait={front:fx,x:fx-fc*(105+u.id%3*18),y:clamp(u.y+(u.id%3-1)*18,120,H-120)};const safe=Policy.route(supportContext(t,u),u,u.sapWait);u.tx=safe.x;u.ty=safe.y}else{u.tx=fx-fc*rnd(90,140);u.ty=clamp(u.y,120,H-120)}u.order='move'}
    else if(u.order==='attack'){u.order='hold';u.tx=u.x;u.ty=u.y}
    u.manualUntil=u.sapStamp=time+2}}}
 function spotFor(s,i,n,fc){const along=(i-(n-1)/2)*14,[nx,ny]=enemyNormal(s.ax,s.ay,fc),back=s.kind==='nest'||s.kind==='mortar'?14:7;
@@ -148,6 +168,7 @@ function crewTick(p,dt){
  const s=curSeg(p);if(!s)return;const fc=face(p.team),n=p.crew.length;let dig=0;
  let quit=false;
  for(let i=0;i<n;i++){const u=byId(p.crew[i]);if(!u||u.hp<=0)continue;
+  if(u.down||u.rs||u.cls==='medic'||u.hp<=u.maxhp*.35){release(u);p.crew[i]=-1;quit=true;continue}
   if(overridden(u)){u.sapJob=null;u.sapState='';u.sapFree=time+25;p.crew[i]=-1;quit=true;continue}
   u.manualUntil=u.sapStamp=time+1.2;
   if(u.hp<(u.sapHp??u.hp)-.5||u.suppression>1)u.sapProne=time+rnd(1.6,2.4);      // alvejado: interrompe a obra e deita
@@ -158,7 +179,11 @@ function crewTick(p,dt){
   if((u.sapProne||0)>time){u.order='hold';u.tx=u.x;u.ty=u.y;u.sapState='prone';continue}
   const[sx,sy]=spotFor(s,i,n,fc);
   if(hyp(u.x-sx,u.y-sy)>16){                                  // o motor só anda se faltar mais de 12 px
-  u.tx=sx;u.ty=sy;u.order='move';u.sapState='walk';continue}
+  if(Policy){const distance=hyp(u.x-sx,u.y-sy);if(!u.sapWalk||u.sapWalk.id!==s.id)u.sapWalk={id:s.id,distance,progress:time};if(distance<u.sapWalk.distance-5){u.sapWalk.distance=distance;u.sapWalk.progress=time}
+   if(time-u.sapWalk.progress>18){u.sapAvoid={id:p.id,until:time+45};release(u);p.crew[i]=-1;quit=true;continue}
+   const goal=Policy.route(supportContext(p.team,u),u,{x:sx,y:sy});u.tx=goal.x;u.ty=goal.y;
+  }else{u.tx=sx;u.ty=sy}u.order='move';u.sapState='walk';continue}
+  if(u.sapWalk)u.sapWalk.progress=time;
   u.order='hold';u.tx=u.x;u.ty=u.y;
   if(u.target&&u.target.hp>0){u.sapState='fight';dig+=CFG.FIGHT}
   else{u.sapState='dig';dig++;u.angle=Math.atan2(s.y-u.y,s.x-u.x);if(Math.random()<dt*3.2)spoil(u,s,fc)}}

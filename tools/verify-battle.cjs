@@ -8,6 +8,19 @@ const server=http.createServer((req,res)=>{
  fs.readFile(target,(err,data)=>{if(err){res.writeHead(404);return res.end()}
   res.setHeader('Content-Type',target.endsWith('.js')?'text/javascript':target.endsWith('.css')?'text/css':'text/html');res.end(data)});
 });
+function jointScenario(){
+ PXFORT.endPrep();sandbox=true;mode='commander';ended=false;units=[];buildings=[];fieldTrenches=[];decor=[];shells=[];points=[{name:'Passagem',x:930,y:480,owner:1}];time=200;
+ IronFrontBrain.setRoles(['attack','defend']);IronFrontBrain.operations.reset();
+ for(let i=0;i<8;i++){const u=newUnit('rifle',0,710+i,480);u.cls=undefined;u.rs=null;u.manualUntil=0}
+ for(let i=0;i<3;i++)newUnit('mg',0,700+i,490);
+ const wire=newBuilding('wire',1,820,480);PXSAP.reset();for(const u of units){u.sap=0;u.manualUntil=0}buildings=buildings.filter(b=>b!==wire);PXSAP.tick(.5);
+ for(const t of [200,205,206,212]){time=t;runCommander(0)}
+ const staged=IronFrontBrain.lastPlans[0].orders.some(o=>o.role==='preparar-brecha');time=220;runCommander(0);
+ const plan=IronFrontBrain.lastPlans[0];hud();const passed={staged,nativeBreaches:PXSAP.breaches.length,phase:plan.operation.phase,missions:plan.coordination.missions.length,roles:plan.orders.map(o=>o.role),panel:document.getElementById('squadStatus').textContent};
+ IronFrontHuman.joint=false;runCommander(0);passed.disabled=IronFrontBrain.lastPlans[0].coordination.missions.length===0;IronFrontHuman.joint=true;
+ return passed;
+}
+function checkJoint(joint){console.log(JSON.stringify({joint}));assert.ok(joint.staged&&joint.nativeBreaches>0&&joint.missions>0&&joint.disabled);assert.ok(joint.roles.includes('assalto-brecha'));assert.ok(joint.roles.includes('apoio-solicitado'));assert.match(joint.panel,/Ações conjuntas/)}
 (async()=>{
  await new Promise(r=>server.listen(0,'127.0.0.1',r));
  const browser=await chromium.launch({channel:'msedge',headless:true});
@@ -21,6 +34,7 @@ const server=http.createServer((req,res)=>{
   await page.locator('[data-go="sandbox"]').click();
   await page.locator('.sbgroup').filter({has:page.locator('#blueai')}).locator('button[data-v="on"]').click();
   await page.locator('.sbgroup').filter({has:page.locator('#rolesel')}).locator('button[data-v="a0"]').click();await page.locator('#start').click();
+  if(process.argv.includes('--joint-only')){await page.evaluate(()=>{running=false});const joint=await page.evaluate(jointScenario);checkJoint(joint);assert.deepEqual(errors,[]);fs.writeFileSync(path.join(out,'joint-report.json'),JSON.stringify({joint,errors},null,2));return}
   await page.screenshot({path:path.join(out,'preparation.png')});
   assert.equal(await page.locator('#game').isVisible(),true);
   await page.evaluate(()=>{running=false});
@@ -82,8 +96,9 @@ const server=http.createServer((req,res)=>{
    return {groups:groups.length,leaders:groups.filter(g=>g.leader!==null).length,morale:groups.every(g=>g.morale>=0&&g.morale<=1),reports:reports.length,medical,controlled,switchWorks,reset};
   });
   assert.ok(human.groups>0&&human.leaders>0&&human.morale&&human.medical&&human.controlled&&human.switchWorks&&human.reset);console.log(JSON.stringify({human}));
+  const joint=await page.evaluate(jointScenario);checkJoint(joint);
   assert.deepEqual(errors,[]);
-  fs.writeFileSync(path.join(out,'battle-report.json'),JSON.stringify({checkpoints,benchmark,economy,human,errors},null,2));
+  fs.writeFileSync(path.join(out,'battle-report.json'),JSON.stringify({checkpoints,benchmark,economy,human,joint,errors},null,2));
   console.log('Browser: preparação, ataque/defesa, três mapas, papéis espelhados, ordens manuais e interface OK');
  }finally{await browser.close();server.close()}
 })().catch(e=>{console.error(e);server.close();process.exitCode=1});

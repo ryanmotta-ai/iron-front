@@ -21,3 +21,5 @@ const depot={done:true,segs:[{kind:'depot',x:it.x,y:it.y,stage:2,need:[8,18]}]};
 c.time=1;c.usable=()=>false;E.choose(c);assert.equal(E.state(0).scores.depot.value,-1,'native depot destruction is not rewarded as surviving cover');
 E.reset();c=context();c.catalog={depot:{}};c.cost=()=>90;c.own=c.own.map(u=>({...u,gren:0,cls:'medic'}));assert.equal(E.choose(c),null,'medical noncombatants do not create ammunition demand');
 console.log('Engineering: reserves, worker capacity, visibility safety, dry ground, duplicate prevention, measured use, loss learning and spending limits OK');
+E.reset();c=context();c.catalog.aid={};c.cost=i=>i.kind==='aid'?120:30;c.wounded=Array.from({length:8},(_,id)=>({id:100+id,team:0,x:750,y:800,hp:1,maxhp:100,down:true}));assert.equal(E.choose(c).kind,'aid','feridos caídos entram na demanda por posto médico');
+E.reset();c=context();it=E.choose(c);const partial={done:true,target:2,segs:[{x:it.x,y:it.y,stage:2,need:[10,25,40]}]};E.committed(0,it,partial,0);c.time=1;E.choose(c);c.time=60;E.choose(c);assert.equal(E.state(0).evaluated,1,'alvo real do projeto define conclusão, sem exigir estágio inexistente');

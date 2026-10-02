@@ -5,7 +5,7 @@
    Agora os 3 formam UMA guarnição em volta de UMA arma (todos continuam type 'mg', então custo, contagem da IA, poder
    nas operações e antiaérea não mudam):
    - atirador: só ele dispara a MG. Não atira andando: depois de parar, 1 s para montar o tripé. Com alvo à vista
-     durante um deslocamento da IA, a guarnição para e monta (no máximo a cada 8 s);
+     durante um deslocamento da IA, a guarnição para e monta enquanto houver alvo (5 a 15 s; depois 6 s sem parar);
    - municiador: ajoelhado do lado esquerdo da arma, com a caixa. Com ele, a fita de 250 troca em 3 s e a cadência é a
      de uma arma servida (0,13 s ≈ 460 tpm, como a MG 08 e a M1917); sozinho, o atirador troca a fita em 8 s e alimenta a arma pior (0,30 s);
    - remuniciador: atrás, de fuzil. Faz as corridas: água para o cano (a corrida abstrata do frontline.js vira um homem
@@ -22,8 +22,8 @@
    (gancho de 1 linha no heavyfx.js). ?guarnicao=0 desliga; IronFront.mgcrew.state() mostra contagens. */
 (function(){
 if(typeof units==='undefined'||typeof defs==='undefined'||!defs.mg)return;
-const CFG={JOIN:110,MERGE:70,SETUP:1.0,MOVE_V:6,RATE:.13,RATE_SOLO:.3,BELT:250,CHANGE:3,CHANGE_SOLO:8,BOXES:6,RESUP:2,SOLO_RESUP:45,
- TAKE:1.4,FEED_R:30,HALT:5,HALT_CD:8,RIFLE_RATE:1.6,RIFLE_DMG:30,RIFLE_RANGE:250,SWAP_CREW:.5,SWAP_SOLO:1.4,FILL:2.5,FETCH:3,REAR:190};
+const CFG={JOIN:110,MERGE:70,SETUP:1.0,MOVE_V:6,ANCHOR:8,RATE:.13,RATE_SOLO:.3,BELT:250,CHANGE:3,CHANGE_SOLO:8,BOXES:6,RESUP:2,SOLO_RESUP:45,
+ TAKE:1.4,FEED_R:30,HALT:5,HALT_MAX:15,HALT_CD:6,RIFLE_RATE:1.6,RIFLE_DMG:30,RIFLE_RANGE:250,SWAP_CREW:.5,SWAP_SOLO:1.4,FILL:2.5,FETCH:3,REAR:190};
 const S=window.PXCREW={on:!/[?&]guarnicao=0/.test(location.search),version:'1.9',cfg:CFG,
  stats:{crews:0,joins:0,merges:0,promotions:0,beltChanges:0,soloChanges:0,blockedMove:0,halts:0,gunShots:0,crewShots:0,water:0,waterLost:0,ammoRuns:0,soloResup:0,swaps:0,posted:0,feeds:0,feedLost:0,errors:0}};
 const hyp=Math.hypot,rnd=(a,b)=>a+Math.random()*(b-a);
@@ -41,7 +41,7 @@ const G=()=>(window.PXFL&&PXFL.cfg&&PXFL.cfg.MG)||{AMB:15,WAT:4,SWAP:20};
 function release(){for(const C of CR)for(const u of members(C))if(u){u.mgc=null;u.mgr=null}CR=[]}
 function members(C){return[C.gun,C.ld,C.br,C.take&&C.take.u].filter((u,i,a)=>u&&a.indexOf(u)===i)}
 function size(C){return members(C).length}
-function found(u){const C={id:++seq,team:u.team,gun:u,ld:null,br:null,take:null,belt:CFG.BELT,boxes:CFG.BOXES,chg:0,gx:u.x,gy:u.y,lx:u.x,ly:u.y,lastMove:-9,haltCd:0,errand:null,solo:0};
+function found(u){const C={id:++seq,team:u.team,gun:u,ld:null,br:null,take:null,belt:CFG.BELT,boxes:CFG.BOXES,chg:0,gx:u.x,gy:u.y,lx:u.x,ly:u.y,lastMove:-9,ax:u.x,ay:u.y,haltCd:0,haltUntil:0,haltT0:0,step:0,errand:null,solo:0};
  u.mgc=C;u.mgr='gun';CR.push(C);S.stats.crews++;return C}
 function join(C,u){if(!C.ld){C.ld=u;u.mgr='ld'}else{C.br=u;u.mgr='br'}u.mgc=C;S.stats.joins++}
 function copyHeat(from,to){const a=heatOf(from),b=heatOf(to);if(!a||!b)return;for(const k of['T','wat','seized','swapUntil'])b[k]=a[k];b.run=null;if(a.run&&a.run._mc){a.run=null}}
@@ -106,12 +106,24 @@ function tick(dt){
    continue}
   const gun=C.gun;
   /* movimento da arma: só atira montada */
-  const v=hyp(gun.x-C.lx,gun.y-C.ly)/Math.max(dt,1e-3);C.lx=gun.x;C.ly=gun.y;C.moving=v>CFG.MOVE_V;if(C.moving)C.lastMove=time;C.gx=gun.x;C.gy=gun.y;C.ga=gun.angle;
-  /* com alvo à vista num deslocamento da IA, para e monta */
-  if(!soldierMe(gun)&&aiEnabled[gun.team]&&!(gun.manualUntil>time)&&!(gun.dodgeUntil>time)&&gun.order==='move'&&gun.aiRole!=='evasão'&&!busy(gun)&&time>C.haltCd&&
-   gun.target&&gun.target.hp>0&&hyp(gun.target.x-gun.x,gun.target.y-gun.y)<(defs.mg.range||330)){gun.order='hold';gun.tx=gun.x;gun.ty=gun.y;C.haltCd=time+CFG.HALT_CD;C.haltUntil=time+CFG.HALT;S.stats.halts++}
+  const v=hyp(gun.x-C.lx,gun.y-C.ly)/Math.max(dt,1e-3);C.lx=gun.x;C.ly=gun.y;C.moving=v>CFG.MOVE_V;C.gx=gun.x;C.gy=gun.y;C.ga=gun.angle;
+  /* o tripé só "desmonta" com deslocamento de verdade: empurrões da separação do physics.js (≈1 px por quadro) não contam */
+  C.vs=(C.vs||0)+(Math.min(v,120)-(C.vs||0))*Math.min(1,dt*5);                  // velocidade suavizada: marcha ≥ 20 px/s, empurrão da separação p90 ≈ 9 px/s (medido)
+  if(C.vs>22||hyp(gun.x-C.ax,gun.y-C.ay)>CFG.ANCHOR){C.ax=gun.x;C.ay=gun.y;C.lastMove=time}
+  /* com alvo à vista num deslocamento da IA, para e monta. A parada vale enquanto houver alvo (5 a 15 s): o aiStepAt faz o
+     game.js pular o passo da unidade, mas não o tiro (a IA pode reordenar 'move' à vontade). Evasão de granada solta na hora. */
+  const tgtOk=gun.target&&gun.target.hp>0&&hyp(gun.target.x-gun.x,gun.target.y-gun.y)<(defs.mg.range||330);
+  const ai=!soldierMe(gun)&&aiEnabled[gun.team]&&!(gun.manualUntil>time)&&!busy(gun);
+  if(time<C.haltUntil){
+   if(!ai||gun.dodgeUntil>time||gun.aiRole==='evasão'||gun.order==='retreat'){C.haltUntil=0}
+   else if(tgtOk)C.haltUntil=Math.min(C.haltT0+CFG.HALT_MAX,Math.max(C.haltUntil,time+1.5))}
+  else if(ai&&!(gun.dodgeUntil>time)&&gun.order==='move'&&gun.aiRole!=='evasão'&&time>C.haltCd&&tgtOk){
+   gun.order='hold';gun.tx=gun.x;gun.ty=gun.y;C.haltT0=time;C.haltUntil=time+CFG.HALT;S.stats.halts++}
+  if(time<C.haltUntil){gun.aiStepAt=C.step=Math.max(gun.aiStepAt||0,C.haltUntil);S.stats.haltTime=(S.stats.haltTime||0)+dt}
+  else if(C.step){if(gun.aiStepAt===C.step)gun.aiStepAt=0;C.step=0;C.haltCd=time+CFG.HALT_CD}
   /* auxiliar postado num ninho: quando chega, vira o atirador */
   for(const k of['ld','br']){const u=C[k];if(!u||!u.post||gun.post||soldierMe(gun)||soldierMe(u))continue;if(hyp(u.x-u.post.x,u.y-u.post.y)>20)continue;
+   if(C.step&&gun.aiStepAt===C.step)gun.aiStepAt=0;C.step=0;C.haltUntil=0;
    C.gun=u;u.mgr='gun';C[k]=gun;gun.mgr=k;copyHeat(gun,u);coolAux(gun);S.stats.posted++;break}
   /* cano travado: a troca depende de quem está lá */
   const a=heatOf(C.gun);if(a){if(a.seized&&!a._mcSw){a._mcSw=1;a.swapUntil=time+G().SWAP*(hasLd(C)?CFG.SWAP_CREW:CFG.SWAP_SOLO);S.stats.swaps++}else if(!a.seized)a._mcSw=0}

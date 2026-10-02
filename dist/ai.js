@@ -210,7 +210,7 @@ function evadeShells(unit,shells){
   if(!imminent.length)return null;
   let best=null,bestRisk=Infinity;
   for(let i=0;i<12;i++){
-    const angle=i*Math.PI/6,tx=Math.max(20,Math.min(2380,unit.x+Math.cos(angle)*105)),ty=Math.max(20,Math.min(1580,unit.y+Math.sin(angle)*105));
+    const angle=i*Math.PI/6,tx=Math.max(20,Math.min((root.IronFrontWorld?.width||2400)-20,unit.x+Math.cos(angle)*105)),ty=Math.max(20,Math.min((root.IronFrontWorld?.height||1600)-20,unit.y+Math.sin(angle)*105));
     let risk=0;
     for(const shell of shells)if(shell.t>0&&shell.t<=2.1){
       const exposure=Math.max(0,shell.r+28-Math.hypot(tx-shell.x,ty-shell.y));
@@ -347,7 +347,7 @@ function unitOrders(state,objective,secondary,defense){
         if(cover){tx=cover.x;ty=cover.y;role='cobertura'}
       }
     }
-    orders.push({id:unit.id,tx:Math.max(20,Math.min(2380,tx)),ty:Math.max(20,Math.min(1580,ty)),role,...(reconGoal?{reconGoal}:{})});
+    orders.push({id:unit.id,tx:Math.max(20,Math.min((root.IronFrontWorld?.width||2400)-20,tx)),ty:Math.max(20,Math.min((root.IronFrontWorld?.height||1600)-20,ty)),role,...(reconGoal?{reconGoal}:{})});
   }
   return orders;
 }

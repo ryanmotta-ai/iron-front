@@ -26,6 +26,7 @@
 (function(){
 if(!window.PXMED||!window.IFK)return;
 const M=PXMED,K=IFK,Z=K.Z,hyp=Math.hypot;
+const Policy=window.IronFrontSupport;
 const rnd=(a,b)=>a+Math.random()*(b-a),clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const wrap=(name,fn)=>{const orig=window[name];if(typeof orig!=='function'){console.warn('casualty.js: função ausente: '+name);return}window[name]=function(...a){return fn(orig,...a)}};
 const CFG={SCAN:.5,BUDDY_R:130,MEDIC_R:300,MAXBUDDY:4,DRAG:.4,GRAB:1.1,AID:4.5,AID_BLEED:90,HAND_R:30,ABORT_SUPP:1.55,
@@ -77,34 +78,40 @@ function woundTick(u,dt){const z=u.cz;if(z.st==='bed')return;
    ====================================================================================== */
 const BUDDY={medic:1,rifle:.6,assault:.35,grenadier:.5,marksman:.4,observer:.35};
 function canRescue(r){return r.type==='rifle'&&r.hp>r.maxhp*.35&&!r.down&&!r.rs&&!soldierP(r)&&!r.sapJob&&!r.pinned&&!r.post&&!(r.cls==='observer'&&r.obs)&&
- !(r.manualUntil>time&&r.order==='move')&&!(window.PXBAT&&PXBAT.isCrew&&PXBAT.isCrew(r))}
+ !r.sap&&!(r.manualUntil>time)&&!(window.PXBAT&&PXBAT.isCrew&&PXBAT.isCrew(r))}
 function score(r,w,d){const base=BUDDY[r.cls||'rifle']??.55;let s=base*(.4+.6*(r.cohesion??1))*(1-Math.min(1,(r.suppression||0)/1.2));
  const en=enemiesNear(r.team,w.x,w.y,150);s*=en===0?1:en===1?.5:.15;
  if(w.cz.called&&time-w.cz.called<4)s*=1.4;
  if(r.order==='attack'&&/avan|ruptura|escolta|assalto/.test(r.aiRole||''))s*=.5;
  s*=1-d/(r.cls==='medic'?CFG.MEDIC_R:CFG.BUDDY_R)*.5;return s}
 function scan(){const busy=[0,0];for(const u of units)if(u.rs&&u.cls!=='medic')busy[u.team]++;
- for(const w of units){if(!w.down||!w.cz||w.inBed||w.carried)continue;if(w.cz.st!=='drag'&&!w.cz.cover&&inCover(w)){w.cz.cover=true;if(w.cz.st==='down'||w.cz.st==='crawl'){w.cz.st='cover';w.cz.crawl=null}}
+ const patients=Policy?units.filter(w=>w.down&&w.cz).sort((a,b)=>(a.bleed-time)/RANK[a.cz.sev]-(b.bleed-time)/RANK[b.cz.sev]||a.id-b.id):units;
+ for(const w of patients){if(!w.down||!w.cz||w.inBed||w.carried)continue;if(w.cz.st!=='drag'&&!w.cz.cover&&inCover(w)){w.cz.cover=true;if(w.cz.st==='down'||w.cz.st==='crawl'){w.cz.st='cover';w.cz.crawl=null}}
   if(w.cz.res||time<w.cz.dropT||w.claimed&&!crewFar(w))continue;
   let best=null,bs=0;
   for(const r of units){if(r.team!==w.team||!canRescue(r))continue;const med=r.cls==='medic',R=med?CFG.MEDIC_R:CFG.BUDDY_R,d=hyp(r.x-w.x,r.y-w.y);if(d>R)continue;
-   if(!med&&busy[r.team]>=CFG.MAXBUDDY)continue;const s=score(r,w,d);if(s>bs){bs=s;best=r}}
-  if(best&&Math.random()<bs){start(best,w);if(best.cls!=='medic')busy[best.team]++}}}
+   if(!med&&busy[r.team]>=CFG.MAXBUDDY||r.medAvoid?.id===w.id&&r.medAvoid.until>time)continue;
+   const triage=Policy?Policy.triage(M.context(r.team,r),r,w,47,med?CFG.AID:CFG.GRAB):0;if(!Number.isFinite(triage))continue;
+   if(Policy&&med&&w.cz.stab&&w.cz.cover)continue;
+   const s=score(r,w,d)*(Policy?1+Math.max(0,triage)*.05:1);if(s>bs){bs=s;best=r}}
+  if(best&&(Policy&&best.cls==='medic'||Math.random()<Math.min(1,bs))){start(best,w);if(best.cls!=='medic')busy[best.team]++}}}
 /* a maca ainda está longe (> 160 px): quem está perto começa o socorro; a maca segue o ferido e assume quando chega */
 const crewFar=w=>{const c=w.claimed;return !!c&&c.st==='go'&&c.x!=null&&hyp(c.x-w.x,c.y-w.y)>160};
 const crewHere=w=>{const c=w.claimed;return !!c&&c.st!=='buddy'&&(c.st!=='go'||c.x!=null&&hyp(c.x-w.x,c.y-w.y)<40)};
-function start(r,w){log('rescue',w,{by:r.id,cls:r.cls||'rifle',crew:!!w.claimed});r.rs={w,st:'go',t:0,t0:time,dest:null};if(!w.claimed)w.claimed={st:'buddy',t:0,by:r};w.cz.res=r;S.stats.buddyStarts++;
+function start(r,w){log('rescue',w,{by:r.id,cls:r.cls||'rifle',crew:!!w.claimed});r.rs={w,st:'go',t:0,t0:time,dest:null,progress:time,lastDistance:hyp(r.x-w.x,r.y-w.y),resume:{tx:r.tx,ty:r.ty,order:r.order,role:r.aiRole}};if(!w.claimed)w.claimed={st:'buddy',t:0,by:r};w.cz.res=r;S.stats.buddyStarts++;
  K.shout(r,r.cls==='medic'?'hold':'cover',1.3)}
-function release(r,ok,why){const w=r.rs&&r.rs.w;if(why){S.why[why]=(S.why[why]||0)+1}r.rs=null;r.aiRole='';r.manualUntil=0;r.order='hold';r.tx=r.x;r.ty=r.y;
+function release(r,ok,why){const w=r.rs&&r.rs.w,resume=r.rs?.resume,human=r.manualUntil>time&&r.manualUntil!==r.rescueStamp;if(why){S.why[why]=(S.why[why]||0)+1}r.rs=null;
+ if(!human){r.aiRole=resume?.role||'';r.manualUntil=0;r.order=resume?.order||'hold';r.tx=resume?.tx??r.x;r.ty=resume?.ty??r.y}r.rescueStamp=0;
  if(w&&w.cz){w.cz.res=null;if(w.claimed&&w.claimed.st==='buddy')w.claimed=null;if(!ok)w.cz.dropT=time+6;if(w.cz.st==='drag')w.cz.st=w.cz.cover?'cover':'down'}}
-function abort(r,why){S.stats.aborted++;log('abort',r,{why});const w=r.rs&&r.rs.w;release(r,false,'abortou: '+why);r.suppression=Math.max(r.suppression||0,1.6);
+function abort(r,why){S.stats.aborted++;log('abort',r,{why});const w=r.rs&&r.rs.w;if(w)r.medAvoid={id:w.id,until:time+35};release(r,false,'abortou: '+why);r.suppression=Math.max(r.suppression||0,1.6);
  if(r.pv)r.pv.stun=Math.max(r.pv.stun||0,.4);K.shout(r,'down',1.2);if(w&&own(w.team)&&why)S.lastAbort=why}
 function chooseDest(r,w){let best=null,bd=450*450;
- for(const p of M.posts){if(p.team!==r.team||p.hp<=0)continue;const d=(p.x-w.x)**2+(p.y-w.y)**2;if(d<bd){bd=d;best={x:p.x,y:p.y+16,kind:'post',post:p}}}
+ const ctx=Policy?M.context(r.team,r):null;
+ for(const p of M.posts){if(p.team!==r.team||p.hp<=0||Policy&&!M.capacity(p))continue;const d=(p.x-w.x)**2+(p.y-w.y)**2;if(d>450*450)continue;const weighted=d+(Policy?Policy.risk(ctx,p)*12000:0);if(weighted<bd){bd=weighted;best={x:p.x,y:p.y+16,kind:'post',post:p}}}
  if(best&&bd<260*260)return best;
  /* cobertura atrás: trincheira própria ou cratera, no máximo 220 px e não mais perto do inimigo */
  let cv=null,cd=220*220;const bx=back(r.team);
- for(const t of fieldTrenches){if(t.team!==r.team)continue;if((t.x-w.x)*bx<-10)continue;const d=(t.x-w.x)**2+(t.y-w.y)**2;if(d<cd){cd=d;cv={x:t.x,y:t.y,kind:'cover'}}}
+ for(const t of fieldTrenches){if(t.team!==r.team||t.hp<=0||Policy&&Policy.risk(ctx,t)>5)continue;if((t.x-w.x)*bx<-10)continue;const d=(t.x-w.x)**2+(t.y-w.y)**2;if(d<cd){cd=d;cv={x:t.x,y:t.y,kind:'cover'}}}
  if(!cv)for(const c of allCraters){if((c.x-w.x)*bx<0)continue;const d=(c.x-w.x)**2+(c.y-w.y)**2;if(d<Math.min(cd,140*140)){cd=d;cv={x:c.x,y:c.y,kind:'cover'}}}
  if(inCover(w)&&!best)return {x:w.x,y:w.y,kind:'here'};
  return cv||best||{x:clamp(w.x+bx*110,20,W-20),y:w.y,kind:'back'}}
@@ -114,11 +121,14 @@ function handOver(r,w,dest){const p=dest.post;
  else{w.cz.cover=dest.kind!=='back'||inCover(w);w.cz.st=w.cz.cover?'cover':'down'}
  S.stats.buddyDone++;log('handover',w,{to:dest.kind,st:w.cz&&w.cz.st})}
 function rescueTick(r,dt){const z=r.rs,w=z.w;
+ if(r.manualUntil>time&&r.manualUntil!==r.rescueStamp){release(r,false,'ordem do jogador');return}
  if(r.hp<=0||r.down){release(r,false,'resgatador caiu');return}
  if(!w||w.hp<=0||!w.down||w.inBed||w.carried||crewHere(w)){if(w&&crewHere(w)&&w.cz&&w.cz.st==='drag')S.stats.toCrew++;release(r,true,!w||w.hp<=0?'ferido morreu':!w.down?'ferido levantou':crewHere(w)||w.carried?'maca chegou':'leito');return}
- r.target=null;r.cd=Math.max(r.cd||0,.4);r.manualUntil=time+1;r.aiRole='socorro';r.dodgeUntil=0;
+ r.target=null;r.cd=Math.max(r.cd||0,.4);r.manualUntil=r.rescueStamp=time+1;r.aiRole='socorro';r.dodgeUntil=0;
  if((r.suppression||0)>CFG.ABORT_SUPP&&Math.random()<dt*1.5){abort(r,'supressão');return}
- if(z.st==='go'){const d=hyp(w.x-r.x,w.y-r.y);r.order='move';r.tx=w.x;r.ty=w.y;
+ if(z.st==='go'){const d=hyp(w.x-r.x,w.y-r.y);if(d<z.lastDistance-5){z.lastDistance=d;z.progress=time}
+  if(Policy&&time-z.progress>12){r.medAvoid={id:w.id,until:time+35};release(r,false,'rota bloqueada');return}
+  const goal=Policy?Policy.route(M.context(r.team,r),r,w):w;r.order='move';r.tx=goal.x;r.ty=goal.y;
   if(d<11){if(soldierP(w)){release(r,true);return}/* o soldier-tactics levanta o jogador com um aliado a < 20 px */
    z.st='grab';z.t=CFG.GRAB;r.order='hold';r.tx=r.x;r.ty=r.y;K.shout(r,'grab',1)}
   else if(time-z.t0>30)release(r,false,'não chegou');return}
@@ -130,7 +140,8 @@ function rescueTick(r,dt){const z=r.rs,w=z.w;
  if(z.st==='aid'){z.t-=dt;if(Math.random()<dt*3)particles.push({x:w.x+rnd(-3,3),y:w.y-2,vx:0,vy:-8,t:.3,max:.3,color:'#efeee2',size:2});
   if(z.t>0)return;stabilize(w,r);if(w.down&&!inCover(w)&&w.cz.sev!=='light'){z.dest=chooseDest(r,w);if(z.dest.kind!=='here'){z.st='drag';w.cz.st='drag';return}}
   release(r,true);return}
- if(z.st==='drag'){const D=z.dest,dx=D.x-r.x,dy=D.y-r.y,d=hyp(dx,dy);r.order='move';r.tx=D.x;r.ty=D.y;
+ if(z.st==='drag'){if(Policy&&z.dest.kind==='post'&&(z.dest.post.hp<=0||z.dest.post.beds.length>=M.cfg.BEDS))z.dest=chooseDest(r,w);
+  const D=z.dest,dx=D.x-r.x,dy=D.y-r.y,d=hyp(dx,dy),goal=Policy?Policy.route(M.context(r.team,r),r,D):D;r.order='move';r.tx=goal.x;r.ty=goal.y;
   if(d<(D.kind==='post'?CFG.HAND_R:12)){handOver(r,w,D);release(r,true);return}}}
 /* o ferido acompanha quem arrasta: atrás dele no sentido da marcha, e a poeira marca o rastro */
 function trail(r,w,tx,ty,dt){const dx=tx-r.x,dy=ty-r.y,d=hyp(dx,dy)||1;w.x=r.x-dx/d*8;w.y=r.y-dy/d*8;w.angle=Math.atan2(dy,dx);
@@ -185,6 +196,15 @@ function hiddenTick(){for(const u of HID.slice()){const z=u.cz;if(!z)continue;
    if(own(c.team))say('Convalescença: um soldado evacuado voltou como reforço.')}}}
 let sayAt=-99;function say(m){if(time-sayAt<8)return;sayAt=time;try{toast(m)}catch{}}
 
+function positionMedics(){if(!Policy)return;for(const r of units){if(r.cls!=='medic'||r.rs||!canRescue(r))continue;
+ const ctx=M.context(r.team,r),near=units.filter(u=>u.team===r.team&&u.hp>0&&!u.down&&!u.sap&&u.cls!=='medic'&&hyp(u.x-r.x,u.y-r.y)<450);
+ let goal=null,score=Infinity;for(const u of near){const p={x:clamp(u.x+back(r.team)*85,20,W-20),y:u.y};let cost=hyp(p.x-r.x,p.y-r.y)*.02+Policy.risk(ctx,p)*4;
+  cost+=units.filter(other=>other!==r&&other.team===r.team&&other.cls==='medic'&&!other.down&&hyp(other.tx-p.x,other.ty-p.y)<55).length*2;
+  if(cost<score){score=cost;goal=p}}
+ if(!goal){const p=M.posts.filter(p=>p.team===r.team&&p.hp>0).sort((a,b)=>hyp(a.x-r.x,a.y-r.y)-hyp(b.x-r.x,b.y-r.y))[0];goal=p?{x:p.x,y:p.y+40}:{x:r.x,y:r.y}}
+ const p=Policy.route(ctx,r,goal);r.tx=p.x;r.ty=p.y;r.order=hyp(goal.x-r.x,goal.y-r.y)>24?'move':'hold';r.target=null;r.aiRole='apoio-medico';
+ }}
+
 /* ======================================================================================
    JOGADOR: arrastar / primeiros socorros (E)
    ====================================================================================== */
@@ -225,7 +245,7 @@ function tick(dt){
  for(const r of units)if(r.rs)rescueTick(r,dt);
  for(const r of PRE){if(r.hp>0&&r.rs&&r.rs.st==='drag'&&r.rs.w){trail(r,r.rs.w,r.tx,r.ty,dt)}}
  playerTick(dt);
- if((scanT-=dt)<=0){scanT=CFG.SCAN;scan()}
+ if((scanT-=dt)<=0){scanT=CFG.SCAN;scan();positionMedics()}
  bedsTick();wardsTick();hiddenTick()}
 wrap('setup',(orig,...a)=>{const r=orig(...a);try{reset()}catch(e){fail(e)}return r});
 wrap('update',(orig,dt)=>{if(!S.on||!started||ended)return orig(dt);

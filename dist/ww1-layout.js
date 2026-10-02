@@ -6,7 +6,7 @@
    Coordenadas em PIXELS DE ARTE (1200×800, 1 px = 2 unidades do mundo) para o lado Aliado (esquerda);
    o lado Central é o espelho (x → 1200 − x). Visto da esquerda para a direita:
    logística → artilharia → reserva → apoio → linha de frente → arame → terra de ninguém (com o rio) → e o espelho. */
-const PW=1200,PH=800,MAPKEY='trenches';
+const PW=1200,PH=(window.IronFrontWorld?.height||1600)/2,YS=PH/800,MAPKEY='trenches';
 const rng=seed=>{let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296}};
 const mirror=pts=>pts.map(([x,y])=>[PW-x,y]);
 
@@ -31,7 +31,7 @@ function zigzag(r,o){const pts=[];let y=o.y0,k=0;
 function xAt(pts,y){for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i];if(y>=a[1]&&y<=b[1]){const t=(y-a[1])/Math.max(1,b[1]-a[1]);return a[0]+(b[0]-a[0])*t}}return pts[pts.length-1][0]}
 function commTrench(r,xa,xb,y,amp,step){const pts=[[xa,y]];let x=xa+step*.7,k=0;while(x<xb-step*.5){pts.push([Math.round(x),Math.round(y+(k&1?1:-1)*amp*(.6+r()*.8))]);x+=step*(.85+r()*.4);k++}pts.push([xb,y]);return pts}
 
-function build(){
+function buildBase(){
  const r=rng(1917),P={};
  /* linhas paralelas: a de frente é a mais recortada (baías de tiro e traveses), a de reserva a mais calma */
  P.front=zigzag(r,{x:X.front,y0:4,y1:796,s0:15,s1:28,amp:7,a1:9,p1:74,ph:1,a2:5,p2:29});
@@ -54,8 +54,9 @@ function build(){
     mas nada disso existe no chão — sem canhões, ninhos nem morteiros; cada lado constrói os seus na preparação */
  if(!forts())return{P,nests:[],mortars:[],post,guns:[],sapY,nestY,mortarY,gunsPlan:guns,nestsPlan:nests,mortarsPlan:mortars};
  return{P,nests,mortars,post,guns,sapY,nestY,mortarY}}
+function build(){const b=buildBase();const path=p=>p.map(([x,y])=>[x,y*YS]);for(const k of ['front','support','reserve'])b.P[k]=path(b.P[k]);for(const k of ['comm','sap'])b.P[k]=b.P[k].map(path);const seen=new Set();for(const k of ['nests','mortars','guns','gunsPlan','nestsPlan','mortarsPlan'])for(const p of b[k]||[])if(!seen.has(p)){p.y*=YS;seen.add(p)}b.post.y*=YS;for(const k of ['sapY','nestY','mortarY'])b[k]=b[k].map(y=>y*YS);return b}
 let L=null;const layout=()=>L||(L=build());
-function railPts(){const p=[];for(let y=-4;y<=804;y+=12)p.push([X.rail+3.5*Math.sin(y/130),y]);return p}
+function railPts(){const p=[];for(let y=-4;y<=PH+4;y+=12)p.push([X.rail+3.5*Math.sin(y/130),y]);return p}
 
 /* amostra uma polilinha a cada `step` px: [x,y,dirx,diry] */
 function sample(pts,step){const out=[];let carry=0;for(let i=1;i<pts.length;i++){const[ax,ay]=pts[i-1],[bx,by]=pts[i],len=Math.hypot(bx-ax,by-ay);if(!len)continue;const dx=(bx-ax)/len,dy=(by-ay)/len;let d=carry;for(;d<len;d+=step)out.push([ax+dx*d,ay+dy*d,dx,dy]);carry=d-len}return out}
@@ -86,7 +87,7 @@ function assembly(team){const rr=rng(71+team),out=[];
  for(let y=ASSY.y0;y<=ASSY.y1;y+=ASSY.step)for(let x=ASSY.x0;x<=ASSY.x1;x+=ASSY.step){const px=x+(rr()-.5)*4,py=y+(rr()-.5)*4;
   if(ROADY.some(ry=>Math.abs(py-ry)<ASSY.road))continue;if(ASSY.obst.some(([ox,oy,r])=>(px-ox)**2+(py-oy)**2<r*r))continue;out.push([team?PW-px:px,py])}
  for(let i=out.length-1;i>0;i--){const j=Math.floor(rr()*(i+1));[out[i],out[j]]=[out[j],out[i]]}
- return out}
+ return out.map(([x,y])=>[x,y*YS])}
 function spots(){if(SPOTS)return SPOTS;SPOTS=[[],[]];
  if(!forts()){for(let team=0;team<2;team++)SPOTS[team]=assembly(team).map(([x,y])=>[Math.round(x*2),Math.round(y*2)]);return SPOTS}
  for(let team=0;team<2;team++){const{P}=layout(),f=sample(teamPts(P.front,team),11),s=sample(teamPts(P.support,team),13),q=sample(teamPts(P.reserve,team),15),rr=rng(33+team),shuf=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(rr()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
@@ -96,15 +97,15 @@ function spots(){if(SPOTS)return SPOTS;SPOTS=[[],[]];
  return SPOTS}
 function spawn(team,i){const a=spots()[team];return a[i%a.length]}
 const ASSY_MG=[[272,112],[272,292],[272,498],[272,702]];   // metralhadoras esperam na borda da área de reunião
-function nestSpots(team){if(!forts())return ASSY_MG.map(([x,y])=>[(team?PW-x:x)*2,y*2]);return layout().nests.map(n=>[(team?PW-n.x:n.x)*2,n.y*2])}
-function tankSpots(team){const x=team?PW-252:252;return[[x*2,650],[x*2,1050]]}
-function cavalrySpot(team,i){const x=(team?PW-74:74)*2;return[x+((i*37)%60)-30,1150+((i*53)%260)]}
+function nestSpots(team){if(!forts())return ASSY_MG.map(([x,y])=>[(team?PW-x:x)*2,y*2*YS]);return layout().nests.map(n=>[(team?PW-n.x:n.x)*2,n.y*2])}
+function tankSpots(team){const x=team?PW-252:252;return[[x*2,650*YS],[x*2,1050*YS]]}
+function cavalrySpot(team,i){const x=(team?PW-74:74)*2;return[x+((i*37)%60)-30,(1150+((i*53)%260))*YS]}
 const reinforceX=team=>team?2400-216:216;
 
 /* construções iniciais do jogo (sem trincheira: as trincheiras já estão pintadas e dão cobertura) */
 function startBuildings(team){if(!forts())return[];const{P,post}=layout(),out=[];
  out.push({type:'bunker',x:(team?PW-post.x:post.x)*2-2*(team?-6:6),y:post.y*2});
- for(const y of[300,600,820,1040,1300]){const px=xAt(P.front,y/2)+17;out.push({type:'sandbag',x:(team?PW-px:px)*2,y:y+8})}
+ for(const y of[300,600,820,1040,1300].map(y=>y*YS)){const px=xAt(P.front,y/2)+17;out.push({type:'sandbag',x:(team?PW-px:px)*2,y:y+8})}
  return out}
 
 /* campo "limpo": a terra de ninguém começa quase intacta (capim seco pisoteado, poucos buracos velhos) e é o combate
@@ -125,5 +126,5 @@ const CLEAN={on:true,
 const forts=()=>!!CLEAN.forts;
 
 window.PX=window.PX||{};
-PX.WW1={CLEAN,forts,ASSY,railPts,MAPKEY,PW,PH,ZONES,X,ROADY,COMMY,layout,sample,xAt,mirror,teamPaths,fieldTrenches,spawn,nestSpots,tankSpots,cavalrySpot,reinforceX,startBuildings,zoneAt,rng};
+PX.WW1={CLEAN,forts,ASSY,railPts,MAPKEY,PW,PH,YS,ZONES,X,ROADY:ROADY.map(y=>y*YS),COMMY:COMMY.map(y=>y*YS),layout,sample,xAt,mirror,teamPaths,fieldTrenches,spawn,nestSpots,tankSpots,cavalrySpot,reinforceX,startBuildings,zoneAt,rng};
 })();

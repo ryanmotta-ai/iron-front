@@ -1,0 +1,171 @@
+{
+  "maps": [
+    {
+      "map": "winter",
+      "samples": [
+        {
+          "game": {
+            "started": true,
+            "running": false,
+            "width": 2400,
+            "height": 2000,
+            "mode": "commander",
+            "time": 30,
+            "playerTeam": 0,
+            "aiEnabled": [
+              true,
+              true
+            ],
+            "aiSummary": [
+              "Avançando por cobertura · norte · Avanço combinado",
+              "Defendendo acessos · centro · Defesa adaptativa"
+            ],
+            "money": null,
+            "supplies": [
+              null,
+              null
+            ],
+            "income": [
+              12,
+              12
+            ],
+            "reinforcements": [
+              500,
+              499
+            ],
+            "units": 233,
+            "unitsByTeam": [
+              118,
+              115
+            ],
+            "trenchesOccupied": [
+              1,
+              32
+            ],
+            "aiRoles": [
+              {
+                "base-de-fogo": 5,
+                "avanço-alternado": 49,
+                "escolta": 15,
+                "apoio-medico": 6,
+                "pressão-secundária": 7,
+                "reserva-movel": 16,
+                "reconhecimento": 8,
+                "reagrupamento": 1,
+                "ruptura": 1
+              },
+              {
+                "fogo-cruzado": 10,
+                "reserva-movel": 20,
+                "posição-defensiva": 69,
+                "apoio-medico": 6
+              }
+            ],
+            "selected": 0,
+            "points": [
+              {
+                "name": "A",
+                "owner": 0
+              },
+              {
+                "name": "B",
+                "owner": -1
+              },
+              {
+                "name": "C",
+                "owner": 1
+              }
+            ],
+            "map": "winter"
+          },
+          "phases": [
+            "advance",
+            "hold"
+          ],
+          "dialogue": [
+            0,
+            1
+          ],
+          "south": 10,
+          "invalid": 0,
+          "errors": [
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "scenario": {
+    "dialogue": [
+      {
+        "id": 1,
+        "time": 205,
+        "expires": 212,
+        "team": 0,
+        "squad": 1,
+        "speaker": 253,
+        "name": "Charles Harris",
+        "kind": "ocupar-trincheira",
+        "text": "Ocupem a vala e protejam os acessos.",
+        "task": "ocupar-trincheira"
+      },
+      {
+        "id": 2,
+        "time": 207.5,
+        "expires": 214.5,
+        "team": 0,
+        "squad": 1,
+        "speaker": 254,
+        "name": "Charles Morgan",
+        "kind": "resposta",
+        "text": "Estou com você. Vamos juntos.",
+        "task": "ocupar-trincheira"
+      }
+    ],
+    "text": "Charles Harris: Ocupem a vala e protejam os acessos.",
+    "api": [
+      {
+        "id": 1,
+        "time": 205,
+        "expires": 212,
+        "team": 0,
+        "squad": 1,
+        "speaker": 253,
+        "name": "Charles Harris",
+        "kind": "ocupar-trincheira",
+        "text": "Ocupem a vala e protejam os acessos.",
+        "task": "ocupar-trincheira"
+      }
+    ],
+    "terrain": {
+      "w": 1200,
+      "h": 1000
+    },
+    "grid": {
+      "errors": 0
+    }
+  },
+  "capture": {
+    "holder": 0,
+    "owner": 0
+  },
+  "refresh": {
+    "holder": 0,
+    "origin": 1
+  },
+  "toggle": {
+    "off": ""
+  },
+  "reset": {
+    "events": 0,
+    "dialogue": ""
+  },
+  "classic": {
+    "width": 2400,
+    "height": 1600,
+    "layout": 800
+  }
+}

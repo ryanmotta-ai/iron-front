@@ -18,6 +18,17 @@ const face=t=>t?-1:1;
 const CFG={WOUND:.55,OVERKILL:70,BLEED:[50,75],RANGE:750,HOT:2,GO:52,CARRY:34,LOAD:2,BEDS:3,TREAT:[10,16],SAVE:.78,HEAL:.6,RESPAWN:25,COST:120};
 const S=window.PXMED={on:!/[?&]socorro=0/.test(location.search),version:'1.6',cfg:CFG,stats:{errors:0,wounded:0,rescued:0,saved:0,lost:0,bearersKilled:0}};
 let POSTS=[],pid=0,errs=0,sayAt=0;
+const Policy=window.IronFrontSupport;
+function context(team,observer){const known=window.IronFrontBrain?.operations?.contacts(team)||[],seen=new Map(known.map(e=>[e.id,e]));
+ const visibility=Math.min(350,typeof observationRange==='function'?observationRange():350);
+ if(observer)for(const e of units){if(e.team===team||e.hp<=0||e.down||hyp(e.x-observer.x,e.y-observer.y)>visibility)continue;
+  if(window.IronFrontBrain?.clearShot&&!IronFrontBrain.clearShot(observer,e,typeof decor==='undefined'?[]:decor,typeof buildings==='undefined'?[]:buildings))continue;seen.set(e.id,{id:e.id,type:e.type,team:e.team,x:e.x,y:e.y,hp:e.hp})}
+ return {team,time,enemies:[...seen.values()],shells:typeof shells==='undefined'?[]:shells,buildings:typeof buildings==='undefined'?[]:buildings,trenches:fieldTrenches,depth:window.PXW?.depth,clear:window.IronFrontBrain?.clearShot?(a,b)=>IronFrontBrain.clearShot(a,b,typeof decor==='undefined'?[]:decor,typeof buildings==='undefined'?[]:buildings):null};
+}
+function reserved(p){return POSTS.reduce((n,home)=>n+home.crews.filter(c=>['go','load','carry'].includes(c.st)&&(c.dest||home)===p).length,0)}
+function capacity(p){return p.beds.length+reserved(p)<CFG.BEDS}
+function crewContext(c,team){if(!c.ctx||time>=c.ctxUntil){c.ctx=context(team,c);c.ctxUntil=time+.7}return c.ctx}
+function releaseClaim(c){if(c.u&&c.u.claimed===c){c.avoid={id:c.u.id,until:time+35};c.u.claimed=null;c.u.carried=false}c.u=null;c.st='idle';c.t=1;c.dest=null;c.route=null}
 function fail(e){S.stats.errors++;if(++errs<=3)console.error('medics.js:',e);if(errs>=12){S.on=false;console.error('medics.js desligado após erros repetidos')}}
 const eligible=u=>(u.type==='rifle'||u.type==='mg')&&!(u===player&&mode==='soldier')&&!(window.PXW&&PXW.depth&&PXW.depth(u.x,u.y)>=.55);
 function enemiesNear(team,x,y,r){let n=0;for(const u of units)if(u.team!==team&&u.hp>0&&!u.down&&(u.x-x)**2+(u.y-y)**2<r*r)n++;return n}
@@ -41,15 +52,20 @@ function crewTick(dt){
   if(c.st==='dead'){if(time-c.dead>CFG.RESPAWN&&p.hp>0){c.st='idle';c.x=p.x;c.y=p.y+12}continue}
   const u=c.u;
   if(c.st==='idle'){c.t-=dt;if(c.t>0)continue;c.t=.5;let best=null,bs=Infinity;
-   for(const w of units){if(!w.down||w.team!==p.team||w.claimed||w.carried||w.inBed)continue;const d=hyp(w.x-p.x,w.y-p.y);if(d>CFG.RANGE)continue;
-    if(enemiesNear(p.team,w.x,w.y,140)>=CFG.HOT)continue;const sc=d/CFG.GO+(w.bleed-time)*.4;if(sc<bs){bs=sc;best=w}}
-   if(best){best.claimed=c;c.u=best;c.st='go'}else{const hx=p.x+(c.i?8:-8),hy=p.y+12;c.x+=(hx-c.x)*Math.min(1,dt*2);c.y+=(hy-c.y)*Math.min(1,dt*2)}continue}
+   if(p.hp<=0||Policy&&!capacity(p))continue;
+   const ctx=Policy?crewContext(c,p.team):null;
+   for(const w of units){if(!w.down||w.team!==p.team||w.claimed||w.carried||w.inBed||c.avoid?.id===w.id&&c.avoid.until>time)continue;const d=hyp(w.x-p.x,w.y-p.y);if(d>CFG.RANGE)continue;
+    if(enemiesNear(p.team,w.x,w.y,140)>=CFG.HOT)continue;const sc=Policy?-Policy.triage(ctx,c,w,CFG.GO,CFG.LOAD):d/CFG.GO+(w.bleed-time)*.4;if(sc<bs){bs=sc;best=w}}
+   if(best){if(Policy)S.stats.triaged=(S.stats.triaged||0)+1;best.claimed=c;c.u=best;c.st='go';c.dest=p;c.started=time;c.progress=time;c.lastDistance=hyp(best.x-c.x,best.y-c.y)}else{const hx=p.x+(c.i?8:-8),hy=p.y+12;c.x+=(hx-c.x)*Math.min(1,dt*2);c.y+=(hy-c.y)*Math.min(1,dt*2)}continue}
   if(!u||u.hp<=0||!u.down){if(u)u.claimed=null;c.u=null;c.st=c.st==='carry'?'idle':'idle';continue}
-  if(c.st==='go'){const dx=u.x-c.x,dy=u.y-c.y,d=hyp(dx,dy),s=CFG.GO*dt;if(d<=8){c.st='load';c.t=CFG.LOAD}else{c.x+=dx/d*Math.min(d,s);c.y+=dy/d*Math.min(d,s)}}
+  if(c.st==='go'){const actual=hyp(u.x-c.x,u.y-c.y);if(actual<(c.lastDistance??Infinity)-5){c.progress=time;c.lastDistance=actual}
+   if(Policy&&(time-c.progress>12||time-c.started>35||Policy.risk(crewContext(c,p.team),u)>8)){releaseClaim(c);continue}
+   const goal=Policy?Policy.route(crewContext(c,p.team),c,u):u,dx=goal.x-c.x,dy=goal.y-c.y,d=hyp(dx,dy),s=CFG.GO*dt;if(actual<=8){c.st='load';c.t=CFG.LOAD}else if(d>0){c.x+=dx/d*Math.min(d,s);c.y+=dy/d*Math.min(d,s)}}
   else if(c.st==='load'){c.t-=dt;if(c.t<=0){c.st='carry';u.carried=true;S.stats.rescued++}}
-  else if(c.st==='carry'){const free=p.beds.length<CFG.BEDS,b=bedPos(p,p.beds.length),tx=free?b.x:p.x,ty=free?b.y:p.y+22,dx=tx-c.x,dy=ty-c.y,d=hyp(dx,dy),s=CFG.CARRY*dt;
-   if(d<=4){if(free){p.beds.push(u);u.carried=false;u.claimed=null;u.inBed=time+rnd(...CFG.TREAT);u.x=b.x;u.y=b.y;c.u=null;c.st='idle';c.t=1}}
-   else{c.x+=dx/d*Math.min(d,s);c.y+=dy/d*Math.min(d,s)}
+  else if(c.st==='carry'){let dest=c.dest||p;if(Policy&&(dest.hp<=0||dest.beds.length>=CFG.BEDS)){const alternate=POSTS.filter(q=>q.team===p.team&&q.hp>0&&q!==dest&&capacity(q)).sort((a,b)=>hyp(a.x-c.x,a.y-c.y)-hyp(b.x-c.x,b.y-c.y))[0];if(alternate)c.dest=dest=alternate}
+   const free=dest.hp>0&&dest.beds.length<CFG.BEDS,b=bedPos(dest,dest.beds.length),tx=free?b.x:dest.x,ty=free?b.y:dest.y+22,actual=hyp(tx-c.x,ty-c.y),goal=Policy?Policy.route(crewContext(c,p.team),c,{x:tx,y:ty}):{x:tx,y:ty},dx=goal.x-c.x,dy=goal.y-c.y,d=hyp(dx,dy),s=CFG.CARRY*dt;
+   if(actual<=4){if(free){dest.beds.push(u);u.carried=false;u.claimed=null;u.inBed=time+rnd(...CFG.TREAT);u.x=b.x;u.y=b.y;c.u=null;c.st='idle';c.t=1;c.dest=null}}
+   else if(d>0){c.x+=dx/d*Math.min(d,s);c.y+=dy/d*Math.min(d,s)}
    if(u.carried){u.x=c.x;u.y=c.y-2}}
   /* sob fogo de perto a equipe pode cair */
   if(c.st!=='idle'&&Math.random()<dt*.04*enemiesNear(p.team,c.x,c.y,160))killCrew(c)}}
@@ -60,7 +76,7 @@ function killCrew(c){if(c.st==='dead')return;S.stats.bearersKilled++;if(c.u){c.u
 /* ======================================================================================
    LIGAÇÕES
    ====================================================================================== */
-function reset(){POSTS=[];
+function reset(){POSTS=[];for(const key of Object.keys(S.stats))S.stats[key]=0;
  for(let t=0;t<2;t++){const x=t?W-300:300,y=800;addPost(t,x,y)}}
 function tick(dt){if(!S.on||!started||ended)return;downTick(dt);crewTick(dt)}
 wrap('setup',(orig,...a)=>{const r=orig(...a);try{reset()}catch(e){fail(e)}return r});
@@ -119,9 +135,10 @@ if(!window.PHYS)window.PHYS={on:false,draw:()=>false};
 {const orig=PHYS.draw||(()=>false);PHYS.draw=function(c,u,sp,sx,sy,vis,bob){if(!S.on||!u.down)return orig.call(PHYS,c,u,sp,sx,sy,vis,bob);
  try{const r=rot(sp.c);c.drawImage(r,sx-(r.width>>1),sy-(r.height>>1)+(u.carried?0:4));c.globalAlpha=.25;c.fillStyle='#000';c.fillRect(sx-6,sy+1,12,3);c.globalAlpha=1;return true}catch(e){fail(e);return orig.call(PHYS,c,u,sp,sx,sy,vis,bob)}}}
 
-S.state=()=>({on:S.on,posts:POSTS.map(p=>({team:p.team,hp:Math.round(p.hp),beds:p.beds.length,crews:p.crews.map(c=>c.st).join('/')})),down:[0,1].map(t=>units.filter(u=>u.team===t&&u.down).length),stats:{...S.stats}});
+S.state=()=>({on:S.on,posts:POSTS.map(p=>({team:p.team,hp:Math.round(p.hp),beds:p.beds.length,incoming:reserved(p),crews:p.crews.map(c=>c.st).join('/')})),down:[0,1].map(t=>units.filter(u=>u.team===t&&u.down).length),stats:{...S.stats}});
 S.addPost=addPost;S.bedPos=bedPos;S.customDraw=false;              // art-medics.js assume o desenho de postos, macas e feridos
 S.reset=reset;S.tick=tick;
+S.context=context;S.capacity=capacity;
 Object.defineProperty(S,'posts',{get:()=>POSTS});
 if(window.IronFront)window.IronFront.medics=S;
 })();

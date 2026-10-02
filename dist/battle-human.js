@@ -3,6 +3,7 @@
 'use strict';
 if(!window.IronFrontBrain)return;
 const H=window.IronFrontHuman={on:!/[?&]humanizar=0/.test(location.search)};
+H.joint=!/[?&]coordenacao=0/.test(location.search);
 Object.defineProperty(H,'supplyPosts',{get:()=>window.PXWORKS?.on?PXWORKS.depots().filter(p=>p.hp>0):[]});
 Object.defineProperty(H,'stats',{get:()=>window.PXWORKS?.state().stats||{}});
 function draw(c,ox,oy){if(!H.on||!started||window.IronFront.tactics?.visible===false)return;
@@ -18,6 +19,7 @@ const panel=document.getElementById('aiPanel'),info=document.createElement('p');
 const hud0=window.hud;window.hud=function(...a){const r=hud0.apply(this,a),p=IronFrontBrain.lastPlans[playerTeam];
  if(!H.on){info.textContent='';return r}const groups=p?.squadMind||[],recovering=groups.filter(g=>g.state==='reorganizando').length,report=p?.intelligence||[];
  const active=groups.find(g=>['fixar-flanquear','limpeza-trincheira','reabastecimento','patrulha-retornando'].includes(g.task));
- info.textContent=groups.length?`Esquadrões: ${groups.length} · reorganizando: ${recovering} · líderes ativos: ${groups.filter(g=>g.leader!==null).length}. ${active?.note||'Liderança e moral coordenando as tropas'}. Relatos: ${report.length}; posições antigas: ${report.filter(e=>e.status==='ultima-posicao').length}.`:'';return r};
+ const joint=H.joint&&p?.coordination;const mission=joint?.missions.length?` Ações conjuntas: ${joint.missions.length}. ${joint.note}.`:'';
+ info.textContent=groups.length?`Esquadrões: ${groups.length} · reorganizando: ${recovering} · líderes ativos: ${groups.filter(g=>g.leader!==null).length}. ${active?.note||'Liderança e moral coordenando as tropas'}.${mission} Relatos: ${report.length}; posições antigas: ${report.filter(e=>e.status==='ultima-posicao').length}.`:'';return r};
 H.draw=draw;
 })();

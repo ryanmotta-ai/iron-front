@@ -10,7 +10,11 @@ O reconhecimento agora verifica obstáculos, preserva a posição realmente rela
 
 O painel IA mostra liderança, recuperação e relatos; líderes aliados recebem um sinal discreto, e posições antigas aparecem com contorno pontilhado no minimapa. `?humanizar=0` permite comparar com o comando anterior. A memória é reiniciada em cada partida.
 
-Ainda previstas: protocolo completo de pedidos de apoio entre líderes, inteligência por sons, gestão dedicada de assalto a brechas, turnos de passagem estreita, fintas, avisos novos de fogo amigo e memória opcional entre partidas. As manobras entregues são decisões locais com requisitos e duração limitada; o roteiro de operações mais complexas permanece para as próximas versões.
+Segundo pacote disponível: pedidos de apoio contra MGs atribuem equipes distintas para cobertura e flanco. Passagens abertas pelo sistema de sapadores recebem assalto com reunião curta e cobertura, após verificar observação local, arame restante e impactos iminentes. O defensor usa uma equipe para conter um acesso ameaçado, preservando outras guarnições e dando prioridade ao contra-ataque principal.
+
+As ações conjuntas têm participantes persistentes, prazo, limite de duas ações simultâneas e interrupção por perdas, falta de apoio, alteração da operação ou controle humano. Resultados de manobra são avaliados por participantes originais e visibilidade; reforços não apagam baixas e perder contato não produz vitória fictícia. Resultados ruins elevam a força exigida para novos pedidos de apoio. O painel IA mostra as ações; `?coordenacao=0` desliga somente esta camada.
+
+Ainda previstas: pedidos mais amplos de fumaça, pioneiros e blindados entre líderes, inteligência por sons, turnos de passagem estreita, fintas, avisos novos de fogo amigo e memória opcional entre partidas. O roteiro de operações mais complexas permanece para as próximas versões.
 
 Verificação: testes de esquadrões e inteligência, regressão das suítes existentes e integração no navegador por `tools/verify-human.cjs`. A matriz de 108 cenários abaixo continua sendo uma validação futura de equilíbrio, não um resultado já obtido.
 
