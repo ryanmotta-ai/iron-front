@@ -2,6 +2,8 @@
 
 ## Expansão da IA: liderança, reconhecimento e manobras
 
+**Ações conjuntas:** esquadrões pedem apoio contra MGs; uma equipe de fogo recebe a cobertura e a infantaria contorna. Brechas reais de arame e sacos de areia entram no planejamento quando observadas, abertas e fora de impactos iminentes. O assalto reúne brevemente, atravessa e ocupa o outro lado com apoio. O defensor destaca uma reserva para conter acessos sem consumir todas as guarnições. Missões conservam participantes, têm prazo e terminam diante de perdas ou mudança de prioridade. O painel IA mostra essas ações. `?coordenacao=0` desliga esta camada; implementação em `dist/coordination.js`, com testes próprios.
+
 Esquadrões têm líderes substituíveis, perfis discretos e moral coletiva. Perdas e supressão podem provocar uma reorganização local curta, enquanto outros grupos mantêm pressão. Intenções estáveis reduzem mudanças pequenas de destino, e grupos bloqueados tentam outro acesso. Ordens humanas, médicos, resgates e emergências locais conservam prioridade.
 
 O comando usa contatos com origem, idade e confiança, verifica obstáculos e recebe relatos distantes com atraso de 2 segundos. Posições não vistas ficam congeladas e expiram após 35 segundos; as antigas aparecem pontilhadas no minimapa. Patrulhas podem retornar diante de força superior. Infantaria tenta flanquear MGs quando há apoio real, recua alternando cobertura e avança por trechos ao combater na trincheira.
@@ -640,6 +642,14 @@ Camada só visual, carregada por último (`?animveh=0` desliga; `PXVEH.state()` 
 - **Cavalaria:** passo, trote e galope de 4 tempos com fase de suspensão (6/6/8 quadros, também por distância), cavaleiro quicando no ritmo e poeira dos cascos. Na carga, o americano ergue o sabre e o Ulano baixa a lança com flâmula preta e branca; fora da carga, o sabre vai ao ombro e a lança fica em pé. Ao morrer, o cavalo empina, cai de lado, esperneia e fica no chão, e o cavaleiro é arremessado para a frente.
 - **Truques e custo:** a carcaça do FT no cache do `tanks.js` (`tnw0_*`) é trocada por getters preguiçosos, sem editar `pixel.js` nem `tanks.js`. O `u.flash` dos tanques é zerado depois do tiro porque o clarão e o coice passam a ser desta camada. Custo medido com 4 tanques e 15–20 cavalos, Edge headless sem GPU, cache aquecido: ~0,5–0,7 ms por quadro, quase todo em partículas.
 
+## IA de apoio — médicos e construtores
+
+O `support-policy.js` reúne triagem e avaliação de perigo para o socorro e a construção. Médicos consideram gravidade, sangramento e chance de chegar a tempo, acompanham a retaguarda e respeitam novas ordens do jogador. Padioleiros reservam vagas e redirecionam o transporte quando um posto fica cheio ou é destruído.
+
+Construtores priorizam obras do jogador, redistribuem equipes, liberam caídos e interrompem tarefas bloqueadas. Perigo imediato pausa a obra preservando o progresso. O planejamento considera baixas locais, postos destruídos e resultados de projetos com diferentes quantidades de etapas. Os caminhos de apoio procuram alternativas locais com menor risco observado; continuam sujeitos aos obstáculos e à movimentação física do jogo.
+
+Validação: `tests/support-ai.test.cjs`, testes de médicos, feridos, sapadores, obras e engenharia, além de batalhas nos três mapas. Detalhes em `tests/artifacts/support-ai-notes.md`.
+
 ## Versão 1.9.1 — Pendências do passe de polish
 
 Fechadas as pendências do diagnóstico (`docs/polish-pass-diagnostico.md`), exceto as marcadas como parciais.
@@ -654,3 +664,29 @@ Fechadas as pendências do diagnóstico (`docs/polish-pass-diagnostico.md`), exc
 **Captura de posição (QA).** `tools/qa-capture.cjs` registra quando cada ponto e setor muda de dono em batalha IA×IA. A "frente travada" era a preparação de 5 min: com o padrão, o primeiro ponto cai aos 346,5 s. Com `?preparo=60`, o ponto B muda de dono entre 106 e 108 s nas 3 rodadas de 900 s, e o ponto C troca várias vezes. Os **setores de trincheira não trocaram em nenhuma rodada**: a regra exige invasores dentro da vala com a guarnição zerada, e a IA ataca os pontos, não a trincheira.
 
 **Pendentes:** B9 (sprite do avião de reconhecimento) não foi verificado; o caído próprio do `soldier-tactics.js` ainda é separado do `u.down`; o botão de granada do celular não cozinha; pesados e som não tiveram auditoria visual/auditiva final (as frentes foram interrompidas).
+
+## Versão 1.10 — Construção expandida (`works-defense.js`, `works-logistics.js`, `works-manage.js`)
+
+O catálogo da aba DEFESAS passou de 17 para 25 obras (`PXFORT.KINDS`), todas feitas pelos pioneiros em estágios, com plano da IA que só gasta acima da reserva de obras. Chaves: `?defesas=0`, `?logistica=0`, `?gestao=0`; estado em `IronFront.worksDefense|worksLogistics|worksManage.state()`. Os módulos carregam depois de `works.js` (gestão depois de `shelter.js`).
+
+**Defesas (`works-defense.js`).** Só afetam o inimigo, como o arame.
+- Campo minado (◈18/trecho, 3 minas): escondido do inimigo até pioneiro a <48 px, posto de observação a <240 px ou detonação; obus e granada detonam em cadeia. Medido: 0,55 morto e 2,0 feridos por mina; tanque imobilizado 10,1 s e 62 de dano. Pioneiros desminam (10,3% explodem neles).
+- Valo anticarro (◈14/trecho): 60 de 60 tanques atolaram, 35% encalharam (9,5 s), velocidade ×0,19; infantaria ×0,72.
+- Ouriços (◈24, 1400 de vida): tanque desvia e demora 6,5 s (sem peça) a 13,9 s (8 peças) para cruzar 140 px; infantaria passa.
+- IA na trégua: +◈336 por lado (média de sobra ◈478 contra ◈614 sem o módulo).
+
+**Logística (`works-logistics.js`).**
+- Passadiço (◈8/trecho): na lama 100% a infantaria anda 46,3 px/s contra 16,5, e o tanque 24,2 contra 15,9.
+- Linha telefônica (◈5/trecho): pedido de fogo vindo de posto, observador ou avião sem linha ligada a uma bateria sai 12 s depois e com dispersão ×1,2; explosões cortam trechos e pioneiros reparam.
+- Cozinha de campanha (◈70): a ≤130 px, +0,02/s de coesão, −0,12/s de supressão e fôlego do jogador +4/s. Usa `u.cohesion`, pois `u.morale` não existe.
+- Posto de franco-atirador (◈60): alcance ×1,3 (406 px) e 55% menos dano para o atirador dentro.
+
+**Gestão (`works-manage.js`).**
+- Melhorias: trincheira → revestida → concreto, ninho → blindado, bunker → casamata, saco → muro duplo, abrigo → reforçado; paga só a diferença e a obra segue útil durante o trabalho.
+- Integridade: trechos de trincheira e ninhos agora têm vida e desmoronam sob bombardeio até serem reparados (a única mudança de equilíbrio; `?gestao=0` desliga).
+- Reparo (50% do custo × fração de dano), demolição (devolve 40%), cancelamento (devolve o não gasto).
+- Painel de obras (tecla **O**), menu por Ctrl/Alt+clique (U melhora, X demole) e fantasma de posicionamento.
+
+**Verificação:** 36 suítes em `tests/*.test.cjs` passam e o `verify-battle` passa com os três módulos ligados. CPU: 0,23 ms por quadro nas defesas, 0,008–0,06 ms na logística e 0,023 ms na gestão.
+
+**Limites:** na partida IA×IA real, cozinha e posto de atirador não foram construídos na guerra por falta de caixa acima da reserva (a reação só está provada em teste); nas partidas de 60 s de preparo as defesas quase não dispararam; a gestão foi interrompida durante o ajuste final do modelo de prioridade (o teste passa, mas o painel não teve revisão visual final).
