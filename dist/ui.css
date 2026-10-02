@@ -81,7 +81,7 @@ body[data-screen=title] #field{visibility:hidden}
 .modetoggle button{padding:.42rem .6rem;font-size:0.858rem}
 #pause[data-state=pause]{}
 #objectives{position:absolute;top:3.35rem;left:50%;transform:translateX(-50%);display:flex;gap:.3rem}
-.objective{width:1.7rem;height:1.7rem;display:grid;place-items:center;background:rgba(10,13,8,.78);color:var(--text);font:400 1.105rem var(--font);box-shadow:0 0 0 var(--u) var(--ink),inset 0 0 0 calc(var(--u)*1) #8a8f74}
+.objective{min-width:1.7rem;width:auto;padding:0 .4rem;white-space:nowrap;height:1.7rem;display:grid;place-items:center;background:rgba(10,13,8,.78);color:var(--text);font:400 1.105rem var(--font);box-shadow:0 0 0 var(--u) var(--ink),inset 0 0 0 calc(var(--u)*1) #8a8f74}
 .objective.b{box-shadow:0 0 0 var(--u) var(--ink),inset 0 0 0 var(--u) var(--blue);background:rgba(47,106,126,.85);color:#e8f8ff}
 .objective.r{box-shadow:0 0 0 var(--u) var(--ink),inset 0 0 0 var(--u) var(--red);background:rgba(143,53,36,.85);color:#ffe6de}
 .fieldtop{background:rgba(10,13,8,.5);padding:.2rem .5rem;position:absolute;top:3.45rem;left:.6rem;display:flex;gap:.7rem;align-items:center;font:400 0.8rem var(--fs);letter-spacing:.08em;color:var(--muted);text-shadow:0 2px 0 #000;text-transform:uppercase;max-width:38vw;flex-wrap:wrap}

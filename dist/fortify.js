@@ -109,7 +109,7 @@ const SUB={trench:'Linha de tiro · ◈/trecho',comm:'Ligação · ◈/trecho',w
 /* ======================================================================================
    IA CONSTRUTORA — plano de defesa em profundidade
    ====================================================================================== */
-function plan(t){const fc=face(t),FX=X(t,CFG.FX),it=[],J=()=>rnd(-14,14);
+function legacyPlan(t){const fc=face(t),FX=X(t,CFG.FX),it=[],J=()=>rnd(-14,14);
  const add=(kind,pts,pri,line)=>it.push({kind,pts:pts.map(([x,y])=>dryAt(clamp(x,30,W-30),clamp(y,40,H-40))),pri,line});
  /* 1 primeira linha: baías em zigue-zague, em lotes de ~240 px, do centro para os flancos */
  const zz=[];for(let y=70,i=0;y<=1530;y+=60,i++)zz.push([FX+(i%2?10:-10)*fc,y]);
@@ -135,10 +135,20 @@ function plan(t){const fc=face(t),FX=X(t,CFG.FX),it=[],J=()=>rnd(-14,14);
  add('aa',[[X(t,300),800]],75);
  for(const f of S.planExtra)try{for(const e of f(t,FX,fc))add(e.kind,e.pts,e.pri,e.line)}catch(e){fail(e)}
  return it.filter(i=>K[i.kind]).sort((a,b)=>a.pri-b.pri)}
+function layoutPlan(t,second=false){
+ const L=window.IronFrontLayouts,E=window.IronFrontEngineering;if(!L||!E)return second?legacyPlan2(t):legacyPlan(t);
+ const profile=E.layout(t,time),fc=face(t),FX=X(t,CFG.FX);
+ let guns=[];try{if(map==='trenches')guns=(PX.WW1.layout().gunsPlan||[]).map(g=>({k:g.k,x:g.x*2+4,y:g.y*2}))}catch{}
+ const items=L.preparation(profile,{team:t,width:W,height:H,front:FX,roads:(PX.ROADS||[]).map(y=>y*2),catalog:K,guns,artillery:!!window.PXBAT?.active?.(),second});
+ if(!second)for(const f of S.planExtra)try{for(const e of f(t,FX,fc))if(K[e.kind])items.push({...e,layout:profile.id})}catch(e){fail(e)}
+ return items.map(it=>({...it,pts:it.pts.map(([x,y])=>dryAt(clamp(x,30,W-30),clamp(y,40,H-40)))})).sort((a,b)=>a.pri-b.pri);
+}
+function plan(t){return layoutPlan(t)}
+function plan2(t){return layoutPlan(t,true)}
 function startBuilder(t){QUEUE[t]=plan(t);DONE[t]=[];bT[t]=0;EXTRA[t]=false}
 /* sobrou trégua e dinheiro: segunda leva — 2ª faixa de arame, linha de reserva, ninhos intermediários, mais abrigos e antiaérea */
 let EXTRA=[false,false];
-function plan2(t){const fc=face(t),FX=X(t,CFG.FX),it=[],add=(kind,pts,pri,line)=>it.push({kind,pts:pts.map(([x,y])=>dryAt(clamp(x,30,W-30),clamp(y,40,H-40))),pri,line});
+function legacyPlan2(t){const fc=face(t),FX=X(t,CFG.FX),it=[],add=(kind,pts,pri,line)=>it.push({kind,pts:pts.map(([x,y])=>dryAt(clamp(x,30,W-30),clamp(y,40,H-40))),pri,line});
  for(const y of[360,660,940,1240])add('nest',[[FX+fc*2,y]],1);
  for(const[a,b]of[[70,380],[460,760],[840,1150],[1230,1530]]){add('wire',[[FX+fc*165,a],[FX+fc*165,b]],2)}
  for(const y of[200,520,800,1100,1400])add('dugout',[[FX-fc*110,y]],3);
@@ -147,13 +157,15 @@ function plan2(t){const fc=face(t),FX=X(t,CFG.FX),it=[],add=(kind,pts,pri,line)=
  for(const y of[600,1000])add('mortar',[[FX-fc*170,y]],6);
  return it}
 function costOf(it){const k=K[it.kind];return k.line?SAP._.segment(it.pts,k.step||SAP.cfg.SEG).length*k.cost:k.cost}
+function canPrepare(it,t){const L=window.IronFrontLayouts;if(!L)return true;
+ return L.safe(it.pts,{dry,enemies:window.IronFrontBrain?.operations?.contacts(t)||[],shells,obstacles:[...decor,...buildings.filter(b=>b.hp>0)]})}
 function liveFort(t){return SAP.projects.filter(p=>!p.done&&p.team===t&&p.src==='fort')}
 function builderTick(t){
  if(!PH.on&&window.IronFrontEngineering){adaptiveBuild(t);return}
  const q=QUEUE[t];if(!q.length&&PH.on&&!PH.deploy&&!EXTRA[t]&&(sandbox||supplies[t]>400)){EXTRA[t]=true;q.push(...plan2(t))}if(!q.length)return;const workers=units.filter(u=>u.team===t&&u.sap&&u.hp>0).length;
  const maxA=PH.on?clamp(Math.ceil(workers/5),2,14):clamp(Math.ceil(workers/3),1,4);
  let act=liveFort(t).length;
- while(q.length&&act<maxA){const index=q.findIndex(it=>sandbox||costOf(it)<=supplies[t]-(PH.on?200:140));if(index<0)break;const it=q[index],c=costOf(it);if(!pay(t,c))break;q.splice(index,1);
+ while(q.length&&act<maxA){const index=q.findIndex(it=>(sandbox||costOf(it)<=supplies[t]-(PH.on?200:140))&&canPrepare(it,t));if(index<0)break;const it=q[index],c=costOf(it);if(!pay(t,c))break;q.splice(index,1);
   const p=SAP.project(t,it.kind,'fort',it.pts,{keep:true,line:it.line});if(p){p.item=it;it.p=p;DONE[t].push(it);act++}else if(!sandbox)supplies[t]+=c}}
 function adaptiveBuild(t){
  const E=window.IronFrontEngineering,own=units.filter(u=>u.team===t&&u.hp>0&&!u.down),projects=[...new Set([...SAP.projects,...SAP.segs.map(s=>s.p)])].filter(p=>p.team===t);
@@ -165,8 +177,9 @@ function adaptiveBuild(t){
   if((p.kind==='gunf'||p.kind==='gunh')&&!GUNS.some(g=>g.s===s&&g.hp>0))continue;
   assets.push({kind:p.kind,x:s.x,y:s.y})}
  for(const a of fieldTrenches)if(a.team===t&&a.hp>0)assets.push({kind:'trench',x:a.x,y:a.y});
- for(const p of projects)if(!p.done&&p.src==='fort'&&time-p.t0>120&&!p.crew.length&&p.segs.every(s=>s.stage===0))SAP.cancel(p);
- const it=E.choose({team:t,height:H,width:W,time,own,wounded:units.filter(u=>u.team===t&&u.hp>0),workers:own.filter(u=>u.sap&&!u.rs&&u.cls!=='medic'&&u.hp>u.maxhp*.35).length,projects,assets,catalog:K,cash:sandbox?Infinity:supplies[t],maxSegments:SAP.cfg.MAXSEGS,usable:s=>s.kind==='aid'?!!window.PXMED?.posts.some(a=>a.seg===s&&a.hp>0):s.kind==='depot'?!!window.PXWORKS?.depots().some(a=>a.s===s&&a.hp>0):s.kind==='aa'?AAS.some(a=>a.s===s&&a.hp>0):(s.kind==='gunf'||s.kind==='gunh')?GUNS.some(g=>g.s===s&&g.hp>0):true,income:incomeFor(t),airThreat:time-airSeen[t]<60,artillery:!!window.PXBAT?.active?.(),plan:window.IronFrontBrain?.lastPlans[t],enemies:window.IronFrontBrain?.operations?.contacts(t)||[],shells,dry,cost:costOf});
+ for(const p of projects)if(!p.done&&p.src==='fort'&&!p.crew.length&&p.segs.every(s=>s.stage===0)&&
+  (time-p.t0>120||time-p.t0>30&&!p.keepHuman&&!own.some(u=>!u.sap&&p.segs.some(s=>hyp(u.x-s.x,u.y-s.y)<350))))SAP.cancel(p);
+ const it=E.choose({team:t,height:H,width:W,time,own,wounded:units.filter(u=>u.team===t&&u.hp>0),workers:own.filter(u=>u.sap&&!u.rs&&u.cls!=='medic'&&u.hp>u.maxhp*.35).length,projects,assets,catalog:K,cash:sandbox?Infinity:supplies[t],maxSegments:SAP.cfg.MAXSEGS,usable:s=>s.kind==='aid'?!!window.PXMED?.posts.some(a=>a.seg===s&&a.hp>0):s.kind==='depot'?!!window.PXWORKS?.depots().some(a=>a.s===s&&a.hp>0):s.kind==='aa'?AAS.some(a=>a.s===s&&a.hp>0):(s.kind==='gunf'||s.kind==='gunh')?GUNS.some(g=>g.s===s&&g.hp>0):true,income:incomeFor(t),airThreat:time-airSeen[t]<60,artillery:!!window.PXBAT?.active?.(),plan:window.IronFrontBrain?.lastPlans[t],enemies:window.IronFrontBrain?.operations?.contacts(t)||[],obstacles:[...decor,...buildings.filter(b=>b.hp>0)],shells,dry,cost:costOf});
  if(!it||!pay(t,it.cost))return;
  const p=SAP.project(t,it.kind,'fort',it.pts,{keep:true,line:it.line});
  if(!p){if(!sandbox)supplies[t]+=it.cost;return}p.item=it;it.p=p;DONE[t].push(it);E.committed(t,it,p,time);
@@ -351,7 +364,7 @@ if(window.WW1A){const under=WW1A.under,over=WW1A.over;
  WW1A.under=function(c,ox,oy,dt){under.call(this,c,ox,oy,dt);try{drawUnder(c,ox,oy)}catch(e){fail(e)}};
  WW1A.over=function(c,ox,oy,dt){over.call(this,c,ox,oy,dt);try{drawOver(c,ox,oy)}catch(e){fail(e)}}}
 
-S.state=()=>({on:S.on,active:active(),prep:PH.on?+(PH.end-time).toFixed(1):0,queue:QUEUE.map(q=>q.length),done:DONE.map(d=>d.filter(i=>i.done).length),auto:[...auto],
+S.state=()=>({on:S.on,active:active(),prep:PH.on?+(PH.end-time).toFixed(1):0,layouts:[0,1].map(t=>window.IronFrontEngineering?.state(t)?.layout||null),queue:QUEUE.map(q=>q.length),done:DONE.map(d=>d.filter(i=>i.done).length),auto:[...auto],
  forts:SAP.projects.filter(p=>!p.done&&p.src==='fort').length,aa:AAS.length,guns:GUNS.length,dugouts:DUGS.length,posted:POSTED.length,anchors:[0,1].map(t=>fieldTrenches.filter(a=>a.team===t).length),
  buildings:[0,1].map(t=>buildings.filter(b=>b.team===t).length),supplies:supplies.map(Math.round),stats:{...S.stats}});
 S.planExtra=[];S.KINDS=KINDS;S.SHORT=SHORT;S.SUB=SUB;S.isPrep=()=>hold();S.endPrep=endPrep;S.startPrep=startPrep;S.plan=plan;S.tick=tick;S.reset=reset;S.auto=playerAuto;S.downPlane=downPlane;

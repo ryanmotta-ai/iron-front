@@ -241,6 +241,7 @@ function stepFoot(u,pv,dt,i){
   /* chegada suave: a frenagem do solo não pode estourar o alvo (lama desliza longe) */
   if(u.order==='move'||u.order==='retreat'){const len=hyp(u.tx-ox,u.ty-oy),Ds=vdm/g.brk;if(len<Ds+8){const f=clamp((len-6)/Ds,.2,1);vdx*=f;vdy*=f;vdm*=f}}
   if(steerAround(pv,vdx,vdy)){vdx=SV.x;vdy=SV.y}}
+ if(PH.gait&&PH.gait(u,pv,dt,vdx,vdy,vdm)){vdx=PH.gv.x;vdy=PH.gv.y;vdm=hyp(vdx,vdy)}   // marcha humana (gait.js): ritmo, partida, giro e frenagem de cada soldado
  /* afastamento elástico entre tropas */
  const sm=pushOf(u,i);let sepx=SX[i],sepy=SY[i];
  /* quem já está perto do próprio destino e só vive sendo empurrado considera que chegou (evita tremer na multidão) */

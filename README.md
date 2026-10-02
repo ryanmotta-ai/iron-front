@@ -702,3 +702,43 @@ Conversas em português aparecem junto dos soldados e em legendas, com nomes per
 A infantaria pode ocupar trechos de trincheira observados e acessíveis. Capturas atualizam tanto a bandeira quanto o dono das âncoras usadas pelo comando. Uma reserva pode explorar um acesso lateral observado quando o avanço principal progrediu, conservando pelo menos outra reserva. Compromissos têm prazo, controle de perdas e interrupção por prioridade local.
 
 Arquivos novos: `battlefield.js`, `battle-stories.js`, `battle-opportunities.js` e `battle-dialogue.js`. Testes: `node tests/battle-stories.test.cjs`; integração nos três mapas e captura controlada: `node tools/verify-dynamic.cjs`. Resultados próprios em `tests/artifacts/dynamic-report.json` e `dynamic-dialogue.png`. Essas verificações cobrem integração; diversão, frequência de viradas e equilíbrio exigem partidas jogadas e uma matriz maior de simulações.
+
+## Construção com layouts variados — 01/10/2026
+
+Cada facção sorteia um layout no início da partida e conserva esse estilo na preparação e nas obras durante o combate: **linha em zigue-zague, redutos separados, defesa em profundidade, posições escalonadas, flancos reforçados ou defesa dispersa**. As plantas têm geometrias diferentes, posições de apoio e ligações próprias, e usam toda a altura do mapa ampliado. Os lados usam a mesma regra com posições espelhadas; sorteios independentes podem escolher o mesmo estilo.
+
+A construção adapta prioridades para consolidar um avanço, reforçar setores pressionados, proteger um recuo e atender feridos aliados. Cada obra considera três posições locais, preserva orçamento de reforços e evita duplicatas. Ligações de comunicação procuram uma trincheira existente; o arame conserva passagens nas estradas e saídas dos grupos. A segurança avalia pontos ao longo da obra inteira, incluindo água, obstáculos, contatos observados e impactos próximos. Obras automáticas ainda sem equipe ou progresso podem ser descartadas quando a frente as deixa para trás; projetos do jogador ficam fora dessa regra.
+
+O painel IA mostra o layout e a situação da engenharia. O sorteio ocorre uma vez por facção, sem trocar de planta a cada decisão. `IronFrontEngineering.reset(seed)` permite reproduzir o sorteio em verificações. Implementação em `dist/engineering-layouts.js`, integrada a `engineering.js` e `fortify.js`.
+
+Validação: 36 suítes de testes passaram. `node tools/verify-layouts.cjs` executou construção dos seis estilos na preparação e obras de combate na floresta e no inverno, com saldos positivos e sem erros capturados. O teste usa 70 segundos de preparação por estilo e não estabelece equilíbrio entre eles. Comparação visual em `tests/artifacts/construction-layouts.png`, captura do jogo em `construction-in-game.png` e relatório em `construction-layouts-report.json`.
+
+## Marcha humana — 01/10/2026 (`dist/gait.js`, refino de `anim-infantry.js`)
+
+O fuzileiro deixou de andar como brinquedo. Antes: os 8 homens de um esquadrão partiam no mesmo quadro (0,10 s ±0), a 47,0 u/s idênticos, em linha reta (desvio lateral 0) e giravam de uma vez (90° em ~0,1 s). Agora, medido no navegador com o mesmo esquadrão, a mesma ordem e `?marcha=0` como controle:
+
+| | original | marcha humana |
+|---|---|---|
+| partida após a ordem (esquadrão de 8) | 0,10 s ±0 | 0,47 s ±0,07 (reação de 0,03–0,26 s + rampa de aceleração) |
+| velocidade de cruzeiro | 47,0 u/s, todos iguais | 50,5 ±1,3 u/s (cada soldado tem o seu, 41–58 u/s com a oscilação lenta) |
+| desvio lateral em 400 u | 0 | 3,5 u RMS (≈1,7 px), some perto do destino |
+| giro de 90° andando | rumo vira num quadro | 3,4 rad/s, velocidade cai a 40 u/s na curva |
+| meia-volta parado → andando | instantânea | corpo alinha em 0,47 s e só então ganha velocidade |
+| tempo para 400 u | 8,0–8,2 s | 8,2 s (±3 %: o cruzeiro 4 % mais rápido paga partida, rampa e chegada mais lentas) |
+| ordem cancelada em pleno passo | trava | desliza 17 u em 0,63 s (a chegada normal já alivia o passo a 60 % em 20 u) |
+
+**Movimento (`gait.js`)** — um gancho de 1 linha em `physics.js` (`stepFoot`, depois do contorno de parede, antes da separação) entrega a velocidade desejada final a `PHYS.gait`, que a devolve moldada: fator de velocidade fixo por `id` (média 1,04, ±12 %) mais oscilação lenta (±5 %); atraso de reação individual na partida (só se ficou parado > 0,6 s; ≤ 0,1 s sob fogo; nenhum na retirada e no assalto); rumo da marcha com inércia (6,5 rad/s parado → 3,4 andando) e queda de velocidade enquanto o corpo não alinha; desvio lento do rumo (período 6–11 s) mais balanço curto; aceleração limitada e deslize em vez de parada seca (medido: parado → 90 % do cruzeiro em 0,77 s e 19 u, antes 0,2 s e 8 u; o teto `AMAX` de 190 u/s² vale só uns 30 % na prática, porque a inércia do `physics.js` segue apenas parte do pedido a cada quadro); aclive custa até 15 %, declive devolve até 8 % (`PHYS.gradAt`). Sem alvo, o corpo olha para onde anda. Não mexe em jogador no Modo Soldado, tanques, cavalaria, guarnição de MG, pioneiro cavando/deitado/fugindo de obus, ferido, fixado, esquiva de granada, trincheira nem baioneta; pioneiros e a tropa da trégua andam com a marcha nova. Constantes em `PXGAIT.cfg`; `?marcha=0` desliga só o movimento (o desenho novo continua, `?animinf=0` o desliga); `PXGAIT.state()`; por soldado fica `u.gt`.
+
+**Desenho (`anim-infantry.js`)** — passada própria (`u.gt.sl`) e fase do passo travada na distância (`u._wp`), com passo mais curto a baixa velocidade; poses novas `P_AMBLE`/`P_AMBLEF` (passo curto de quem arranca ou freia, inclinado nos primeiros 0,55 s depois de arrancar, histerese 19/27 u/s para o passo curto; sem pisca-pisca com `dt` irregular); o fuzil desce um quadro depois do tronco e a boca balança com o passo; ombros trocam de lado de frente e de costas; alívio de 0,45 s ao parar (o fuzil desce); giro exibido que sai e chega com suavidade (pico de 9,8 rad/s contra 14); pioneiros em marcha na trégua usam os quadros novos com a pá nas costas. Corrida só acima de 66 u/s (antes 54, que o ritmo individual passaria).
+
+Validação: `node tests/gait.test.cjs` (ritmo, partida, giro, pivô, trajeto, deslize, tempo de marcha ±5 %, exclusões idênticas ao original, assalto sem atraso, `?marcha=0`); as 37 suítes de `tests/` passam (as antigas não carregam o `gait.js`, então a de `physics` confirma só que o gancho guardado não muda nada sem ele). Custo medido com 156 unidades: 5,6 → 6,0 ms por `update`. Trégua de 25 s com IA: 136 soldados com marcha, 0 erros, obras progredindo como antes (207 × 178 segmentos, variação normal). Equilíbrio de combate **não** foi comparado em várias partidas: só o tempo de marcha de 400 u foi igualado (±3 %); uma batalha de 40 s com a marcha ligada e desligada deu resultados diferentes, mas com uma semente cada é ruído.
+
+**Limites:** a cadência é de trote porque a velocidade-base do jogo (47 u/s ≈ 2,9 m/s na escala do sprite) é de trote — não mexi nas velocidades. Conferi quadros e números, não a animação rodando em tempo real. O Modo Soldado (WASD) mantém o movimento do jogador como era; só o desenho ganhou os quadros novos. Pegadas e poeira de passo não foram feitas.
+
+## Bandeiras na retaguarda — 01/10/2026
+
+Os objetivos agora são duas bandeiras, uma atrás das linhas de cada facção, em x=260 e x=2140. Cada lado começa dono da própria base; não há bandeira neutra no meio do campo. Na Conquista, controlar as duas bases encerra a partida com vitória; perder reforços em combate continua sendo outra condição de derrota. Manter a bandeira inicial não drena automaticamente os reforços do adversário. O Sandbox continua sem encerramento por conquista.
+
+A IA destaca uma guarnição para proteger a própria bandeira, reforça essa defesa ao observar inimigos próximos e prioriza recuperar a base perdida. Os outros grupos avançam para a base inimiga, mantendo uma reserva móvel quando há esquadrões suficientes. O mapa clássico conserva a mesma posição proporcional na altura.
+
+Validação: `tests/base-objectives.test.cjs` cobre captura, disputa, vitória e ordens dos dois lados; `tools/verify-bases.cjs` verifica no navegador os três terrenos, guarnições, vitória de cada facção e ausência de perda inicial de reforços. Relatório em `tests/artifacts/base-objectives-report.json`.

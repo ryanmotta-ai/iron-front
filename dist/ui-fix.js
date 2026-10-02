@@ -172,7 +172,7 @@ IFX.guideHTML=[
 '<p>'+SUB('Artilharia e ar')+'As baterias da retaguarda disparam de verdade (o projétil leva 2 a 4 s); o morteiro mostra o obus em voo. <kbd>T</kbd> troca a munição; soldado perto da peça aliada assume o canhão com <kbd>E</kbd>: WASD move o retículo, clique dispara, 1/2/3 escolhem HE, shrapnel ou fumaça. Bombardeios e caças atingem a área marcada depois de alguns segundos; há fogo amigo. Observador e avião de reconhecimento reduzem a dispersão.</p>',
 '</section>',
 '<section><h3>Vitória &amp; painéis</h3>',
-'<p>Capture A, B e C mantendo mais unidades próximas que o inimigo. Cada posição rende 4 suprimentos por segundo e reduz os reforços adversários. A operação acaba quando um lado fica sem reforços.</p>',
+'<p>As duas bandeiras ficam na retaguarda: EUA à esquerda e Alemanha à direita. Proteja sua base e capture a inimiga mantendo mais combatentes próximos. Na Conquista, controlar as duas bases vence a operação; perder todos os reforços também causa derrota. Cada base controlada rende 4 suprimentos por segundo.</p>',
 '<p>O botão de IA liga ou desliga cada comandante. A IA prioriza alvos perigosos, busca abrigo, reúne soldados, ocupa trincheiras, faz reconhecimento e responde a invasões. O painel do quartel-general (<kbd>H</kbd>) mostra o suprimento inimigo e a ordem de batalha.</p>',
 '</section>'].join('');
 IFX.keysLine='WASD mover · TAB trocar modo · Mouse mirar · 1–4 armas<br>R recarregar · G granada · Z deitar · X baioneta · E interagir (veja o Guia de Campo)';

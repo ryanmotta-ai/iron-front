@@ -13,7 +13,7 @@ let save=load();const store=()=>{try{localStorage.setItem(KEY,JSON.stringify(sav
 
 /* ================= conteúdo: campanha e história ================= */
 const OPS=[
- {id:'c1',name:'Amanhecer no arame',map:'trenches',thumb:'trenches',scale:80,diff:'easy',wx:'clear',side:0,txt:'Primeiro contato com a linha alemã. O arame farpado ainda está intacto e a artilharia inimiga é rara. Tome os pontos A, B e C antes que os reforços cheguem.'},
+ {id:'c1',name:'Amanhecer no arame',map:'trenches',thumb:'trenches',scale:80,diff:'easy',wx:'clear',side:0,txt:'Primeiro contato com a linha alemã. O arame farpado ainda está intacto e a artilharia inimiga é rara. Rompa as linhas e capture a bandeira na base alemã, protegendo sua retaguarda.'},
  {id:'c2',name:'Chuva de ferro',map:'trenches',thumb:'rain',scale:160,diff:'normal',wx:'rain',side:0,txt:'A chuva encharca as trincheiras e atola os reforços. Quem segurar o terreno alto mantém a logística. Cuidado com as crateras alagadas.'},
  {id:'c3',name:'Neblina na mata',map:'forest',thumb:'forest',scale:160,diff:'normal',wx:'overcast',side:0,txt:'A neblina esconde tudo além de poucas dezenas de metros. A floresta oferece cobertura, mas também emboscadas. Use metralhadoras nas clareiras.'},
  {id:'c4',name:'Noite de trovões',map:'forest',thumb:'storm',scale:160,diff:'hard',wx:'storm',side:0,txt:'Tempestade sobre a floresta. Raios atingem tanques e aviões ficam em solo. O comandante inimigo é um general: não espere piedade.'},
@@ -22,7 +22,7 @@ const OPS=[
 const CH=[
  {id:'s1',name:'Primeira noite',map:'trenches',scale:80,diff:'easy',wx:'clear',side:0,mode:'soldier',pt:'us',
   txt:'"17 de abril. Chegamos ao anoitecer, eu e mais sete do pelotão. O sargento disse que a trincheira fica a meia hora de marcha, mas a lama tornou tudo mais longo.\n\nPrecisamos tomar as três posições antes do amanhecer. Fico na linha, fuzil na mão. Se eu cair, outro assume o meu lugar."',
-  goals:['Capture as posições A, B e C','Você começa como soldado · TAB volta ao comando'],epi:'Amanhecer. Os três pontos são nossos. Escrevi à minha mãe que estou bem.'},
+  goals:['Capture a bandeira na base alemã','Você começa como soldado · TAB volta ao comando'],epi:'Amanhecer. A bandeira inimiga caiu. Nossa base resistiu. Escrevi à minha mãe que estou bem.'},
  {id:'s2',name:'Cartas para casa',map:'trenches',scale:80,diff:'normal',wx:'drizzle',side:0,mode:'commander',pt:'cap',
   txt:'"O capitão me promoveu a sargento depois da última noite. Agora quem decide onde cada esquadrão cava sou eu.\n\nGaroa fina desde cedo. Dê ordens, construa defesas e compre reforços quando o caixa permitir. O inimigo já sabe onde estamos."',
   goals:['Comande o pelotão a partir do mapa','Use AVANÇAR, DEFENDER e as formações (F / C)'],epi:'Seguramos o setor. Mandei uma carta longa, dessas que não falam de medo.'},
@@ -34,7 +34,7 @@ const CH=[
   goals:['Avance na floresta com visibilidade reduzida','Tanques aliados podem ser assumidos com E'],epi:'Saímos da mata com menos gente, mas com o caminho aberto.'},
  {id:'s5',name:'Do outro lado',map:'winter',scale:160,diff:'normal',wx:'dynamic',side:1,mode:'commander',pt:'de',
   txt:'"Inverno. Desta vez acordei do outro lado da terra de ninguém: cabo Weber, Império Alemão, mesma lama, mesmo frio, outra bandeira.\n\nO homem do outro lado da trincheira também escreve cartas para casa. É o que a guerra nos deixa de igual."',
-  goals:['Comande o Império Alemão no inverno','Capture A, B e C contra os EUA'],epi:'Fim da campanha. Duas bandeiras, a mesma lama. Que este inverno seja o último.'}];
+  goals:['Comande o Império Alemão no inverno','Capture a bandeira na base dos EUA'],epi:'Fim da campanha. Duas bandeiras, a mesma lama. Que este inverno seja o último.'}];
 
 /* ================= estado da execução ================= */
 let run=null,wasRunning=false,hintTimer=0,mmLast='';
@@ -91,7 +91,7 @@ function renderCampaign(){
   b.ondblclick=()=>{if(!lock){selOp=i;startOp(i)}};
   g.append(b)});
  const o=OPS[selOp],done=save.campaign.done[o.id];
- $('opinfo').innerHTML=`<div><span class="eyebrow">OPERAÇÃO ${String(selOp+1).padStart(2,'0')} DE ${OPS.length}</span><h3>${o.name}</h3><p>${o.txt}</p><div class="chips"><span class="chip">MAPA <b>${MAPN[o.map]}</b></span><span class="chip">CLIMA <b>${WX[o.wx]}</b></span><span class="chip">ESCALA <b>${o.scale}</b></span><span class="chip">INIMIGO <b>${DIFF[o.diff]}</b></span><span class="chip">VOCÊ <b>${o.side?'Alemanha':'EUA'}</b></span></div></div><div class="go"><small>${done?`CONCLUÍDA · ${done.time} · ${done.kills} BAIXAS INIMIGAS`:'Conquista: capture os pontos e esgote os reforços inimigos'}</small><button class="primary" id="op-go">${done?'JOGAR DE NOVO':'INICIAR OPERAÇÃO'} <span>▶</span></button></div>`;
+ $('opinfo').innerHTML=`<div><span class="eyebrow">OPERAÇÃO ${String(selOp+1).padStart(2,'0')} DE ${OPS.length}</span><h3>${o.name}</h3><p>${o.txt}</p><div class="chips"><span class="chip">MAPA <b>${MAPN[o.map]}</b></span><span class="chip">CLIMA <b>${WX[o.wx]}</b></span><span class="chip">ESCALA <b>${o.scale}</b></span><span class="chip">INIMIGO <b>${DIFF[o.diff]}</b></span><span class="chip">VOCÊ <b>${o.side?'Alemanha':'EUA'}</b></span></div></div><div class="go"><small>${done?`CONCLUÍDA · ${done.time} · ${done.kills} BAIXAS INIMIGAS`:'Conquista: proteja sua base e capture a bandeira inimiga'}</small><button class="primary" id="op-go">${done?'JOGAR DE NOVO':'INICIAR OPERAÇÃO'} <span>▶</span></button></div>`;
  $('op-go').onclick=()=>startOp(selOp)}
 function startOp(i){const o=OPS[i];run={kind:'campaign',idx:i,cfg:{map:o.map,type:'conquest',scale:o.scale,diff:o.diff,wx:o.wx,side:o.side,mode:'commander'}};launch(run.cfg)}
 
@@ -121,7 +121,7 @@ function setForm(cfg){
 function launch(cfg){
  setForm(cfg);enterBattle();
  if(cfg.mode==='soldier'){try{setMode('soldier',false)}catch{}}
- toast(run&&run.kind==='story'?`Capítulo ${run.idx+1}: ${CH[run.idx].name}`:run&&run.kind==='campaign'?`Operação ${run.idx+1}: ${OPS[run.idx].name}`:'Operação iniciada. Capture os pontos A, B e C.')}
+ toast(run&&run.kind==='story'?`Capítulo ${run.idx+1}: ${CH[run.idx].name}`:run&&run.kind==='campaign'?`Operação ${run.idx+1}: ${OPS[run.idx].name}`:'Proteja sua bandeira e capture a base inimiga na retaguarda.')}
 function enterBattle(){
  try{IFTitle.stop()}catch{}
  setup();body.classList.toggle('is-sandbox',!!sandbox);body.dataset.run=(run&&run.kind)||'sandbox';body.dataset.screen='battle';body.classList.remove('qg-open');dispatchEvent(new Event('resize'));flashHint();syncMode();
@@ -149,7 +149,7 @@ $('pm-quit').onclick=()=>{wasRunning=false;toTitle(run&&run.kind!=='sandbox'?run
 $('settings').onclick=openPause;
 $('btn-options').onclick=()=>$('optionsDlg').showModal();
 $('btn-guide').onclick=()=>$('guide').showModal();
-$('start').onclick=()=>{run={kind:'sandbox',cfg:null};enterBattle();toast('Operação iniciada. Capture os pontos A, B e C.')};
+$('start').onclick=()=>{run={kind:'sandbox',cfg:null};enterBattle();toast('Proteja sua bandeira e capture a base inimiga na retaguarda.')};
 const _finish=window.finish;
 window.finish=function(win){
  _finish.apply(this,arguments);

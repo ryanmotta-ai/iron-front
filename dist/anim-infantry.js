@@ -7,12 +7,15 @@
    novo SUBSTITUI o sprite base e a cadeia interna é chamada com ele — máscara de gás (assault), recortes de trincheira (soldier-life),
    insígnias de classe (classes), abrigo, socorro etc. continuam valendo sobre o quadro novo. Geometria idêntica à do art.js
    (28×28 + contorno = 30×30, âncora 15,16), então o clarão do pixel.js, o recorte d'água e o K.pose seguem certos.
-   Poses: marcha em 8 quadros (balanço de cabeça/tronco) · corrida em 8 (passada longa, tronco inclinado) para ondas de assalto,
+   Poses: marcha em 8 quadros (balanço de cabeça/tronco, fuzil que acompanha o passo, ombros que balançam de frente e de costas) ·
+   passo curto de quem arranca ou está parando (P_AMBLE, inclinado para a frente quando acelera) · corrida em 8 (passada longa, tronco inclinado) para ondas de assalto,
    retirada e quem anda rápido · fuzil no ombro voltado ao alvo, coice (ombro recua, boca sobe) e manejo do ferrolho entre tiros
    (Springfield / Gewehr 98: mão ao ferrolho, sobe-atrás-frente-baixa, estojo ejetado) · ajoelhado atirando de abrigo · recarga com
    lâmina (fases idênticas às do pixel.js, para o estojo e a lâmina saírem no quadro certo) · arremesso de granada em 6 tempos
    (puxa o pino, braço atrás, armado por cima, solta exatamente quando o jogo lança, acompanha, recupera) · respiração e olhadas
-   para os lados de quem está parado · giro sem salto (o ângulo exibido passa pelas direções intermediárias; no tiro trava no real) ·
+   para os lados de quem está parado · giro sem salto (o ângulo exibido sai e chega com suavidade, passando pelas direções intermediárias; no tiro trava no real) ·
+   passada própria de cada soldado (u.gt.sl do gait.js) e fase do passo travada na distância (u._wp), com passo mais curto a baixa velocidade ·
+   alívio de 0,5 s ao parar (o fuzil desce) ·
    rastejar de quem está fixado (assault.js) com cotovelos e joelhos alternados · queda de morte em 4 tempos (tranco na direção da
    bala, joelhos cedem, tomba) que termina EXATAMENTE no sprite de cadáver do art.js, na posição do deslize do pixel.js.
    ?animinf=0 desliga · PXINF.state() · PXINF.sheet() desenha a folha de contatos de todos os quadros. */
@@ -88,10 +91,14 @@ const SR=[ /* corrida: passada mais longa, calcanhar sobe atrás, joelho alto à
 ['......LLL....','........LL...','.........BB..','.............'],
 ['......LL.....','.......LL....','.........LL..','..........BB.']];
 const SS=['......LL.....','......LL.....','......BBB....','.............'];
+/* passo curto (quem arranca, desacelera ou anda devagar): a mesma marcha com o alcance das pernas pela metade, derivada da tabela SW */
+function shrinkRow(r,k){const o=Array(13).fill('.');for(let i=0;i<r.length;i++){const ch=r[i];if(ch==='.')continue;const ni=Math.round(6.5+(i-6.5)*k);if(o[ni]!=='B')o[ni]=ch}return o.join('')}
+const SWA=SW.map(rows=>rows.map((r,j)=>j===0?r:shrinkRow(r,.5)));
 const SK=[ /* ajoelhado (perfil): joelho de trás no chão, canela deitada; perna da frente com canela vertical */
 '......LLLL...','..BBLLL..L...','.........BB..'];
 /* frente/costas por tempo: [esq, dir] */
 const FW=[['fw','bk'],['fw','lf'],['st','st'],['bk','fw'],['bk','fw'],['lf','fw'],['st','st'],['fw','bk']];
+const FWA=[['fw','st'],['st','st'],['st','st'],['st','fw'],['st','fw'],['st','st'],['st','st'],['fw','st']];
 const FR=[['fw','bk'],['fw','hi'],['st','lf'],['bk','fw'],['bk','fw'],['hi','fw'],['lf','st'],['fw','bk']];
 function legCols(team,row,left){/* cores da linha (perneira dos EUA = tons trocados; Alemanha = cano da bota) */
  const p=PAL[team];if(row===1)return team===0?(left?[p.K,p.K,p.k]:[p.k,p.K,p.K]):[p.b,p.b,p.b];
@@ -110,7 +117,7 @@ const MIX=new Map();function mixc(a,b,t){const k=a+b+t;let v=MIX.get(k);if(!v){v
 
 /* ======================================================================================
    COMPOSIÇÃO DE UM QUADRO
-   o = {legs:'stand'|'walk'|'run'|'kneel'|'buckle', lf, udy (tronco), lean (0–2), hdx/hdy (cabeça), headF (vista da cabeça),
+   o = {legs:'stand'|'walk'|'amble'|'run'|'kneel'|'buckle', lf, udy (tronco), tsx (balanço lateral, de frente/costas), lean (0–2), hdx/hdy (cabeça), headF (vista da cabeça),
         gun:{m:'carry'|'aim'|'recoil'|'bolt'|'reload'|'throw'|'drop'|'none', pr, dy, dx, tilt}, thr (braço da granada)}
    ====================================================================================== */
 const GRID=new Map();
@@ -122,15 +129,15 @@ function compose(team,type,d,o,gren){
  const L=o.legs||'stand',lf=(o.lf||0)&7;
  if(facing==='side'){
   if(L==='kneel'||L==='buckle')legSide(b,team,OX,OY+11+(L==='buckle'?1:0),SK,false);
-  else{const T=L==='run'?SR:SW,near=L==='stand'?SS:T[lf],farR=L==='stand'?SS:T[(lf+4)&7];legSide(b,team,OX,OY+10,farR,true);legSide(b,team,OX,OY+10,near,false)}}
+  else{const T=L==='run'?SR:L==='amble'?SWA:SW,near=L==='stand'?SS:T[lf],farR=L==='stand'?SS:T[(lf+4)&7];legSide(b,team,OX,OY+10,farR,true);legSide(b,team,OX,OY+10,near,false)}}
  else{
   if(L==='kneel'||L==='buckle'){const y=OY+11+(L==='buckle'?1:0);legFront(b,team,OX,y,true,'lf');legFront(b,team,OX,y-1,false,'st')}
-  else{const T=L==='run'?FR:FW,pr=L==='stand'?['st','st']:T[lf],sw=st=>back?(st==='fw'?'bk':st==='bk'?'fw':st):st;legFront(b,team,OX,OY+10,true,sw(pr[0]));legFront(b,team,OX,OY+10,false,sw(pr[1]))}}
+  else{const T=L==='run'?FR:L==='amble'?FWA:FW,pr=L==='stand'?['st','st']:T[lf],sw=st=>back?(st==='fw'?'bk':st==='bk'?'fw':st):st;legFront(b,team,OX,OY+10,true,sw(pr[0]));legFront(b,team,OX,OY+10,false,sw(pr[1]))}}
  /* tronco e cabeça (com balanço, inclinação e cabeça solta para olhar/tranco) */
  const lean=o.lean||0,tdx=facing==='side'?(lean>=2?1:0):0,hdx=(o.hdx||0)+(facing==='side'?(lean>=1?1:0):0),hdy=(o.hdy||0)+(facing!=='side'&&lean>=2?1:0);
- const T=grid(team,'t',facing);if(udy<0)b.drawImage(T,0,3,9,1,OX+tdx,OY+9,9,1);/* corpo subiu: a linha do cinto se repete para não abrir buraco */
- b.drawImage(T,OX+tdx,OY+6+udy);
- const hf=o.headF||facing;let H=grid(team,'h',hf);if(o.headFlip)H=flipX(H);b.drawImage(H,OX+hdx,OY+hdy+udy);
+ const T=grid(team,'t',facing),tsx=facing==='side'?0:(o.tsx||0);if(udy<0)b.drawImage(T,0,3,9,1,OX+tdx,OY+9,9,1);/* corpo subiu: a linha do cinto se repete para não abrir buraco */
+ b.drawImage(T,OX+tdx+tsx,OY+6+udy);
+ const hf=o.headF||facing;let H=grid(team,'h',hf);if(o.headFlip)H=flipX(H);b.drawImage(H,OX+hdx+tsx,OY+hdy+udy);
  if(gren&&type==='rifle')beltGrenades(b,team,facing,OX+tdx,OY+udy);
  const body=flip?flipX(B):B;
  /* quadro final 28×28 como no art.js: arma atrás do corpo quando de costas, à frente nos outros casos */
@@ -162,16 +169,20 @@ function throwArm(x,team,a,th,udy,lx){const co=Math.cos(a),si=Math.sin(a),T=PAL[
 /* ======================================================================================
    CATÁLOGO DE POSES → opções de composição (subquadro = índice)
    ====================================================================================== */
-const P_IDLE=0,P_WALK=1,P_RUN=2,P_AIM=3,P_KAIM=4,P_RL=5,P_KRL=6,P_THR=7,P_DIE=8;
+const P_IDLE=0,P_WALK=1,P_RUN=2,P_AIM=3,P_KAIM=4,P_RL=5,P_KRL=6,P_THR=7,P_DIE=8,P_AMBLE=9,P_AMBLEF=10;
 const BOLT=[{m:'aim'},{m:'recoil'},{m:'bolt',pr:0,dy:0},{m:'bolt',pr:1,dy:0},{m:'bolt',pr:4,dy:0},{m:'bolt',pr:-1,dy:0}];
 const WALK_BOB=[1,0,0,0,1,0,0,0],RUN_BOB=[1,0,-1,0,1,0,-1,0],RUN_GUN=[1,0,-1,0,1,0,-1,0];
+/* o fuzil não é parte rígida do corpo: desce um quadro DEPOIS do tronco e a boca balança com o passo; de frente/costas os ombros trocam de lado */
+const WALK_GDY=[0,1,0,0,0,1,0,0],WALK_TILT=[.1,.05,-.03,-.07,.1,.05,-.03,-.07],WALK_SWAY=[0,1,1,0,0,-1,-1,0];
 function poseOpts(pose,sub,facing,co){
  switch(pose){
  case P_IDLE:{/* 0 parado · 1 expira (fuzil desce 1) · 2/3 olha para um lado e para o outro */
   if(sub===1)return{gun:{m:'carry',dy:1}};
   if(sub===2||sub===3){if(facing==='side')return{headF:sub===2?'front':'back'};return{headF:'side',headFlip:sub===3}}
   return{}}
- case P_WALK:return{legs:'walk',lf:sub,udy:WALK_BOB[sub],gun:{m:'carry',dy:sub===2||sub===6?-0:0}};
+ case P_WALK:return{legs:'walk',lf:sub,udy:WALK_BOB[sub],tsx:WALK_SWAY[sub],gun:{m:'carry',dy:WALK_GDY[sub],tilt:facing==='side'?WALK_TILT[sub]:WALK_TILT[sub]*.5}};
+ case P_AMBLE:return{legs:'amble',lf:sub,udy:sub===0||sub===4?1:0,gun:{m:'carry',dy:WALK_GDY[sub],tilt:facing==='side'?WALK_TILT[sub]*.5:0}};
+ case P_AMBLEF:return{legs:'amble',lf:sub,udy:sub===0||sub===4?1:0,lean:1,hdy:facing!=='side'?1:0,gun:{m:'carry',dy:0,tilt:facing==='side'?-.05:0}};
  case P_RUN:return{legs:'run',lf:sub,udy:RUN_BOB[sub],lean:2,gun:{m:'carry',dy:RUN_GUN[sub]*0,tilt:facing==='side'?-.42:0,dx:0}};
  case P_AIM:return Object.assign({gun:BOLT[sub]},sub===0&&facing==='side'?{hdy:1}:sub===1?{hdx:facing==='side'?-1:0,hdy:facing==='side'?0:-1}:{});
  case P_KAIM:return Object.assign({legs:'kneel',udy:2,gun:BOLT[sub]},sub===0&&facing==='side'?{hdy:1}:sub===1?{hdx:facing==='side'?-1:0}:{});
@@ -268,29 +279,41 @@ function drawFalls(ctx,ox,oy){
 const rlTime=()=>(typeof weapons!=='undefined'&&weapons.rifle&&weapons.rifle.reload)||2.6;
 function soldierPlayer(u){return typeof player!=='undefined'&&u===player&&typeof mode!=='undefined'&&mode==='soldier'}
 function lifePose(u){const L=u.lf;if(!L||!window.PXLIFE||!PXLIFE.on)return false;return !!(L.water||L.pose||L.duck>time||L.trip>time||L.climb>time)}
-function track(u){/* passo travado na distância percorrida, velocidade suavizada, ângulo exibido com giro gradual */
- const t=time;if(u._it===undefined){u._it=t;u._wx=u.x;u._wy=u.y;u._wd=(u.id*7.3)%24;u._v=0;u._fa=u.angle||0;return}
+/* corrida e passada: a decisão fica num lugar só, para o passo (track) e o quadro (choose) concordarem */
+const runOf=u=>u.type==='mg'?(u._v>40||u.order==='retreat'):(u.aiRole==='assalto'||u.order==='retreat'||u._v>(window.PXGAIT?PXGAIT.cfg.RUNV:54)||u.lunge2>time);
+const strideOf=(u,run)=>(u.type==='mg'?(run?30:22):(run?32:24))*(u.gt?u.gt.sl:1);
+const angd=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
+function track(u){/* fase do passo travada na distância percorrida (u._wp, em ciclos; passo mais curto a baixa velocidade), velocidade suavizada,
+   ângulo exibido com giro gradual (arranca com a velocidade angular e chega devagar) */
+ const t=time;if(u._it===undefined){u._it=t;u._wx=u.x;u._wy=u.y;u._wd=(u.id*7.3)%24;u._wp=u._wd/24;u._v=0;u._fw=0;u._mov=false;u._stT=-9;u._mvT=-9;u._am=false;u._fa=u.angle||0;return}
  const dt=t-u._it;u._it=t;const dd=hyp(u.x-u._wx,u.y-u._wy);u._wx=u.x;u._wy=u.y;
- if(dd<30){u._wd+=dd;if(dt>0)u._v+=(dd/dt-u._v)*Math.min(1,dt*6)}else u._v=0;
- const tg=u.angle||0;if(u.flash>0||soldierPlayer(u)||dt<=0||dt>.5){u._fa=tg;return}
- let df=Math.atan2(Math.sin(tg-u._fa),Math.cos(tg-u._fa));const m=14*dt;u._fa=Math.abs(df)<=m?tg:u._fa+Math.sign(df)*m}
+ if(dd<30){u._wd+=dd;if(dt>0)u._v+=(dd/dt-u._v)*Math.min(1,dt*6);
+  u._wp+=dd/(strideOf(u,runOf(u))*(.74+.26*clamp(u._v/47,0,1.1)))}else u._v=0;
+ const mv=!!u.moving;if(mv!==u._mov){u._mov=mv;if(mv)u._mvT=t;else u._stT=t}
+ const tg=u.angle||0;if(u.flash>0||soldierPlayer(u)||dt<=0||dt>.5){u._fa=tg;u._fw=0;return}
+ const df=angd(tg,u._fa);if(Math.abs(df)<.02){u._fa=tg;u._fw=0;return}
+ u._fw+=(clamp(df*8,-11,11)-u._fw)*Math.min(1,dt*22);const st=u._fw*dt;
+ if(Math.abs(st)>=Math.abs(df)){u._fa=tg;u._fw=0}else u._fa+=st}
 function choose(u){
  const me=soldierPlayer(u),t=time;
  if(me&&(typeof weapon==='undefined'||weapon!=='rifle'))return null;
  const d=dir16(u._fa),gren=u.gren>0,life=lifePose(u);
- if(u.type==='mg'){if(!u.moving)return null;const run=u._v>40||u.order==='retreat';return frame(u.team,'mg',d,run?P_RUN:P_WALK,Math.floor(u._wd/(run?30:22)*8+u.id)&7,false)}
+ if(u.type==='mg'){if(!u.moving)return null;return frame(u.team,'mg',d,runOf(u)?P_RUN:P_WALK,Math.floor(u._wp*8)&7,false)}
  /* granada: o jogo lança com thr ≤ .28 (p ≈ .49) — o quadro de soltar começa exatamente aí */
  if(u.thr>0){const p=1-u.thr/.55,sub=p<.16?0:p<.33?1:p<.4909?2:p<.62?3:p<.8?4:5;return frame(u.team,'rifle',d,P_THR,sub,gren)}
  const kneel=!life&&!u.moving&&(u.sheltered||(u.suppression||0)>.75)&&!me;
  if(me){if(typeof reload!=='undefined'&&reload>0)return null}
  else if(u.rl>0){const ph=clamp(Math.floor((1-u.rl/rlTime())*6),0,5);return frame(u.team,'rifle',d,kneel?P_KRL:P_RL,ph,gren)}
- if(u.moving){const run=u.aiRole==='assalto'||u.order==='retreat'||u._v>54||u.lunge2>t;return frame(u.team,'rifle',d,run?P_RUN:P_WALK,Math.floor(u._wd/(run?32:24)*8)&7,gren)}
+ if(u.moving){const run=runOf(u),sub=Math.floor(u._wp*8)&7;
+  if(run)return frame(u.team,'rifle',d,P_RUN,sub,gren);
+  if(u._am){if(u._v>27)u._am=false}else if(u._v<19)u._am=true;      // passo curto: arrancando, freando ou devagar (histerese 19/27 u/s)
+  return frame(u.team,'rifle',d,u._pose=u._am?(t-u._mvT<.55?P_AMBLEF:P_AMBLE):P_WALK,sub,gren)}      // inclinado para a frente só nos primeiros 0,55 s depois de arrancar (sem derivada da velocidade: não pisca)
  const since=t-(u._shotT==null?-99:u._shotT),tgt=u.target&&u.target.hp>0;
  if(since<1.6||tgt){let sub=0;if(since<1.6){sub=since<.09?1:since<.3?0:since<.42?2:since<.56?3:since<.7?4:since<.84?5:0;
    if(sub>=2&&!(u.ammo>0)&&!me)sub=0;if(sub===3&&u._bp!==u._shotT){u._bp=u._shotT;casing(u)}}
   return frame(u.team,'rifle',d,kneel?P_KAIM:P_AIM,sub,gren)}
  /* parado: respiração (o fuzil sobe e desce com o peito) e uma olhada para os lados de vez em quando */
- const ph=(t*.31+u.id*.137)%1,g=(t+u.id*3.7)%9.5;let sub=ph>.56?1:0;if(g<1.3&&!me)sub=g<.65?2:3;
+ const ph=(t*.31+u.id*.137)%1,g=(t+u.id*3.7)%9.5;let sub=ph>.56?1:0;if(t-u._stT<.45)sub=1;else if(g<1.3&&!me)sub=g<.65?2:3;   // acabou de parar: solta o ar, o fuzil desce
  return frame(u.team,'rifle',d,P_IDLE,sub,gren)}
 
 /* estojos ejetados pelo ferrolho entre tiros (o pixel.js só os solta na recarga) */
@@ -318,7 +341,7 @@ wrapG('shoot',(orig,u,target,manual)=>{const r=orig(u,target,manual);try{if(S.on
 wrapG('damage',(orig,u,n,att)=>{const alive=u&&u.hp>0;const r=orig(u,n,att);try{if(S.on&&alive&&u.hp<=0&&(u.type==='rifle'||u.type==='mg'))registerFall(u)}catch(e){fail(e)}return r});
 wrapG('setup',(orig,...a)=>{FALLS.length=0;HIDE.clear();CAS.length=0;const r=orig(...a);warm();return r});
 /* pré-aquecimento: monta os quadros mais comuns aos poucos (≤ 2 ms por quadro de animação), para o contorno (getImageData) não cair no meio da batalha */
-let WQ=null;function warm(){if(WQ)return;WQ=[];for(const[p,n]of[[P_WALK,8],[P_IDLE,2],[P_AIM,6],[P_RUN,8],[P_RL,6],[P_KAIM,6],[P_THR,6],[P_IDLE+0,4]])for(let s=0;s<n;s++)for(let d=0;d<16;d++)for(let t=0;t<2;t++)WQ.push([t,d,p,s]);
+let WQ=null;function warm(){if(WQ)return;WQ=[];for(const[p,n]of[[P_WALK,8],[P_IDLE,2],[P_AMBLE,8],[P_AIM,6],[P_RUN,8],[P_RL,6],[P_AMBLEF,8],[P_KAIM,6],[P_THR,6],[P_IDLE+0,4]])for(let s=0;s<n;s++)for(let d=0;d<16;d++)for(let t=0;t<2;t++)WQ.push([t,d,p,s]);
  const step=()=>{if(!S.on||!WQ.length){WQ=null;return}const t0=performance.now();try{while(WQ.length&&performance.now()-t0<2){const[t,d,p,s]=WQ.shift();frame(t,'rifle',d,p,s,true);frame(t,'rifle',d,p,s,false)}}catch(e){fail(e);WQ=null;return}requestAnimationFrame(step)};requestAnimationFrame(step)}
 /* durante a queda o cadáver real some do laço de desenho do pixel.js (só neste render; o array volta intacto) */
 wrapG('render',(orig,...a)=>{if(!S.on||!HIDE.size||typeof corpses==='undefined')return frameT(orig,a);const keep=corpses;let r;
@@ -340,7 +363,7 @@ function drawInf(c,u,sp,sx,sy,vis,bob,d0){
  if(u.hp<=0&&DYING.has(u)){u.hitT=0;return true}               // morreu neste quadro: a queda já está no chão (WW1A.under)
  track(u);
  let wet=u._dw;if(u.x!==u._dx||u.y!==u._dy){u._dx=u.x;u._dy=u.y;wet=u._dw=!!(window.PXW&&PXW.depth(u.x,u.y)>=.25)}   // profundidade só quando anda
- if(u.down||u.rs||u.sh||u.sap||u.lunge||(u.pv&&u.pv.stun>.05)||wet||u.hp<=0||(soldierPlayer(u)&&window.PXCAS&&PXCAS.playerBusy&&PXCAS.playerBusy())||(soldierPlayer(u)&&window.PXAS&&PXAS.player&&PXAS.player.prone)){
+ if(u.down||u.rs||u.sh||(u.sap&&(u.sapState==='dig'||u.sapState==='prone'||u.sapState==='fight'||u.sapProne>time))||u.lunge||(u.pv&&u.pv.stun>.05)||wet||u.hp<=0||(soldierPlayer(u)&&window.PXCAS&&PXCAS.playerBusy&&PXCAS.playerBusy())||(soldierPlayer(u)&&window.PXAS&&PXAS.player&&PXAS.player.prone)){
   giveHitBack(u);S.stats.deferred++;return D0(d0,c,u,sp,sx,sy,vis,bob)}
  if(u.pinned&&window.PXAS&&PXAS.on){/* rastejando / deitado sob fogo */
   const v=u.moving?((u._wd/9)|0)&1:2,ps=proneSprite(u.team,dir16(u._fa),v),hr=takeHit(u);let ox=0,oy=0;if(hr>0&&!hitFresh){const k=hr/.16;ox=Math.round((u.hx||0)*1.6*k);oy=Math.round((u.hy||0)*1.6*k)}
@@ -359,10 +382,10 @@ function drawInf(c,u,sp,sx,sy,vis,bob,d0){
    ====================================================================================== */
 S.state=()=>({on:S.on,version:S.version,cache:{frames:FC.size,prone:PC.size,tips:TIP.size},falls:FALLS.length,hidden:HIDE.size,casings:CAS.length,
  msPerFrame:+S.stats.ms.toFixed(3),lastRender:+lastR.toFixed(2),stats:{...S.stats}});
-S._acc=()=>[acc,accD];S._choose=choose;S._track=track;S._drawFalls=drawFalls;S._hide=HIDE;S.frame=frame;S.prone=proneSprite;S.falls=FALLS;S.P={IDLE:P_IDLE,WALK:P_WALK,RUN:P_RUN,AIM:P_AIM,KAIM:P_KAIM,RL:P_RL,KRL:P_KRL,THR:P_THR,DIE:P_DIE};
+S._acc=()=>[acc,accD];S._choose=choose;S._track=track;S._drawFalls=drawFalls;S._hide=HIDE;S.frame=frame;S.prone=proneSprite;S.falls=FALLS;S.P={IDLE:P_IDLE,WALK:P_WALK,RUN:P_RUN,AIM:P_AIM,KAIM:P_KAIM,RL:P_RL,KRL:P_KRL,THR:P_THR,DIE:P_DIE,AMBLE:P_AMBLE,AMBLEF:P_AMBLEF};
 /* folha: linhas = pose×subquadro, colunas = 16 direções; escala inteira; devolve dataURL */
 S.sheet=(team=0,dirs=[0,2,4,6,8,10,12,14],scale=3,type='rifle')=>{const rows=[];
- for(const[p,n]of[[P_IDLE,4],[P_WALK,8],[P_RUN,8],[P_AIM,6],[P_KAIM,6],[P_RL,6],[P_THR,6],[P_DIE,2]])for(let s=0;s<n;s++)rows.push([p,s]);
+ for(const[p,n]of[[P_IDLE,4],[P_WALK,8],[P_AMBLE,8],[P_AMBLEF,8],[P_RUN,8],[P_AIM,6],[P_KAIM,6],[P_RL,6],[P_THR,6],[P_DIE,2]])for(let s=0;s<n;s++)rows.push([p,s]);
  const cw=30,ch=30,W=cw*(dirs.length+1),H=ch*rows.length+40*2,cv=mk(W*scale,H*scale),x=g2(cv);x.imageSmoothingEnabled=false;x.fillStyle='#4a5236';x.fillRect(0,0,cv.width,cv.height);
  rows.forEach(([p,s],j)=>{dirs.forEach((d,i)=>{const sp=frame(team,type,d,p,s,true);x.drawImage(sp.c,0,0,30,30,(i*cw)*scale,(j*ch)*scale,30*scale,30*scale);
   /* ponto onde o pixel.js acende o clarão */if(p===P_AIM||p===P_KAIM){const a=d*TAU/16;x.fillStyle='#ff00ff';x.fillRect(Math.round((i*cw+15+Math.cos(a)*14))*scale,Math.round((j*ch+16+Math.sin(a)*14+1))*scale,scale,scale)}})});

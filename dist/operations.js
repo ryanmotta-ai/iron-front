@@ -69,7 +69,7 @@ function squads(state,m,own){
 }
 function sectors(state,own,enemies,m){
  return Array.from({length:5},(_,i)=>{
-  const y=(i+.5)*((state.height||1600)/5),points=state.points||[],target=points.filter(p=>p.owner!==state.team).sort((a,b)=>Math.abs(a.y-y)-Math.abs(b.y-y))[0];
+  const y=(i+.5)*((state.height||1600)/5),points=state.points||[],target=points.filter(p=>p.owner!==state.team).sort((a,b)=>Number(b.home===state.team)-Number(a.home===state.team)||Math.abs(a.y-y)-Math.abs(b.y-y))[0];
   const friendly=points.filter(p=>p.owner===state.team).sort((a,b)=>Math.abs(a.y-y)-Math.abs(b.y-y))[0];
   const trenches=(state.trenches||[]).filter(t=>t.team===state.team&&t.hp>0&&Math.abs(t.y-y)<220&&t.line!=='comm');
   const front=trenches.length?trenches.reduce((v,t)=>dir[state.team]*(t.x-v)>0?t.x:v,trenches[0].x):home[state.team]+dir[state.team]*420;
@@ -110,7 +110,7 @@ function operation(state,m,ss,groups,own){
    const lost=(state.points||[]).filter(p=>m.owned.has(p.name)&&p.owner!==state.team&&dir[state.team]*(p.x-1200)<0).sort((a,b)=>Math.abs(a.x-home[state.team])-Math.abs(b.x-home[state.team]))[0];
    if(lost){const sector=ss.slice().sort((a,b)=>Math.abs(a.y-lost.y)-Math.abs(b.y-lost.y))[0],near=groups.filter(g=>Math.abs(g.y-lost.y)<300),force=near.reduce((n,g)=>n+g.members.reduce((v,u)=>v+effective(u,state),0),0);
     const threat=[...m.seen.values()].filter(e=>state.time-e.at<12&&distance(e,lost)<260).reduce((n,e)=>n+power(e),0);
-    if(Math.abs(lost.x-sector.front)<320&&force>=Math.max(6,threat*1.3)){op.sector=sector;op.objective=lost.name;op.recapture=true;op.counterUntil=state.time+30;op.style={name:'balanced',label:'Recuperando posição próxima'};transition(m,op,'counter',state);op.pendingTrial='counter'}
+    if((lost.home===state.team||Math.abs(lost.x-sector.front)<320)&&force>=Math.max(6,threat*1.3)){op.sector=sector;op.objective=lost.name;op.recapture=true;op.counterUntil=state.time+30;op.style={name:'balanced',label:'Recuperando posição próxima'};transition(m,op,'counter',state);op.pendingTrial='counter'}
    }
   }
   if(threatened&&op.phase!=='counter'){op.sector=threatened;
@@ -206,6 +206,11 @@ function orders(state,m,op,ss,groups,enemies,legacyOrders){
  const reserves=infantry.filter(g=>g.source.reserve).slice(0,reserveCount);
  for(const g of infantry.slice().sort((a,b)=>d*(a.x-b.x)))if(reserves.length<reserveCount&&!reserves.includes(g))reserves.push(g);
  const reserve=new Set(reserves.map(g=>g.id));for(const g of infantry)g.source.reserve=reserve.has(g.id);
+ const homeFlag=state.points.find(p=>p.home===state.team);
+ const homeThreat=homeFlag?enemies.filter(e=>state.time-e.at<12&&distance(e,homeFlag)<350):[];
+ const guardCount=homeFlag&&infantry.length>1?Math.min(homeThreat.length?2:1,infantry.length-1):0;
+ const guards=new Set(homeFlag?infantry.filter(g=>g.members.some(u=>available(u,state))&&!(g.source.mind?.recoverUntil>state.time)).sort((a,b)=>distance(a,homeFlag)-distance(b,homeFlag)).slice(0,guardCount).map(g=>g.id):[]);
+ if(homeFlag&&infantry.length>=3&&![...reserve].some(id=>!guards.has(id))){const extra=infantry.filter(g=>!guards.has(g.id)).sort((a,b)=>distance(a,homeFlag)-distance(b,homeFlag))[0];if(extra){reserve.add(extra.id);extra.source.reserve=true}}
  const enabled=state.humanAI!==false&&state.jointAI!==false;
  if(!enabled&&m.coordination.missions.length)Coordination.cancel(m.coordination,state);
  const joint=enabled?Coordination.update(m.coordination,state,groups,enemies,op,defender):new Map();
@@ -231,13 +236,14 @@ function orders(state,m,op,ss,groups,enemies,legacyOrders){
   else if(op.phase==='consolidate')task='consolidação';
   else if(op.phase==='hold')task='posição-defensiva';
   else task=g.kind==='armor'?'ruptura':'avanço-alternado';
-  if(exploitation?.id===g.id){s=ss[exploitation.sector];task='explorar-brecha'}
+  if(exploitation?.id===g.id&&!guards.has(g.id)){s=ss[exploitation.sector];task='explorar-brecha'}
+  if(guards.has(g.id)){s=ss.slice().sort((a,b)=>Math.abs(a.y-homeFlag.y)-Math.abs(b.y-homeFlag.y))[0];task='guarda-objetivo';g.source.exploit=null}
   const armor=groups.filter(a=>a.kind==='armor'&&(a.members[0].atr?.bog||0)<=state.time&&Math.abs(a.y-s.y)<300).sort((a,b)=>distance(g,a)-distance(g,b))[0];
   if(task==='avanço-alternado'&&armor&&g.id%3===0&&distance(g,armor)<300)task='escolta';
   g.source.task=task;g.source.sector=s.id;
   let goal={x:s.x,y:s.y};
   if(task==='explorar-brecha')goal={x:s.x-d*35,y:s.y};
-  if(task==='guarda-objetivo')goal={x:s.friendly.x-d*35,y:s.friendly.y+(g.id%5-2)*26};
+  if(task==='guarda-objetivo'){const point=guards.has(g.id)?homeFlag:s.friendly;goal={x:point.x+d*(guards.has(g.id)?35:-35),y:point.y+(g.id%3-1)*24}};
   if(task==='recuperar-objetivo'){const point=state.points.find(p=>p.name===op.objective);if(point)goal={x:point.x,y:point.y+(g.id%3-1)*24}}
   if(task==='reserva-movel'||task==='retirada-coberta')goal={x:s.front-d*180,y:s.y};
   else if(task==='reforço-defensivo')goal={x:s.front-d*40,y:s.y};
@@ -267,7 +273,7 @@ function orders(state,m,op,ss,groups,enemies,legacyOrders){
    const support=groups.some(a=>a.kind==='fire'&&distance(a,g)<420&&a.pressure<.9);
    const tactical=Squads.maneuver(g.source,g,state,task,goal,enemies,support,s.front);task=tactical.task;goal=tactical.goal;reason=tactical.reason||task;
    const supplies=(state.supplyPosts||[]).filter(p=>p.team===state.team&&p.stock>0&&distance(p,g)<260&&!enemies.some(e=>state.time-e.at<12&&distance(e,p)<200));
-   if(!tactical.recover&&!['retirada-coberta','reforço-defensivo','guarnição','reorganização-local'].includes(task)&&g.kind==='infantry'&&g.id%4===0&&g.members.filter(u=>u.gren===0).length>=Math.max(2,g.members.length*.6)&&supplies.length&&g.pressure<.6){task='reabastecimento';const post=supplies.sort((a,b)=>distance(g,a)-distance(g,b))[0];goal={x:post.x,y:post.y};reason='Repondo granadas e reorganizando equipe'}
+   if(!tactical.recover&&!['retirada-coberta','reforço-defensivo','guarnição','guarda-objetivo','reorganização-local'].includes(task)&&g.kind==='infantry'&&g.id%4===0&&g.members.filter(u=>u.gren===0).length>=Math.max(2,g.members.length*.6)&&supplies.length&&g.pressure<.6){task='reabastecimento';const post=supplies.sort((a,b)=>distance(g,a)-distance(g,b))[0];goal={x:post.x,y:post.y};reason='Repondo granadas e reorganizando equipe'}
    const mission=joint.get(g.id);
    if(mission&&!tactical.recover&&!['retirada-coberta','reforço-defensivo','guarda-objetivo','recuperar-objetivo','reabastecimento'].includes(task)){task=mission.task;goal=mission.goal;reason=mission.reason}
    if(!mission&&!defender&&op.phase==='advance'){const opening=Opportunities.choose(g,state,enemies,task,goal);task=opening.task;goal=opening.goal;reason=opening.reason||reason}
@@ -284,7 +290,7 @@ function orders(state,m,op,ss,groups,enemies,legacyOrders){
   const bounding=contact&&['avanço-alternado','flanqueamento-coordenado','infiltração','fixar-flanquear','limpeza-trincheira','flanco-apoiado','assalto-brecha','ocupar-trincheira','explorar-brecha'].includes(task)&&Math.floor((state.time-op.since+reaction)/(op.style.name==='infiltrate'?9:6))%3===g.id%3;
   const anchor=route(state,enemies,g,goal,g.members[0].type);
   const narrow=state.terrainRisk&&[-35,35].some(offset=>state.terrainRisk(anchor.x,anchor.y+offset,g.members[0].type)>3);
-  const preferred=g.pressure>.35?'dispersed':g.kind==='fire'||task==='escolta'?'line':'wedge';
+  const preferred=g.pressure>.35?'dispersed':g.kind==='fire'||task==='escolta'||task==='guarda-objetivo'?'line':'wedge';
   const formation=Formation.select(g.source.formationLearning||(g.source.formationLearning={}),g.members.filter(u=>u.id!==state.controlledId),state.time,goal,preferred,narrow);
   const slots=g.source.memberSlots||(g.source.memberSlots={});
   for(const id of Object.keys(slots))if(!g.members.some(u=>String(u.id)===id))delete slots[id];
@@ -299,6 +305,7 @@ function orders(state,m,op,ss,groups,enemies,legacyOrders){
    else if(bounding){p={x:u.x,y:u.y};role='cobrindo-avanco'}
    else if(distance(u,g)>150){p=route(state,enemies,u,g,u.type);role='reunindo-esquadrao'}
    else p=Formation.point(anchor,g,slots[u.id],Math.max(...Object.values(slots))+1,formation);
+   if(guards.has(g.id)&&distance(g,homeFlag)<160){const row=Math.floor(slots[u.id]/2)-(Math.ceil(g.members.length/2)-1)/2,lane=guards.size>1?([...guards].indexOf(g.id)*2-1)*48:0;p={x:homeFlag.x+d*(25+slots[u.id]%2*26),y:homeFlag.y+row*26+lane}}
    if(task==='contra-ataque')p={...p,x:clamp(p.x,Math.min(home[state.team],s.front),Math.max(home[state.team],s.front))};
    if(g.kind==='armor'&&(u.atr?.bog>state.time||u.pv?.stun>0)){p={x:u.x,y:u.y};role='blindado-imobilizado'}
    if(task==='retirada-coberta'&&contact&&i%3===Math.floor(state.time/4)%3&&(u.suppression||0)<.9){p={x:u.x,y:u.y};role='cobrindo-retirada'}
