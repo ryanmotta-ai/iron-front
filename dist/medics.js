@@ -15,7 +15,7 @@ const rnd=(a,b)=>a+Math.random()*(b-a),clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const wrap=(name,fn)=>{const orig=window[name];if(typeof orig!=='function'){console.warn('medics.js: função ausente: '+name);return}window[name]=function(...a){return fn(orig,...a)}};
 const rect=(c,x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(x,y,w,h)};
 const face=t=>t?-1:1;
-const CFG={WOUND:.55,OVERKILL:70,BLEED:[50,75],RANGE:750,HOT:2,GO:52,CARRY:34,LOAD:2,BEDS:3,TREAT:[10,16],SAVE:.78,HEAL:.6,RESPAWN:25,COST:120};
+const CFG={WOUND:.55,OVERKILL:70,BLEED:[50,75],RANGE:750,HOT:2,GO:52,CARRY:34,LOAD:4.4,LAY:3.4,BEDS:3,TREAT:[10,16],SAVE:.78,HEAL:.6,RESPAWN:25,COST:120};
 const S=window.PXMED={on:!/[?&]socorro=0/.test(location.search),version:'1.6',cfg:CFG,stats:{errors:0,wounded:0,rescued:0,saved:0,lost:0,bearersKilled:0}};
 let POSTS=[],pid=0,errs=0,sayAt=0;
 const Policy=window.IronFrontSupport;
@@ -25,7 +25,7 @@ function context(team,observer){const known=window.IronFrontBrain?.operations?.c
   if(window.IronFrontBrain?.clearShot&&!IronFrontBrain.clearShot(observer,e,typeof decor==='undefined'?[]:decor,typeof buildings==='undefined'?[]:buildings))continue;seen.set(e.id,{id:e.id,type:e.type,team:e.team,x:e.x,y:e.y,hp:e.hp})}
  return {team,time,enemies:[...seen.values()],shells:typeof shells==='undefined'?[]:shells,buildings:typeof buildings==='undefined'?[]:buildings,trenches:fieldTrenches,depth:window.PXW?.depth,clear:window.IronFrontBrain?.clearShot?(a,b)=>IronFrontBrain.clearShot(a,b,typeof decor==='undefined'?[]:decor,typeof buildings==='undefined'?[]:buildings):null};
 }
-function reserved(p){return POSTS.reduce((n,home)=>n+home.crews.filter(c=>['go','load','carry'].includes(c.st)&&(c.dest||home)===p).length,0)}
+function reserved(p){return POSTS.reduce((n,home)=>n+home.crews.filter(c=>['go','load','carry','lay'].includes(c.st)&&(c.dest||home)===p).length,0)}
 function capacity(p){return p.beds.length+reserved(p)<CFG.BEDS}
 function crewContext(c,team){if(!c.ctx||time>=c.ctxUntil){c.ctx=context(team,c);c.ctxUntil=time+.7}return c.ctx}
 function releaseClaim(c){if(c.u&&c.u.claimed===c){c.avoid={id:c.u.id,until:time+35};c.u.claimed=null;c.u.carried=false}c.u=null;c.st='idle';c.t=1;c.dest=null;c.route=null}
@@ -63,10 +63,13 @@ function crewTick(dt){
    const goal=Policy?Policy.route(crewContext(c,p.team),c,u):u,dx=goal.x-c.x,dy=goal.y-c.y,d=hyp(dx,dy),s=CFG.GO*dt;if(actual<=8){c.st='load';c.t=CFG.LOAD}else if(d>0){c.x+=dx/d*Math.min(d,s);c.y+=dy/d*Math.min(d,s)}}
   else if(c.st==='load'){c.t-=dt;if(c.t<=0){c.st='carry';u.carried=true;S.stats.rescued++}}
   else if(c.st==='carry'){let dest=c.dest||p;if(Policy&&(dest.hp<=0||dest.beds.length>=CFG.BEDS)){const alternate=POSTS.filter(q=>q.team===p.team&&q.hp>0&&q!==dest&&capacity(q)).sort((a,b)=>hyp(a.x-c.x,a.y-c.y)-hyp(b.x-c.x,b.y-c.y))[0];if(alternate)c.dest=dest=alternate}
-   const free=dest.hp>0&&dest.beds.length<CFG.BEDS,b=bedPos(dest,dest.beds.length),tx=free?b.x:dest.x,ty=free?b.y:dest.y+22,actual=hyp(tx-c.x,ty-c.y),goal=Policy?Policy.route(crewContext(c,p.team),c,{x:tx,y:ty}):{x:tx,y:ty},dx=goal.x-c.x,dy=goal.y-c.y,d=hyp(dx,dy),s=CFG.CARRY*dt;
-   if(actual<=4){if(free){dest.beds.push(u);u.carried=false;u.claimed=null;u.inBed=time+rnd(...CFG.TREAT);u.x=b.x;u.y=b.y;c.u=null;c.st='idle';c.t=1;c.dest=null}}
+   const free=dest.hp>0&&dest.beds.length<CFG.BEDS,b=S.bedPos(dest,dest.beds.length),tx=free?b.x:dest.x,ty=free?b.y:dest.y+22,actual=hyp(tx-c.x,ty-c.y),goal=Policy?Policy.route(crewContext(c,p.team),c,{x:tx,y:ty}):{x:tx,y:ty},dx=goal.x-c.x,dy=goal.y-c.y,d=hyp(dx,dy),s=CFG.CARRY*dt;
+   if(actual<=4){if(free){c.st='lay';c.t=CFG.LAY;c.lay={dest,i:b.i,b:{x:b.x,y:b.y}};u.x=c.x;u.y=c.y-2}}
    else if(d>0){c.x+=dx/d*Math.min(d,s);c.y+=dy/d*Math.min(d,s)}
    if(u.carried){u.x=c.x;u.y=c.y-2}}
+  else if(c.st==='lay'){c.t-=dt;const dest=c.lay&&c.lay.dest;u.x=c.x;u.y=c.y-2;                       // pousa o ferido no catre (medcare: o desenho mostra a maca descendo e a passagem para o catre)
+   if(!dest||dest.hp<=0){c.st='carry';c.lay=null}
+   else if(c.t<=0){if(dest.beds.length<CFG.BEDS){const b=c.lay.b||S.bedPos(dest,dest.beds.length);dest.beds.push(u);u.carried=false;u.claimed=null;u.inBed=time+rnd(...CFG.TREAT);u.x=b.x;u.y=b.y;c.u=null;c.st='idle';c.t=1;c.dest=null;c.lay=null}else{c.st='carry';c.lay=null}}}
   /* sob fogo de perto a equipe pode cair */
   if(c.st!=='idle'&&Math.random()<dt*.04*enemiesNear(p.team,c.x,c.y,160))killCrew(c)}}
  POSTS=POSTS.filter(p=>{if(p.hp>0)return true;for(const u of p.beds)lose(u);for(const c of p.crews)if(c.u){c.u.claimed=null;c.u.carried=false}return false})}

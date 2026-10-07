@@ -1,27 +1,27 @@
 'use strict';
 /* Iron Front 1.9 — gestão das obras (works-manage.js). Carrega DEPOIS de works.js (de preferência depois de shelter.js). Usa o sistema do sappers.js/fortify.js
-   (PXSAP.project, estágios, pioneiros, âncoras) sem editar nenhum arquivo existente: tudo por wrap de window.* e por kinds novos.
-   MELHORIAS (upgrade) — o pioneiro faz a melhoria como PROJETO (estágios, equipe, barra) e a obra continua útil durante o trabalho:
+   (PXSAP.project, estágios, engenheiros de campo, âncoras) sem editar nenhum arquivo existente: tudo por wrap de window.* e por kinds novos.
+   MELHORIAS (upgrade) — o engenheiro de campo faz a melhoria como PROJETO (estágios, equipe, barra) e a obra continua útil durante o trabalho:
      trincheira/ligação/sapa → revestida (tábuas) → de concreto ..... protecção contra tiro .35→.24→.15, dano de explosão ×.65→×.40,
                                                                      parapeito .85→.94→.97 e INTEGRIDADE 300→700→1600 (ver abaixo)
      ninho de MG → ninho blindado (+90) ............................. tiro .16, explosão ×.45, integridade 600→1500
      bunker de madeira → casamata de concreto (só a diferença) ...... 1000→2400 de vida, o mesmo prédio (guarnição e arte intactas)
      saco de areia → muro de sacos duplo (+24) ...................... vida ×2 e parede mais grossa
      abrigo → abrigo reforçado (+50) ................................ tiro .06, explosão ×.5, soterramento evitado em 75% dos casos
-   INTEGRIDADE: trincheiras de pioneiros (trecho de 30 px) e ninhos passam a ter vida. Explosão de r>=44 perto abala (potência×1,6×falloff);
+   INTEGRIDADE: trincheiras de engenheiros de campo (trecho de 30 px) e ninhos passam a ter vida. Explosão de r>=44 perto abala (potência×1,6×falloff);
      a 0 o trecho DESMORONA (perde a âncora de cobertura e volta a vala rasa) até ser reparado. É a única mudança de equilíbrio:
      ?gestao=0 desliga tudo.
-   REPARO — qualquer obra com vida < máxima (ou desmoronada): custo = custo investido × 50% × fração de dano; pioneiros fazem.
+   REPARO — qualquer obra com vida < máxima (ou desmoronada): custo = custo investido × 50% × fração de dano; engenheiros de campo fazem.
    DEMOLIÇÃO — devolve 40% do investido (sandbox: 0), 2,4 s de desmonte com poeira e tábuas. Cancelar projeto devolve o não gasto.
    PAINEL (tecla O) — projetos ativos do seu lado com progresso, equipe, estágio e prioridade; PRIORIZAR / CANCELAR; REPARAR manda reparar tudo que está danificado.
-     Prioridade: o projeto vira src 'player' e o gerente põe a equipe nele (pioneiros livres primeiro; se faltar, toma de projetos de prioridade menor).
+     Prioridade: o projeto vira src 'player' e o gerente põe a equipe nele (engenheiros de campo livres primeiro; se faltar, toma de projetos de prioridade menor).
    MENU — Ctrl+clique ou Alt+clique numa obra (ou projeto) própria no modo comandante: melhorar (este trecho / a linha), reparar, demolir (2 cliques),
      priorizar, cancelar. Não conflita com as ordens de tropa (clique esquerdo seleciona, direito move). Com o cursor sobre a obra: U melhora, X demole (2x).
-   FANTASMA — a obra em posicionamento (cartão DEFESAS ou B) mostra a pegada verde/âmbar/vermelha e o motivo: fora da área, sem pioneiros, território
-     inimigo, trégua (barreira), sob fogo (2 inimigos a < 120 px ou obus a caminho), limite de obras/trincheiras, sem caixa; âmbar = aviso (alagado, pioneiros longe).
+   FANTASMA — a obra em posicionamento (cartão DEFESAS ou B) mostra a pegada verde/âmbar/vermelha e o motivo: fora da área, sem engenheiros de campo, território
+     inimigo, trégua (barreira), sob fogo (2 inimigos a < 120 px ou obus a caminho), limite de obras/trincheiras, sem caixa; âmbar = aviso (alagado, engenheiros de campo longe).
      O mesmo motivo recusa a ordem (PXSAP.canBuild/buildMsg encadeados).
    OBRAS DO DIA — contador no painel e no resultado da operação.
-   IA — a cada 6 s, só com pioneiro ocioso e caixa >= custo + reserva de obras (max(200, reserva da engenharia), como works.js; melhoria exige +200 de folga),
+   IA — a cada 6 s, só com engenheiro de campo ocioso e caixa >= custo + reserva de obras (max(200, reserva da engenharia), como works.js; melhoria exige +200 de folga),
      no máximo 1 serviço por vez: repara o que está < 45% (ou desmoronado) e melhora ninho/bunker/trecho que leva fogo. Serviço sem equipe por 60 s é cancelado e devolvido.
    Ordem de carga: depois de shelter.js (o soterramento evitado do abrigo reforçado é feito no wrap de damage, independe da ordem; o resto também).
    ?gestao=0 desliga · IronFront.worksManage.state() · PXMANAGE.works() lista as obras prontas. */
@@ -43,7 +43,7 @@ const CFG={
  CONC:{id:'concrete',name:'Casamata de concreto',need:40,hp:2400,pk:.95},                         // custo = casamata − bunker
  SAND:{id:'double',name:'Muro de sacos duplo',cost:24,need:6},
  DUG:{id:'reinf',name:'Abrigo reforçado',cost:50,need:16,bul:.06,bl:.5,save:.75},
- AI:{start:150,every:6,upgEvery:30,maxFix:1,maxUpg:1,spare:200,fixBelow:.45,hot:140,heatTau:60,idleAge:60},
+ AI:{start:90,every:6,upgEvery:30,maxFix:1,maxUpg:1,spare:100,fixBelow:.6,hot:140,heatTau:60,idleAge:60},
  FIRE_R:120,FIRE_N:2              // fantasma/ordem: 2 inimigos a < 120 px ou obus a caminho = "sob fogo"
 };
 const S=window.PXMANAGE={on:!/[?&]gestao=0/.test(location.search),version:'1.0',cfg:CFG,
@@ -147,8 +147,8 @@ function mkJob(team,type,kind,pts,targets,o){const ai=!!o.ai,p=SAP.project(team,
  for(const s of p.segs)s.need=[o.need];for(const r of targets)r.pend=p;return p}
 function startUpg(r,scope,ai){const team=r.team,up=nextUpg(r),out=m=>{if(!ai&&team===playerTeam)say(m,true);return null};
  if(!up)return out('Esta obra já está no nível máximo.');if(r.pend)return out('Já há um serviço em andamento nesta obra.');
- if(!sappersOf(team))return out('Sem pioneiros. Compre um esquadrão de Pioneiros (5).');
- if(!ai&&playerLive(team)>=SAP.cfg.MAXPROJ.player)return out(`Pioneiros ocupados: até ${SAP.cfg.MAXPROJ.player} obras ao mesmo tempo.`);
+ if(!sappersOf(team))return out('Sem engenheiros de campo. Compre um esquadrão de Engenheiros de Campo (5).');
+ if(!ai&&playerLive(team)>=SAP.cfg.MAXPROJ.player)return out(`Engenheiros de Campo ocupados: até ${SAP.cfg.MAXPROJ.player} obras ao mesmo tempo.`);
  let runs=[[r]];if(scope==='run'&&lineLike(r)){runs=runsOf(r);if(!runs.length)runs=[[r]]}
  if(ai){runs=[runs.find(a=>a.includes(r))||[r]];if(runs[0].length>4){const i=runs[0].indexOf(r);runs[0]=runs[0].slice(clamp(i-1,0,runs[0].length-4),clamp(i-1,0,runs[0].length-4)+4)}}
  const total=runs.reduce((n,a)=>n+a.length,0),cost=sandbox?0:total*up.cost;
@@ -158,13 +158,13 @@ function startUpg(r,scope,ai){const team=r.team,up=nextUpg(r),out=m=>{if(!ai&&te
   if(p)ok++;else{give(team,per);if(ai)S.stats.aiSpent[team]-=per}}
  if(!ok)return out('Não foi possível iniciar a melhoria.');
  if(ai)for(const p of SAP.projects)if(p.mgr&&p.mgr.ai&&!p.done)claim(p,false);
- if(!ai){sound('click');say(`Pioneiros a caminho: ${up.name.toLowerCase()}${total>1?` (${total} trechos)`:''} · ◈ ${sandbox?'∞':cost}.`,true)}return true}
+ if(!ai){sound('click');say(`Engenheiros de Campo a caminho: ${up.name.toLowerCase()}${total>1?` (${total} trechos)`:''} · ◈ ${sandbox?'∞':cost}.`,true)}return true}
 function startFix(r,ai){const team=r.team,out=m=>{if(!ai&&team===playerTeam)say(m,true);return null};
- if(!fixable(r))return out('Nada a reparar nesta obra.');if(!sappersOf(team))return out('Sem pioneiros. Compre um esquadrão de Pioneiros (5).');
- if(!ai&&playerLive(team)>=SAP.cfg.MAXPROJ.player)return out(`Pioneiros ocupados: até ${SAP.cfg.MAXPROJ.player} obras ao mesmo tempo.`);
+ if(!fixable(r))return out('Nada a reparar nesta obra.');if(!sappersOf(team))return out('Sem engenheiros de campo. Compre um esquadrão de Engenheiros de Campo (5).');
+ if(!ai&&playerLive(team)>=SAP.cfg.MAXPROJ.player)return out(`Engenheiros de Campo ocupados: até ${SAP.cfg.MAXPROJ.player} obras ao mesmo tempo.`);
  const cost=sandbox?0:fixCost(r);if(!sandbox&&supplies[team]<cost)return out(`Suprimentos insuficientes: ◈ ${cost} para o reparo.`);
  const p=mkJob(team,'fix','mgfix',[[r.x,r.y]],[r],{name:nameOf(r),paid:cost,need:fixNeed(r),ai});if(!p)return out('Não foi possível iniciar o reparo.');
- pay(team,cost);if(ai)S.stats.aiSpent[team]+=cost;if(ai)claim(p,false);if(!ai){sound('click');say(`Pioneiros a caminho: reparar ${nameOf(r).toLowerCase()} · ◈ ${sandbox?'∞':cost}.`,true)}return true}
+ pay(team,cost);if(ai)S.stats.aiSpent[team]+=cost;if(ai)claim(p,false);if(!ai){sound('click');say(`Engenheiros de Campo a caminho: reparar ${nameOf(r).toLowerCase()} · ◈ ${sandbox?'∞':cost}.`,true)}return true}
 function applyLvl(r,up){const o=r.seg||r.b;r.pend=null;
  if(ANCH.has(r.kind)){r.lvl++;o._lv=r.lvl;const L=lvOf(r),old=r.max||L.hp;r.max=L.hp;r.hp=r.col?0:clamp(r.hp/old,0,1)*L.hp;r.inv+=up.cost;if(o.anchor){o.anchor.pk=L.pk;o.anchor.lvl=r.lvl}else if(r.col&&r.ap)r.ap.pk=L.pk}
  else if(r.kind==='bunker'){const b=r.b,f=b.maxhp?b.hp/b.maxhp:1;b.kind='concrete';b.maxhp=CFG.CONC.hp;b.hp=Math.max(1,f*b.maxhp);r.lvl=1;r.inv+=up.cost;
@@ -230,7 +230,7 @@ function cleanSites(){if(!SITES.length)return;const br=SAP.breaches;
 
 /* ---------- prioridade ----------
    A ordem do assign() do sappers.js vem de IronFrontSupport.workScore (ou de src/t0) e não aceita prioridade explícita: o gerente
-   põe a equipe por conta própria. Projeto priorizado vira src 'player' e recebe primeiro os pioneiros livres mais próximos e, se faltar,
+   põe a equipe por conta própria. Projeto priorizado vira src 'player' e recebe primeiro os engenheiros de campo livres mais próximos e, se faltar,
    toma de projetos de prioridade menor (quem já está trabalhando custa +300 px de "distância", para preferir os ociosos). */
 const crewFree=u=>u.sap&&u.hp>0&&!u.down&&!u.rs&&u.cls!=='medic'&&!u.sapJob&&(u.sapFree||0)<=time&&!(u.manualUntil>time&&u.manualUntil!==u.sapStamp);
 function claim(p,steal){const s=p.segs[Math.min(p.cur,p.segs.length-1)];if(!s||p.done||time<(p.pauseUntil||0))return;const want=p.kind==='repair'?2:(SAP.cfg.CREW||3);let need=want-p.crew.length;if(need<=0)return;
@@ -255,11 +255,18 @@ function prioritize(p){if(!p||p.done)return false;
 const enemiesNear=(t,x,y,r)=>{let n=0;for(const u of units)if(u.team!==t&&u.hp>0&&!u.down&&(u.x-x)**2+(u.y-y)**2<r*r)n++;return n};
 const shellsNear=(t,x,y,r)=>{for(const sh of shells)if(sh.team!==t&&sh.kind!=='smoke'&&hyp(sh.x-x,sh.y-y)<(sh.r||65)+r)return true;return false};
 const occupants=(t,r)=>{let n=0;for(const u of units)if(u.team===t&&u.hp>0&&!u.sap&&Math.abs(u.x-r.x)<r.hw+10&&Math.abs(u.y-r.y)<r.hh+10)n++;return n};
+function needsService(t){if(!S.on||time<CFG.AI.start)return false;
+ if(SAP.projects.some(p=>p.mgr&&!p.done&&p.team===t))return true;
+ const cash=sandbox?Infinity:supplies[t],reserve=200;
+ return WL.some(r=>r.team===t&&!r.pend&&!enemiesNear(t,r.x,r.y,220)&&!shellsNear(t,r.x,r.y,70)&&
+  (fixable(r)&&r.kind!=='wire'&&r.kind!=='sandbag'&&dmgOf(r)>=1-CFG.AI.fixBelow&&cash>=fixCost(r)+reserve||
+   heat(r)>CFG.AI.hot&&occupants(t,r)>0&&nextUpg(r)&&cash>=nextUpg(r).cost*(lineLike(r)?4:1)+reserve+CFG.AI.spare));
+}
 function aiManage(t){
  if(!aiEnabled[t]||(F.isPrep&&F.isPrep())||time<CFG.AI.start||sappersOf(t)<2)return;
  let nFix=0,nUpg=0;for(const p of SAP.projects)if(p.mgr&&!p.done&&p.team===t){if(p.mgr.type==='fix')nFix++;else nUpg++}
  if(nFix>=CFG.AI.maxFix&&nUpg>=CFG.AI.maxUpg)return;
- if(!units.some(u=>u.team===t&&crewFree(u)))return;                 // só com pioneiro ocioso: não concorre com as obras novas da engenharia
+ if(!units.some(u=>u.team===t&&crewFree(u)))return;                 // só com engenheiro de campo ocioso: não concorre com as obras novas da engenharia
  const E=window.IronFrontEngineering,reserve=Math.max(200,(E&&E.state&&E.state(t)&&E.state(t).reserve)||0),cash=sandbox?Infinity:supplies[t];
  let fix=null,fs=0,upg=null,us=0;
  if(nFix<CFG.AI.maxFix)for(const r of WL){if(r.team!==t||!fixable(r)||r.kind==='wire'||r.kind==='sandbag')continue;const dmg=dmgOf(r);if(dmg<1-CFG.AI.fixBelow)continue;
@@ -289,15 +296,15 @@ SAP.canBuild=function(team,x,y){if(S.on&&team===playerTeam){const m=underFire(x,
 Object.defineProperty(SAP,'buildMsg',{get(){return lastMsg&&Date.now()-lastMsg.at<80?lastMsg.m:bm0v()},configurable:true});
 function reasonFor(kind,pts){const k=K[kind],team=playerTeam,line=!!k.line,n=line&&pts.length>1?SAP._.segment(pts,k.step||SAP.cfg.SEG).length:1,cost=sandbox?0:n*(k.cost||0);let block=null,warn=null;
  if(pts.some(q=>q[0]<20||q[0]>W-20||q[1]<20||q[1]>H-20))block='Fora da área do mapa';
- else if(!sappersOf(team))block='Sem pioneiros: compre um esquadrão (5)';
+ else if(!sappersOf(team))block='Sem engenheiros de campo: compre um esquadrão (5)';
  else if(!pts.every(q=>friendly(q[0],q[1])))block='Território inimigo: só perto de tropas ou terreno aliado';
  else if(cb0&&!pts.every(q=>cb0.call(SAP,team,q[0],q[1])))block=bm0v()||'Trégua: construa só do seu lado da barreira';
  else{for(const q of pts){const m=underFire(q[0],q[1]);if(m){block=m;break}}}
  if(!block&&line&&!k.noAnchor&&(()=>{let a=0;for(const s of SAP.segs)if(s.team===team&&s.anchor)a++;return a})()+n>SAP.cfg.MAXSEGS)block='Limite de trincheiras de campo atingido';
- if(!block&&playerLive(team)>=SAP.cfg.MAXPROJ.player)block=`Pioneiros ocupados: até ${SAP.cfg.MAXPROJ.player} obras`;
+ if(!block&&playerLive(team)>=SAP.cfg.MAXPROJ.player)block=`Engenheiros de Campo ocupados: até ${SAP.cfg.MAXPROJ.player} obras`;
  if(!block&&!sandbox&&supplies[team]<cost)block=`Sem caixa: faltam ◈ ${Math.ceil(cost-supplies[team])}`;
  if(!block){if(window.PXW&&PXW.depth&&pts.some(q=>PXW.depth(q[0],q[1])>=.12))warn='Terreno alagado';
-  else{let near=Infinity;for(const u of units)if(u.sap&&u.team===team&&u.hp>0){const d=hyp(u.x-pts[0][0],u.y-pts[0][1]);if(d<near)near=d}if(near>1500)warn='Pioneiros longe (>1500 px): vão demorar'}}
+  else{let near=Infinity;for(const u of units)if(u.sap&&u.team===team&&u.hp>0){const d=hyp(u.x-pts[0][0],u.y-pts[0][1]);if(d<near)near=d}if(near>1500)warn='Engenheiros de Campo longe (>1500 px): vão demorar'}}
  return{ok:!block,block,warn,cost,n}}
 let GH={k:'',t:0,r:null};
 function ghostDraw(c,ox,oy){const ui=SAP.ui;
@@ -360,7 +367,7 @@ function onPanelClick(e){const b=e.target.closest('button');if(!b)return;e.stopP
  if(act==='close'){togglePanel(false);return}
  if(act==='fixall'){fixAll();return}
  const row=b.closest('.wm-row');if(!row)return;const p=SAP.projects.find(q=>String(q.id)===row.dataset.id);if(!p)return;
- if(act==='prio'){const r=prioritize(p);say(r==='off'?'Prioridade retirada.':'Prioridade alta: os pioneiros vão para lá primeiro.',true);sigP='';panelUpdate()}
+ if(act==='prio'){const r=prioritize(p);say(r==='off'?'Prioridade retirada.':'Prioridade alta: os engenheiros de campo vão para lá primeiro.',true);sigP='';panelUpdate()}
  else if(act==='cancel'){cancelProj(p);sigP='';panelUpdate()}}
 function fixAll(){let n=0;const list=WL.filter(r=>r.team===playerTeam&&fixable(r)).sort((a,b)=>dmgOf(b)-dmgOf(a));
  for(const r of list){if(playerLive(playerTeam)>=SAP.cfg.MAXPROJ.player)break;if(startFix(r,false))n++;else if(!sandbox&&supplies[playerTeam]<fixCost(r))break}
@@ -376,7 +383,7 @@ function openMenu(cx,cy,hit){if(!ensureUI())return;menu.textContent='';const add
   s.textContent=r.max?(r.col?'DESMORONOU — precisa de reparo':`Integridade ${Math.round(r.hp)}/${Math.round(r.max)}`):'Em bom estado';menu.append(s);
   const up=nextUpg(r),team=r.team;
   if(up){const runs=lineLike(r)?runsOf(r):[[r]],tot=runs.reduce((n,a)=>n+a.length,0)||1,c1=up.cost,cN=up.cost*tot;
-   const why=r.pend?'Serviço em andamento':!sandbox&&supplies[team]<c1?'Sem caixa':!sappersOf(team)?'Sem pioneiros':null;
+   const why=r.pend?'Serviço em andamento':!sandbox&&supplies[team]<c1?'Sem caixa':!sappersOf(team)?'Sem engenheiros de campo':null;
    add(`MELHORAR: ${up.name} · ◈ ${money(c1)}${lineLike(r)?' (este trecho)':''}`,'upg1',why);
    if(lineLike(r)&&tot>1)add(`MELHORAR A LINHA (${tot} trechos) · ◈ ${money(cN)}`,'upgN',why||(!sandbox&&supplies[team]<cN?'Sem caixa':null))}
   else add(r.col?'Nada a melhorar (desmoronado)':'Nível máximo','none','Sem melhorias disponíveis');
@@ -385,7 +392,7 @@ function openMenu(cx,cy,hit){if(!ensureUI())return;menu.textContent='';const add
  const cv=document.getElementById('game')||document.querySelector('canvas'),W0=innerWidth,H0=innerHeight;menu.classList.add('on');menu.style.left=Math.min(cx+8,W0-menu.offsetWidth-6)+'px';menu.style.top=Math.min(cy+8,H0-menu.offsetHeight-6)+'px'}
 function onMenuClick(e){const b=e.target.closest('button');if(!b||b.disabled)return;e.stopPropagation();const hit=menu._hit,act=b.dataset.act;if(!hit)return;
  if(act==='demo'){if(confirmDemo!==hit.rec){confirmDemo=hit.rec;b.textContent='CONFIRMAR DEMOLIÇÃO';return}demolish(hit.rec);closeMenu();return}
- if(act==='prio'){const r=prioritize(hit.proj);say(r==='off'?'Prioridade retirada.':'Prioridade alta: os pioneiros vão para lá primeiro.',true);closeMenu()}
+ if(act==='prio'){const r=prioritize(hit.proj);say(r==='off'?'Prioridade retirada.':'Prioridade alta: os engenheiros de campo vão para lá primeiro.',true);closeMenu()}
  else if(act==='cancel'){cancelProj(hit.proj);closeMenu()}
  else if(act==='upg1'){startUpg(hit.rec,'one');closeMenu()}else if(act==='upgN'){startUpg(hit.rec,'run');closeMenu()}
  else if(act==='fix'){startFix(hit.rec);closeMenu()}else closeMenu()}
@@ -419,7 +426,7 @@ function maintain(dt){if((prT-=dt)<=0){prT=.4;enforcePrio()}
  for(const p of P)if(p.mgr&&p.done)dirty=true;
  if(dirty){for(let i=segs.length-1;i>=0;i--)if(segs[i].p.mgr&&segs[i].p.done){segs[i].gone=1;segs.splice(i,1)}
   for(let i=P.length-1;i>=0;i--)if(P[i].mgr&&P[i].done)P.splice(i,1)}
- /* serviço parado há 4 min sem progresso (sem pioneiros): cancela e devolve */
+ /* serviço parado há 4 min sem progresso (sem engenheiros de campo): cancela e devolve */
  for(const p of P){const m=p.mgr;if(m&&!p.done&&!m.finished&&time-p.t0>(m.ai?CFG.AI.idleAge:240)&&progressOf(p)<.05)cancelProj(p,true)}
  /* alvo morto: cancela e devolve */
  for(const p of P){const m=p.mgr;if(!m||p.done||m.finished)continue;
@@ -484,7 +491,7 @@ setInterval(()=>{try{if(!S.on)return;if(document.querySelector&&document.querySe
 /* ---------- API ---------- */
 S.state=()=>({on:S.on,works:WL.length,mine:WL.filter(r=>r.team===playerTeam).length,zones:ZN.length,anchors:AG.length,jobs:SAP.projects.filter(p=>p.mgr&&!p.done).map(p=>({id:p.id,team:p.team,type:p.mgr.type,name:p.mgr.name,prio:p.prio||0,crew:p.crew.length,segs:p.segs.length,progress:+progressOf(p).toFixed(2)})),
  demolishing:DM.length,day:{...S.day},stats:{...S.stats,aiSpent:[...S.stats.aiSpent]}});
-Object.assign(S,{scan,works:()=>WL,zones:()=>ZN,pick:pickAt,rec:recOf,nextUpg,runsOf,startUpg,startFix,demolish,cancel:cancelProj,prioritize,progress:progressOf,paid:paidOf,integrity,collapse,reason:reasonFor,ai:aiManage,fixCost,fixNeed,fixAll,
+Object.assign(S,{needsService,scan,works:()=>WL,zones:()=>ZN,pick:pickAt,rec:recOf,nextUpg,runsOf,startUpg,startFix,demolish,cancel:cancelProj,prioritize,progress:progressOf,paid:paidOf,integrity,collapse,reason:reasonFor,ai:aiManage,fixCost,fixNeed,fixAll,
  panel:togglePanel,maintain,reset,heat,names:{nameOf}});
 if(window.IronFront)window.IronFront.worksManage=S;
 })();

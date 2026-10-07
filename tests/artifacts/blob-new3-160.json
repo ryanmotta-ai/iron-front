@@ -1,0 +1,657 @@
+{
+ "args": {
+  "maps": [
+   "trenches"
+  ],
+  "scale": "160",
+  "maxT": 600,
+  "game": "sandbox",
+  "seed": 7,
+  "extra": ""
+ },
+ "matches": [
+  {
+   "map": "trenches",
+   "ended": false,
+   "time": 600.0496000000677,
+   "result": null,
+   "sup": [
+    54.6,
+    45.4
+   ],
+   "peakCluster": [
+    82,
+    83
+   ],
+   "peakDensity": [
+    23,
+    32
+   ],
+   "meanDensity": [
+    16.3,
+    23.3
+   ],
+   "samples": [
+    {
+     "t": 30,
+     "units": [
+      118,
+      113
+     ],
+     "cluster": [
+      46,
+      26
+     ],
+     "dens": [
+      14,
+      20
+     ],
+     "sup": [
+      50,
+      50
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 60,
+     "units": [
+      159,
+      143
+     ],
+     "cluster": [
+      69,
+      60
+     ],
+     "dens": [
+      15,
+      23
+     ],
+     "sup": [
+      51.7,
+      48.3
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 90,
+     "units": [
+      150,
+      156
+     ],
+     "cluster": [
+      30,
+      71
+     ],
+     "dens": [
+      16,
+      32
+     ],
+     "sup": [
+      53.7,
+      46.3
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 121,
+     "units": [
+      158,
+      159
+     ],
+     "cluster": [
+      79,
+      72
+     ],
+     "dens": [
+      17,
+      22
+     ],
+     "sup": [
+      54.1,
+      45.9
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 151,
+     "units": [
+      159,
+      158
+     ],
+     "cluster": [
+      42,
+      70
+     ],
+     "dens": [
+      17,
+      23
+     ],
+     "sup": [
+      54.6,
+      45.4
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 181,
+     "units": [
+      158,
+      155
+     ],
+     "cluster": [
+      16,
+      83
+     ],
+     "dens": [
+      12,
+      25
+     ],
+     "sup": [
+      54.6,
+      45.4
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 211,
+     "units": [
+      160,
+      146
+     ],
+     "cluster": [
+      17,
+      57
+     ],
+     "dens": [
+      15,
+      23
+     ],
+     "sup": [
+      56.3,
+      43.7
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 242,
+     "units": [
+      156,
+      159
+     ],
+     "cluster": [
+      25,
+      39
+     ],
+     "dens": [
+      11,
+      29
+     ],
+     "sup": [
+      54.9,
+      45.1
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 272,
+     "units": [
+      155,
+      159
+     ],
+     "cluster": [
+      44,
+      71
+     ],
+     "dens": [
+      13,
+      25
+     ],
+     "sup": [
+      54.9,
+      45.1
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 302,
+     "units": [
+      154,
+      158
+     ],
+     "cluster": [
+      44,
+      66
+     ],
+     "dens": [
+      19,
+      26
+     ],
+     "sup": [
+      55.1,
+      44.9
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 332,
+     "units": [
+      155,
+      159
+     ],
+     "cluster": [
+      41,
+      66
+     ],
+     "dens": [
+      23,
+      25
+     ],
+     "sup": [
+      54.6,
+      45.4
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 362,
+     "units": [
+      155,
+      159
+     ],
+     "cluster": [
+      28,
+      67
+     ],
+     "dens": [
+      13,
+      24
+     ],
+     "sup": [
+      55.5,
+      44.5
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 392,
+     "units": [
+      152,
+      158
+     ],
+     "cluster": [
+      31,
+      37
+     ],
+     "dens": [
+      18,
+      27
+     ],
+     "sup": [
+      54.4,
+      45.6
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 422,
+     "units": [
+      155,
+      159
+     ],
+     "cluster": [
+      47,
+      32
+     ],
+     "dens": [
+      18,
+      25
+     ],
+     "sup": [
+      53.6,
+      46.4
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 452,
+     "units": [
+      157,
+      159
+     ],
+     "cluster": [
+      43,
+      22
+     ],
+     "dens": [
+      21,
+      16
+     ],
+     "sup": [
+      52.2,
+      47.8
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 482,
+     "units": [
+      157,
+      159
+     ],
+     "cluster": [
+      78,
+      36
+     ],
+     "dens": [
+      20,
+      16
+     ],
+     "sup": [
+      51.1,
+      48.9
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 512,
+     "units": [
+      159,
+      154
+     ],
+     "cluster": [
+      82,
+      45
+     ],
+     "dens": [
+      20,
+      19
+     ],
+     "sup": [
+      50.8,
+      49.2
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 542,
+     "units": [
+      158,
+      153
+     ],
+     "cluster": [
+      59,
+      29
+     ],
+     "dens": [
+      16,
+      23
+     ],
+     "sup": [
+      51.5,
+      48.5
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 572,
+     "units": [
+      159,
+      158
+     ],
+     "cluster": [
+      16,
+      29
+     ],
+     "dens": [
+      11,
+      22
+     ],
+     "sup": [
+      53,
+      47
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 600,
+     "units": [
+      157,
+      157
+     ],
+     "cluster": [
+      24,
+      28
+     ],
+     "dens": [
+      17,
+      21
+     ],
+     "sup": [
+      54.6,
+      45.4
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    }
+   ],
+   "modules": {
+    "strategy": {
+     "raids": 7,
+     "raidsDone": 0,
+     "retargets": 259,
+     "badTargets": 15,
+     "noLosBunker": 0,
+     "stuck": [
+      54,
+      11,
+      8
+     ],
+     "idleMoves": 779,
+     "counterBattery": 0,
+     "errors": 0,
+     "spread": 1682,
+     "capped": 1627,
+     "unsafe": 42,
+     "flankRoutes": 5
+    },
+    "structs": [
+     0,
+     2
+    ],
+    "captured": 0,
+    "orders": {
+     "groups": 7,
+     "covers": 62,
+     "stalls": 0,
+     "decisions": 0,
+     "done": 0,
+     "noarms": 0,
+     "blocked": 0,
+     "errors": 0
+    },
+    "eng": {
+     "repaired": 4,
+     "rebuilt": 0,
+     "recovered": 0,
+     "tracks": 6,
+     "motors": 3,
+     "reinforced": 0,
+     "errors": 0
+    },
+    "clean": {
+     "corpsesAged": 242,
+     "hulks": 4,
+     "hulksGone": 0,
+     "bloodFades": 117,
+     "errors": 0
+    },
+    "bunk": {
+     "inside": 11,
+     "killed": 0,
+     "wounded": 0,
+     "survived": 0,
+     "released": 1,
+     "errors": 0
+    },
+    "air": {
+     "runwayHits": 0,
+     "hangarsLost": 0,
+     "planesLost": 0,
+     "blocked": 0,
+     "aiMissions": 3,
+     "retasks": 0,
+     "errors": 0
+    },
+    "comms": {
+     "reports": 13,
+     "proposals": 0,
+     "accepted": 0,
+     "declined": 0,
+     "delayed": 0,
+     "errors": 0
+    }
+   },
+   "realSeconds": 141,
+   "errors": []
+  }
+ ]
+}

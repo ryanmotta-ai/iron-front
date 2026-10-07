@@ -1,0 +1,1259 @@
+{
+  "battle": {
+    "time": 180.00000000000668,
+    "air": {
+      "on": true,
+      "version": "1.12",
+      "ms": 0.276,
+      "airborne": [
+        1,
+        5
+      ],
+      "parked": [
+        11,
+        12
+      ],
+      "flights": [
+        {
+          "id": 2,
+          "team": 1,
+          "kind": "cap",
+          "phase": "home",
+          "n": 2
+        },
+        {
+          "id": 3,
+          "team": 0,
+          "kind": "rec",
+          "phase": "start",
+          "n": 1
+        },
+        {
+          "id": 4,
+          "team": 0,
+          "kind": "esc",
+          "phase": "home",
+          "n": 1
+        },
+        {
+          "id": 5,
+          "team": 1,
+          "kind": "rec",
+          "phase": "home",
+          "n": 1
+        },
+        {
+          "id": 6,
+          "team": 0,
+          "kind": "atk",
+          "phase": "start",
+          "n": 2
+        },
+        {
+          "id": 7,
+          "team": 1,
+          "kind": "atk",
+          "phase": "start",
+          "n": 2
+        },
+        {
+          "id": 8,
+          "team": 1,
+          "kind": "int",
+          "phase": "out",
+          "n": 2
+        },
+        {
+          "id": 9,
+          "team": 0,
+          "kind": "int",
+          "phase": "start",
+          "n": 2
+        },
+        {
+          "id": 10,
+          "team": 0,
+          "kind": "cap",
+          "phase": "start",
+          "n": 2
+        }
+      ],
+      "bullets": 0,
+      "front": 1188,
+      "kills": [
+        0,
+        3
+      ],
+      "losses": [
+        3,
+        0
+      ],
+      "roundsPerKill": 58,
+      "hitRate": 0.276,
+      "stats": {
+        "errors": 0,
+        "sorties": [
+          11,
+          7
+        ],
+        "kills": [
+          0,
+          3
+        ],
+        "losses": [
+          3,
+          0
+        ],
+        "rounds": 174,
+        "hits": 48,
+        "killsBehind": 3,
+        "killsUnseen": 0,
+        "killsTotal": 3,
+        "landings": 0,
+        "landingCrashes": 0,
+        "goArounds": 0,
+        "flamers": 0,
+        "forced": 2,
+        "spins": 3,
+        "jams": 0,
+        "engagements": 3,
+        "engageTime": 56.20000000000255,
+        "groundHits": 0,
+        "bombs": 0,
+        "strafe": 0,
+        "flakHits": 2,
+        "foreignKills": 0,
+        "recon": 11.266666666666637,
+        "missions": {
+          "cap": 3,
+          "rec": 2,
+          "esc": 1,
+          "atk": 2,
+          "int": 2
+        },
+        "starts": 16,
+        "fireD": 16004.904276641635,
+        "fireN": 87
+      }
+    },
+    "command": {
+      "on": true,
+      "spent": [
+        560,
+        410
+      ],
+      "repairSpent": [
+        0,
+        0
+      ],
+      "quotes": 0,
+      "repairs": 0,
+      "replacements": [
+        0,
+        0
+      ],
+      "missions": {
+        "cap": 3,
+        "rec": 2,
+        "esc": 1,
+        "atk": 2,
+        "int": 2
+      },
+      "reports": 138,
+      "unsafe": 0,
+      "aborted": 0,
+      "waiting": [],
+      "budget": [
+        460.8,
+        460.8
+      ],
+      "recent": [
+        340,
+        250
+      ],
+      "events": [
+        {
+          "team": 0,
+          "name": "Comandante",
+          "text": "Lt. Harold Coolidge, protejam o setor da operação — sul.",
+          "kind": "ordem",
+          "time": 10.050000000000008,
+          "expires": 18.050000000000008
+        },
+        {
+          "team": 1,
+          "name": "Comandante",
+          "text": "Vzfw. Kurt Raabe, protejam o setor da operação — centro.",
+          "kind": "ordem",
+          "time": 10.050000000000008,
+          "expires": 18.050000000000008
+        },
+        {
+          "team": 0,
+          "name": "Lt. Harold Coolidge",
+          "text": "Entendido. Patrulha em formação; retornamos se o avião não aguentar.",
+          "kind": "resposta",
+          "time": 12.050000000000036,
+          "expires": 20.050000000000036
+        },
+        {
+          "team": 1,
+          "name": "Vzfw. Kurt Raabe",
+          "text": "Entendido. Patrulha em formação; retornamos se o avião não aguentar.",
+          "kind": "resposta",
+          "time": 12.050000000000036,
+          "expires": 20.050000000000036
+        },
+        {
+          "team": 0,
+          "name": "Comandante",
+          "text": "Capt. Jacques Fairfield, observem o setor e informem os contatos — sul.",
+          "kind": "ordem",
+          "time": 32.05000000000032,
+          "expires": 40.05000000000032
+        },
+        {
+          "team": 0,
+          "name": "Lt. Walter Mercer",
+          "text": "Vou com vocês. Cuidamos da cauda.",
+          "kind": "escolta",
+          "time": 36.05000000000032,
+          "expires": 44.05000000000032
+        },
+        {
+          "team": 1,
+          "name": "Comandante",
+          "text": "Vzfw. Ludwig Lehmann, observem o setor e informem os contatos — centro.",
+          "kind": "ordem",
+          "time": 32.05000000000032,
+          "expires": 40.05000000000032
+        },
+        {
+          "team": 0,
+          "name": "Capt. Jacques Fairfield",
+          "text": "Entendido. Reconhecimento em formação; retornamos se o avião não aguentar.",
+          "kind": "resposta",
+          "time": 34.1000000000002,
+          "expires": 42.1000000000002
+        },
+        {
+          "team": 1,
+          "name": "Vzfw. Ludwig Lehmann",
+          "text": "Entendido. Reconhecimento em formação; retornamos se o avião não aguentar.",
+          "kind": "resposta",
+          "time": 34.1000000000002,
+          "expires": 42.1000000000002
+        },
+        {
+          "team": 0,
+          "name": "Comandante",
+          "text": "1st Lt. James Winslow, neutralizem a posição marcada pela infantaria — sul.",
+          "kind": "ordem",
+          "time": 72.04999999999805,
+          "expires": 80.04999999999805
+        },
+        {
+          "team": 0,
+          "name": "1st Lt. James Winslow",
+          "text": "Entendido. Ataque ao solo em formação; retornamos se o avião não aguentar.",
+          "kind": "resposta",
+          "time": 74.09999999999793,
+          "expires": 82.09999999999793
+        },
+        {
+          "team": 1,
+          "name": "Vzfw. Kurt Raabe",
+          "text": "Contato confirmado: tropas no setor. Passando as posições ao comando.",
+          "kind": "contato",
+          "time": 85.49999999999729,
+          "expires": 93.49999999999729
+        },
+        {
+          "team": 1,
+          "name": "Comandante",
+          "text": "Vzfw. Hans Hartmann, neutralizem a posição marcada pela infantaria — sul.",
+          "kind": "ordem",
+          "time": 86.04999999999725,
+          "expires": 94.04999999999725
+        },
+        {
+          "team": 1,
+          "name": "Vzfw. Hans Hartmann",
+          "text": "Entendido. Ataque ao solo em formação; retornamos se o avião não aguentar.",
+          "kind": "resposta",
+          "time": 88.09999999999714,
+          "expires": 96.09999999999714
+        },
+        {
+          "team": 0,
+          "name": "Lt. Harold Coolidge",
+          "text": "Contato confirmado: blindados no setor. Passando as posições ao comando.",
+          "kind": "contato",
+          "time": 89.59999999999705,
+          "expires": 97.59999999999705
+        },
+        {
+          "team": 0,
+          "name": "Lt. Hamilton Easterbrook",
+          "text": "Contato confirmado: blindados no setor. Passando as posições ao comando.",
+          "kind": "contato",
+          "time": 91.64999999999694,
+          "expires": 99.64999999999694
+        },
+        {
+          "team": 1,
+          "name": "Comandante",
+          "text": "Oblt. Bruno Wolff, aeronave inimiga sobre nossa linha — sul.",
+          "kind": "ordem",
+          "time": 96.04999999999669,
+          "expires": 104.04999999999669
+        },
+        {
+          "team": 1,
+          "name": "Oblt. Bruno Wolff",
+          "text": "Entendido. Interceptação em formação; retornamos se o avião não aguentar.",
+          "kind": "resposta",
+          "time": 98.09999999999657,
+          "expires": 106.09999999999657
+        },
+        {
+          "team": 1,
+          "name": "Uffz. Josef Lehmann",
+          "text": "Contato confirmado: tropas no setor. Passando as posições ao comando.",
+          "kind": "contato",
+          "time": 103.94999999999624,
+          "expires": 111.94999999999624
+        },
+        {
+          "team": 0,
+          "name": "Lt. Hamilton Easterbrook",
+          "text": "Estamos danificados. Voltando para a pista; cubram nossa retirada.",
+          "kind": "retorno",
+          "time": 122.99999999999515,
+          "expires": 130.99999999999517
+        },
+        {
+          "team": 0,
+          "name": "Comandante",
+          "text": "Lt. Sumner Chambers, aeronave inimiga sobre nossa linha — extremo norte.",
+          "kind": "ordem",
+          "time": 132.04999999999578,
+          "expires": 140.04999999999578
+        },
+        {
+          "team": 0,
+          "name": "Lt. Sumner Chambers",
+          "text": "Entendido. Interceptação em formação; retornamos se o avião não aguentar.",
+          "kind": "resposta",
+          "time": 134.04999999999623,
+          "expires": 142.04999999999623
+        },
+        {
+          "team": 1,
+          "name": "Vzfw. Ludwig Lehmann",
+          "text": "Contato confirmado: tropas no setor. Passando as posições ao comando.",
+          "kind": "contato",
+          "time": 140.4999999999977,
+          "expires": 148.4999999999977
+        },
+        {
+          "team": 1,
+          "name": "Vzfw. Kurt Raabe",
+          "text": "Missão encerrada. Voltando para rearmar.",
+          "kind": "retorno",
+          "time": 147.9499999999994,
+          "expires": 155.9499999999994
+        },
+        {
+          "team": 1,
+          "name": "Vzfw. Ludwig Lehmann",
+          "text": "Missão encerrada. Voltando para rearmar.",
+          "kind": "retorno",
+          "time": 159.20000000000195,
+          "expires": 167.20000000000195
+        },
+        {
+          "team": 0,
+          "name": "Comandante",
+          "text": "1st Lt. Douglas Quincy, protejam o setor da operação — extremo norte.",
+          "kind": "ordem",
+          "time": 176.05000000000578,
+          "expires": 184.05000000000578
+        },
+        {
+          "team": 0,
+          "name": "Lt. Walter Mercer",
+          "text": "Estamos danificados. Voltando para a pista; cubram nossa retirada.",
+          "kind": "retorno",
+          "time": 177.8500000000062,
+          "expires": 185.8500000000062
+        },
+        {
+          "team": 0,
+          "name": "1st Lt. Douglas Quincy",
+          "text": "Entendido. Patrulha em formação; retornamos se o avião não aguentar.",
+          "kind": "resposta",
+          "time": 178.05000000000624,
+          "expires": 186.05000000000624
+        }
+      ]
+    },
+    "cash": [
+      224,
+      418
+    ],
+    "legacy": [
+      0,
+      0,
+      0
+    ],
+    "visual": {
+      "on": true,
+      "flying": [
+        {
+          "type": "spad",
+          "src": "d",
+          "team": 0,
+          "x": -729,
+          "y": 876,
+          "alt": 0.2,
+          "bank": 44,
+          "pitch": -10,
+          "hd": -0.71
+        },
+        {
+          "type": "spad",
+          "src": "d",
+          "team": 0,
+          "x": -1638,
+          "y": 887,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": -0.04
+        },
+        {
+          "type": "spad",
+          "src": "d",
+          "team": 0,
+          "x": -1528,
+          "y": 885,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 3.2
+        },
+        {
+          "type": "spad",
+          "src": "d",
+          "team": 0,
+          "x": -787,
+          "y": 738,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "spad",
+          "src": "d",
+          "team": 0,
+          "x": -657,
+          "y": 738,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "spad",
+          "src": "d",
+          "team": 0,
+          "x": -527,
+          "y": 738,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "spad",
+          "src": "d",
+          "team": 0,
+          "x": -397,
+          "y": 738,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "camel",
+          "src": "d",
+          "team": 0,
+          "x": -1284,
+          "y": 560,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "camel",
+          "src": "d",
+          "team": 0,
+          "x": -1633,
+          "y": 887,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 3.11
+        },
+        {
+          "type": "camel",
+          "src": "d",
+          "team": 0,
+          "x": -1548,
+          "y": 560,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "camel",
+          "src": "d",
+          "team": 0,
+          "x": -1633,
+          "y": 888,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 3.1
+        },
+        {
+          "type": "salmson",
+          "src": "d",
+          "team": 0,
+          "x": -897,
+          "y": 560,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "salmson",
+          "src": "d",
+          "team": 0,
+          "x": -727,
+          "y": 560,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "salmson",
+          "src": "d",
+          "team": 0,
+          "x": -1562,
+          "y": 999,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 0.03
+        },
+        {
+          "type": "breguet",
+          "src": "d",
+          "team": 0,
+          "x": -1305,
+          "y": 360,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "breguet",
+          "src": "d",
+          "team": 0,
+          "x": -1479,
+          "y": 360,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "dh4",
+          "src": "d",
+          "team": 0,
+          "x": -1658,
+          "y": 360,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "dh4",
+          "src": "d",
+          "team": 0,
+          "x": -890,
+          "y": 360,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "dh4",
+          "src": "d",
+          "team": 0,
+          "x": -706,
+          "y": 360,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "fokker",
+          "src": "d",
+          "team": 1,
+          "x": -872,
+          "y": 1161,
+          "alt": 0.32,
+          "bank": 60,
+          "pitch": 18,
+          "hd": -3.03
+        },
+        {
+          "type": "fokker",
+          "src": "d",
+          "team": 1,
+          "x": -714,
+          "y": 939,
+          "alt": 0.22,
+          "bank": -8,
+          "pitch": 5,
+          "hd": -2.33
+        },
+        {
+          "type": "fokker",
+          "src": "d",
+          "team": 1,
+          "x": 3047,
+          "y": 738,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "fokker",
+          "src": "d",
+          "team": 1,
+          "x": 2913,
+          "y": 738,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "fokker",
+          "src": "d",
+          "team": 1,
+          "x": 1976,
+          "y": 784,
+          "alt": 0.89,
+          "bank": 0,
+          "pitch": 12,
+          "hd": 3.09
+        },
+        {
+          "type": "fokker",
+          "src": "d",
+          "team": 1,
+          "x": 1975,
+          "y": 847,
+          "alt": 0.88,
+          "bank": 0,
+          "pitch": 12,
+          "hd": 3.09
+        },
+        {
+          "type": "fokker",
+          "src": "d",
+          "team": 1,
+          "x": 3953,
+          "y": 738,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "fokker",
+          "src": "d",
+          "team": 1,
+          "x": 4087,
+          "y": 738,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "halb",
+          "src": "d",
+          "team": 1,
+          "x": 3064,
+          "y": 999,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 0
+        },
+        {
+          "type": "halb",
+          "src": "d",
+          "team": 1,
+          "x": 3145,
+          "y": 560,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "halb",
+          "src": "d",
+          "team": 1,
+          "x": 2966,
+          "y": 888,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 3.27
+        },
+        {
+          "type": "halb",
+          "src": "d",
+          "team": 1,
+          "x": 2829,
+          "y": 560,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "rumpler",
+          "src": "d",
+          "team": 1,
+          "x": 3700,
+          "y": 560,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "rumpler",
+          "src": "d",
+          "team": 1,
+          "x": 3864,
+          "y": 560,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "rumpler",
+          "src": "d",
+          "team": 1,
+          "x": 2303,
+          "y": 1034,
+          "alt": 0.41,
+          "bank": 34,
+          "pitch": -12,
+          "hd": -0.44
+        },
+        {
+          "type": "dfw",
+          "src": "d",
+          "team": 1,
+          "x": 4191,
+          "y": 560,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "dfw",
+          "src": "d",
+          "team": 1,
+          "x": 3301,
+          "y": 360,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "gotha",
+          "src": "d",
+          "team": 1,
+          "x": 3065,
+          "y": 360,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        },
+        {
+          "type": "gotha",
+          "src": "d",
+          "team": 1,
+          "x": 3772,
+          "y": 360,
+          "alt": 0,
+          "bank": 0,
+          "pitch": 11,
+          "hd": 1.57
+        }
+      ],
+      "crashes": [],
+      "wrecks": [
+        {
+          "type": "spad",
+          "t": 66,
+          "fire": 0.82
+        },
+        {
+          "type": "spad",
+          "t": 54,
+          "fire": 0.93
+        },
+        {
+          "type": "spad",
+          "t": 2,
+          "fire": 1
+        }
+      ],
+      "chutes": 0,
+      "frags": 0,
+      "puffs": 72,
+      "sprites": 13,
+      "drawMs": 2.12,
+      "drawNetMs": 1.633,
+      "buildMsTotal": 52,
+      "stats": {
+        "errors": 0,
+        "builds": 13,
+        "crashes": 3,
+        "wrecks": 3,
+        "chutes": 0,
+        "takeovers": 0
+      }
+    }
+  },
+  "offense": {
+    "issued": {
+      "cap": 1,
+      "rec": 1,
+      "esc": 1,
+      "bmb": 1
+    },
+    "missions": {
+      "cap": 2,
+      "rec": 2,
+      "esc": 1,
+      "bmb": 2,
+      "atk": 1
+    },
+    "bombs": 12,
+    "strafe": 29,
+    "errors": 0,
+    "spent": [
+      1054,
+      0
+    ],
+    "flights": [
+      {
+        "id": 3,
+        "team": 0,
+        "kind": "esc",
+        "phase": "home",
+        "n": 2
+      },
+      {
+        "id": 5,
+        "team": 0,
+        "kind": "atk",
+        "phase": "home",
+        "n": 2
+      },
+      {
+        "id": 6,
+        "team": 0,
+        "kind": "cap",
+        "phase": "assemble",
+        "n": 2
+      },
+      {
+        "id": 7,
+        "team": 0,
+        "kind": "bmb",
+        "phase": "start",
+        "n": 1
+      },
+      {
+        "id": 8,
+        "team": 0,
+        "kind": "rec",
+        "phase": "start",
+        "n": 1
+      }
+    ],
+    "aircraft": [
+      {
+        "st": "park",
+        "mode": "",
+        "x": -890,
+        "y": 360,
+        "h": 0,
+        "fuel": 340
+      },
+      {
+        "st": "taxi",
+        "mode": "form",
+        "x": -1554.4956488343748,
+        "y": 884.50945769603,
+        "h": 0,
+        "fuel": 340,
+        "flight": "start"
+      }
+    ],
+    "events": [
+      {
+        "team": 0,
+        "name": "Comandante",
+        "text": "1st Lt. Murray Cook, protejam o setor da operação — centro.",
+        "kind": "ordem",
+        "time": 120.05,
+        "expires": 128.05
+      },
+      {
+        "team": 0,
+        "name": "Comandante",
+        "text": "Lt. Field Springs, reconheçam a rota do avanço — centro.",
+        "kind": "ordem",
+        "time": 122.04999999999988,
+        "expires": 130.0499999999999
+      },
+      {
+        "team": 0,
+        "name": "Lt. Harold Mercer",
+        "text": "Vou com vocês. Cuidamos da cauda.",
+        "kind": "escolta",
+        "time": 126.04999999999988,
+        "expires": 134.0499999999999
+      },
+      {
+        "team": 0,
+        "name": "1st Lt. Murray Cook",
+        "text": "Entendido. Patrulha em formação; retornamos se o avião não aguentar.",
+        "kind": "resposta",
+        "time": 122.09999999999988,
+        "expires": 130.09999999999988
+      },
+      {
+        "team": 0,
+        "name": "Comandante",
+        "text": "1st Lt. Sumner Mercer, concentração inimiga confirmada; aliados fora da área — centro.",
+        "kind": "ordem",
+        "time": 124.04999999999977,
+        "expires": 132.04999999999978
+      },
+      {
+        "team": 0,
+        "name": "Lt. Field Springs",
+        "text": "Entendido. Reconhecimento em formação; retornamos se o avião não aguentar.",
+        "kind": "resposta",
+        "time": 124.09999999999977,
+        "expires": 132.09999999999977
+      },
+      {
+        "team": 0,
+        "name": "1st Lt. Sumner Mercer",
+        "text": "Entendido. Bombardeio em formação; retornamos se o avião não aguentar.",
+        "kind": "resposta",
+        "time": 126.09999999999965,
+        "expires": 134.09999999999965
+      },
+      {
+        "team": 0,
+        "name": "Lt. Frank Kindley",
+        "text": "Contato confirmado: tropas no setor. Passando as posições ao comando.",
+        "kind": "contato",
+        "time": 240.25000000002507,
+        "expires": 248.25000000002507
+      },
+      {
+        "team": 0,
+        "name": "1st Lt. Murray Cook",
+        "text": "Contato confirmado: tropas no setor. Passando as posições ao comando.",
+        "kind": "contato",
+        "time": 240.25000000002507,
+        "expires": 248.25000000002507
+      },
+      {
+        "team": 0,
+        "name": "Comandante",
+        "text": "Lt. Wilbert Whitmore, neutralizem a posição marcada pela infantaria — centro.",
+        "kind": "ordem",
+        "time": 242.05000000002548,
+        "expires": 250.05000000002548
+      },
+      {
+        "team": 0,
+        "name": "Lt. Wilbert Whitmore",
+        "text": "Entendido. Ataque ao solo em formação; retornamos se o avião não aguentar.",
+        "kind": "resposta",
+        "time": 244.05000000002593,
+        "expires": 252.05000000002593
+      },
+      {
+        "team": 0,
+        "name": "1st Lt. Murray Cook",
+        "text": "Missão encerrada. Voltando para rearmar.",
+        "kind": "retorno",
+        "time": 267.45000000003125,
+        "expires": 275.45000000003125
+      },
+      {
+        "team": 0,
+        "name": "Lt. Field Springs",
+        "text": "Contato confirmado: tropas no setor. Passando as posições ao comando.",
+        "kind": "contato",
+        "time": 290.25000000003644,
+        "expires": 298.25000000003644
+      },
+      {
+        "team": 0,
+        "name": "Lt. Field Springs",
+        "text": "Missão encerrada. Voltando para rearmar.",
+        "kind": "retorno",
+        "time": 302.9500000000393,
+        "expires": 310.9500000000393
+      },
+      {
+        "team": 0,
+        "name": "1st Lt. Sumner Mercer",
+        "text": "Missão encerrada. Voltando para rearmar.",
+        "kind": "retorno",
+        "time": 314.3000000000419,
+        "expires": 322.3000000000419
+      },
+      {
+        "team": 0,
+        "name": "Lt. Wilbert Whitmore",
+        "text": "Missão encerrada. Voltando para rearmar.",
+        "kind": "retorno",
+        "time": 355.1000000000512,
+        "expires": 363.1000000000512
+      },
+      {
+        "team": 0,
+        "name": "1st Lt. Murray Cook",
+        "text": "Pousei. Vamos reabastecer e recarregar.",
+        "kind": "pouso",
+        "time": 365.45000000005354,
+        "expires": 373.45000000005354
+      },
+      {
+        "team": 0,
+        "name": "Mecânico",
+        "text": "SPAD S.XIII em serviço. Pronto em 24 s · ◈ 13.",
+        "kind": "reparo",
+        "time": 365.45000000005354,
+        "expires": 373.45000000005354
+      },
+      {
+        "team": 0,
+        "name": "Comandante",
+        "text": "Capt. Lloyd Springs, protejam o setor da operação — centro.",
+        "kind": "ordem",
+        "time": 366.05000000005367,
+        "expires": 374.05000000005367
+      },
+      {
+        "team": 0,
+        "name": "Capt. Lloyd Springs",
+        "text": "Entendido. Patrulha em formação; retornamos se o avião não aguentar.",
+        "kind": "resposta",
+        "time": 368.0500000000541,
+        "expires": 376.0500000000541
+      },
+      {
+        "team": 0,
+        "name": "Lt. Frank Kindley",
+        "text": "Pousei. Vamos reabastecer e recarregar.",
+        "kind": "pouso",
+        "time": 368.8500000000543,
+        "expires": 376.8500000000543
+      },
+      {
+        "team": 0,
+        "name": "Mecânico",
+        "text": "SPAD S.XIII em serviço. Pronto em 24 s · ◈ 13.",
+        "kind": "reparo",
+        "time": 368.8500000000543,
+        "expires": 376.8500000000543
+      },
+      {
+        "team": 0,
+        "name": "Comandante",
+        "text": "Lt. Eddie Vaughn, destruir quartel-general — centro.",
+        "kind": "ordem",
+        "time": 369.85000000005454,
+        "expires": 377.85000000005454
+      },
+      {
+        "team": 0,
+        "name": "Lt. Eddie Vaughn",
+        "text": "Entendido. Bombardeio em formação; retornamos se o avião não aguentar.",
+        "kind": "resposta",
+        "time": 371.850000000055,
+        "expires": 379.850000000055
+      },
+      {
+        "team": 0,
+        "name": "Lt. Harold Mercer",
+        "text": "Missão encerrada. Voltando para rearmar.",
+        "kind": "retorno",
+        "time": 374.9000000000557,
+        "expires": 382.9000000000557
+      },
+      {
+        "team": 0,
+        "name": "Lt. Harold Mercer",
+        "text": "Pousei. Vamos reabastecer e recarregar.",
+        "kind": "pouso",
+        "time": 411.8000000000641,
+        "expires": 419.8000000000641
+      },
+      {
+        "team": 0,
+        "name": "Mecânico",
+        "text": "SPAD S.XIII em serviço. Pronto em 24 s · ◈ 5.",
+        "kind": "reparo",
+        "time": 411.8000000000641,
+        "expires": 419.8000000000641
+      },
+      {
+        "team": 0,
+        "name": "Comandante",
+        "text": "Lt. Clayton Coolidge, reconheçam a rota do avanço — centro.",
+        "kind": "ordem",
+        "time": 412.05000000006413,
+        "expires": 420.05000000006413
+      },
+      {
+        "team": 0,
+        "name": "Lt. Clayton Coolidge",
+        "text": "Entendido. Reconhecimento em formação; retornamos se o avião não aguentar.",
+        "kind": "resposta",
+        "time": 414.0500000000646,
+        "expires": 422.0500000000646
+      },
+      {
+        "team": 0,
+        "name": "Lt. Field Springs",
+        "text": "Pousei. Vamos reabastecer e recarregar.",
+        "kind": "pouso",
+        "time": 416.55000000006515,
+        "expires": 424.55000000006515
+      },
+      {
+        "team": 0,
+        "name": "Mecânico",
+        "text": "Salmson 2A2 em serviço. Pronto em 24 s · ◈ 3.",
+        "kind": "reparo",
+        "time": 416.55000000006515,
+        "expires": 424.55000000006515
+      }
+    ]
+  },
+  "camera": {
+    "on": true,
+    "built": true,
+    "rearMs": 197,
+    "drawMs": 0.044,
+    "cam": {
+      "on": true,
+      "tgt": 28,
+      "free": false
+    },
+    "map": true,
+    "sparks": 5,
+    "errors": 0
+  },
+  "theatre": {
+    "on": true,
+    "built": true,
+    "rearMs": 197,
+    "drawMs": 0.034,
+    "cam": {
+      "on": false,
+      "tgt": null,
+      "free": false
+    },
+    "map": false,
+    "sparks": 3,
+    "errors": 0
+  },
+  "service": {
+    "q": {
+      "id": 26,
+      "team": 0,
+      "name": "SPAD S.XIII",
+      "cost": 105,
+      "repair": 94,
+      "seconds": 128
+    },
+    "blocked": true,
+    "paid": 105,
+    "ready": 128,
+    "full": true,
+    "spent": 105,
+    "duplicate": 105,
+    "waiting": 0
+  },
+  "manual": {
+    "charged": 90,
+    "kind": "cap",
+    "weatherBlocked": true,
+    "friendlyBlocked": true,
+    "x": -1100
+  },
+  "targetIndex": 464,
+  "cap": {
+    "paid": false,
+    "cashKept": true,
+    "countKept": true,
+    "defaultCap": "120"
+  },
+  "fallback": {
+    "on": false,
+    "planes": 1
+  },
+  "errors": []
+}

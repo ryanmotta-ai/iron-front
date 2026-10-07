@@ -394,7 +394,7 @@ wrap('shoot',(orig,u,target,manual)=>{if(S.on&&u.mask&&!manual&&u.type!=='tank'&
  if(S.on&&manual&&u===player&&PL.maskT>time)return;return orig(u,target,manual)});
 wrap('place',(orig,x,y)=>{if(!S.on||placement!=='gas')return orig(x,y);if(!spend('gas'))return;launchGas(playerTeam,x,y);toast('Gás a caminho. Cuidado com o vento.');sound('click');hud();
  if(!keys.Shift){placement=null;makeCards();const h=document.getElementById('placehint');if(h)h.textContent='Escolha uma unidade e posicione no campo'}});
-wrap('makeCards',orig=>{orig();try{if(tab!=='support'||!S.on)return;const d=defs.gas,b=document.createElement('button');b.className='card'+(placement==='gas'?' active':'');
+wrap('makeCards',orig=>{orig();try{if(tab!=='support'||!S.on)return;const d=defs.gas,b=document.createElement('button');b.className='card'+(placement==='gas'?' active':'');b.dataset.kind='gas';
  b.innerHTML=`<canvas width="48" height="48"></canvas><b>${d.name}</b><small>${d.sub}</small><span class="cost">◈ ${sandbox?'∞':d.cost}</span><kbd>6</kbd>`;b.onclick=()=>choose('gas');
  document.getElementById('cards').append(b);icon('gas',b.querySelector('canvas').getContext('2d'))}catch(e){fail(e)}});
 wrap('icon',(orig,type,c)=>{if(type!=='gas')return orig(type,c);orig('artillery',c);const k=c.canvas.width/56;

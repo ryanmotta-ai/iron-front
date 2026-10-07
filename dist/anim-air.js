@@ -296,7 +296,7 @@ let RW=null;                       // matriz corrente (para as texturas saberem 
 
 /* ---------- construção de um quadro ---------- */
 function build(type,yi,bi,pi,fl){const t0=performance.now(),m=model(type),N=m.N,Cn=N/2,psi=yi/YN*TAU,phi=BANKS[bi]*D2R,th=PITS[pi]*D2R,R=rot(psi,th,phi);RW=R;
- RF={w:fl==='w'?1:fl==='k'?2:0,cut:fl==='cL'?-1:fl==='cR'?1:0,frag:fl==='fL'?-1:fl==='fR'?1:0,cutY:m.cutY,off:null,nohead:fl==='w'||fl==='k'};
+ RF={w:fl==='w'?1:fl==='k'?2:0,cut:fl==='cL'?-1:fl==='cR'?1:0,frag:fl==='fL'?-1:fl==='fR'?1:0,cutY:m.cutY,off:null,nohead:fl==='w'||fl==='k'||fl==='e'};
  if(RF.frag){const U=m.parts.find(p=>p.tag==='U').o;RF.off=[U.le-U.ch/2,RF.frag*(m.cutY+U.half)/2,U.z*.5]}
  const zb=new Float32Array(N*N).fill(-1e9),cb=new Int32Array(N*N).fill(-1),tb=new Int8Array(N*N),k=[R[2][0],R[2][1],R[2][2]],Lb=mulT(R,LS),off=RF.off;
  const casters=m.parts.filter(p=>p.cast);
@@ -363,8 +363,8 @@ const TY={
  gotha:{cls:'B',K:6,z:.85,maxB:26,turb:.4,eng:'twin',f:62,chute:.3,crew:3,R:66,PW:105}};
 const SHX=14,SHY=22;                                  // sombra a altura 1 (igual a pixel.js/planefx)
 const VPS=new Map();let CR=[],WR=[],PU=[],CH=[],FG=[],DB=[],BM=[],TR=[];
-const srcType=(p,src)=>src==='g'?(p.kind==='bomber'?(p.team?'gotha':'dh4'):(p.team?'fokker':'spad')):src==='a'?({cap:['spad','fokker'],atk:['camel','halb'],spot:['breguet','dfw']}[p.role]||['spad','fokker'])[p.team?1:0]:(p.team?'rumpler':'salmson');
-function rawPos(p,src){return src==='f'?[p.x,p.y-(p.alt||0)/Z]:[p.x,p.y]}
+const srcType=(p,src)=>src==='d'?p.T.vis:src==='g'?(p.kind==='bomber'?(p.team?'gotha':'dh4'):(p.team?'fokker':'spad')):src==='a'?({cap:['spad','fokker'],atk:['camel','halb'],spot:['breguet','dfw']}[p.role]||['spad','fokker'])[p.team?1:0]:(p.team?'rumpler':'salmson');
+function rawPos(p,src){if(src==='d'){const h=Math.max(0,p.h)/(window.PXAW?.cfg.ALTV||900);return [p.x-SHX*h/Z,p.y-SHY*h/Z]}return src==='f'?[p.x,p.y-(p.alt||0)/Z]:[p.x,p.y]}
 function newVP(p,src){const type=srcType(p,src),T=TY[type],[x,y]=rawPos(p,src),hd=src==='a'?(p.hd||0):src==='f'?(p.ang||0):(p.team?Math.PI:0);
  return{p,src,type,T,team:p.team?1:0,x,y,px:x,py:y,hd,ws:0,bank:0,bv:0,pitch:0,pv:0,alt:src==='f'?(p.alt||46)/38:T.cls==='b'||T.cls==='B'?1:.8,t:0,seed:Math.random()*99,prop:Math.random()*6,rpm:1,gun:Math.PI+(p.team?0:Math.PI),ex:0,sm:0,spr:null,ox:0,oy:0,bob:0,lastX:x,lastY:y,v:0}}
 function targets(vp,dt){const p=vp.p,T=vp.T;let alt=T.cls==='b'||T.cls==='B'?1:.8,pitch=0;
@@ -397,7 +397,7 @@ function vpTick(vp,dt){const p=vp.p,T=vp.T,[rx,ry]=rawPos(p,vp.src);vp.t+=dt;
   if(tg2&&bd<330&&(vp.fire=(vp.fire||0)-dt)<=0){vp.fire=rnd(.07,.12);if(TR.length<120)TR.push({x:vp.x,y:vp.y,a:vp.gun+rnd(-.08,.08),t:0,max:.22,team:vp.team})}}
  /* escape e fumaça de dano */
  emitExhaust(vp,dt)}
-function emitExhaust(vp,dt){const sp=vp.spr;if(!sp)return;const T=vp.T,p=vp.p,dmg=vp.src==='g'&&p.ahp!=null;vp.ex+=dt*(T.eng==='rot'?16:T.eng==='twin'?9:10);
+function emitExhaust(vp,dt){const sp=vp.spr;if(!sp)return;const T=vp.T,p=vp.p,dmg=vp.src==='g'&&p.ahp!=null;vp.ex+=dt*(T.eng==='rot'?16:T.eng==='twin'?9:10)*(vp.src==='d'?.25+.75*Math.min(1,p.rpm??1):1);
  const vis=Math.abs(vp.x-cam.x)<vw/Z*.75&&Math.abs(vp.y-cam.y)<vh/Z*.75;if(!vis){vp.ex=0;return}
  while(vp.ex>=1){vp.ex--;for(const e of sp.pts.exh){const wx=vp.x+(e.x)/Z+rnd(-1,1),wy=vp.y+(e.y+vp.bob)/Z+rnd(-1,1),b=-Math.cos(vp.hd)*30,c=-Math.sin(vp.hd)*30;
   if(T.eng==='rot')puff(wx,wy,0,b,c,rnd(.7,1.1),1,2.6,Math.random()<.2?'oilD':'oil',.42);else puff(wx,wy,0,b,c,rnd(.45,.7),1,2,'exh',.3)}}
@@ -427,8 +427,9 @@ function startCrash(p,src,by,cause,vp){if(!vp)vp=VPS.get(p)||newVP(p,src);VPS.de
  const T0=(mode==='glide'?5.6:mode==='spin'?3.8:mode==='dive'?2.4:3.1)*(.62+.42*h0)*(cls==='B'?1.25:1);
  const sp=Math.max(120,vp.v||(vp.src==='g'?p.v||400:p.v||200));
  const c={type:vp.type,T,team:vp.team,x:vp.x,y:vp.y,h:h0,h0,hd:vp.hd,crs:vp.hd,bank:vp.bank,pitch:vp.pitch,sp,sp0:sp,mode,burn,fire:burn?.3:0,t:0,T0,side,by:by==null?1-vp.team:by,cause,
-  yawR:0,cut:mode==='break'?side:0,seed:Math.random()*99,prop:vp.prop,spr:vp.spr,ex:0,fx:0,skid:0,gun:vp.gun,bail:[],src,dead:false};
+  yawR:0,cut:mode==='break'?side:0,seed:Math.random()*99,prop:vp.prop,spr:vp.spr,ex:0,fx:0,skid:0,gun:vp.gun,bail:[],src,dead:false,off:!!(src==='d'&&p.crashOff)};
  for(let i=0;i<T.crew;i++){const ok=fch||Math.random()<T.chute;if(ok&&h0>.42)c.bail.push({at:.35+i*.45+Math.random()*.45,i})}
+ if(src==='d'&&p.crashMode){mode=c.mode=p.crashMode;c.cut=mode==='break'?side:0;c.burn=!!p.fire;c.fire=c.burn?.3:0}
  if(mode==='break')wingOff(c);
  for(let i=0;i<9;i++)debris(c,rnd(80,160));
  CR.push(c);S.stats.crashes++;return c}
@@ -453,14 +454,14 @@ function crTick(c,dt){const fch=/^test.*chute/.test(c.cause);c.t+=dt;const k=Mat
  if(Math.random()<dt*3)debris(c,60);
  for(const b of c.bail)if(!b.done&&c.t>=b.at){b.done=1;if(c.h>.3){const ck=sp&&sp.pts.cock[b.i]||{x:0,y:0};CH.push({x:c.x+ck.x/Z,y:c.y+ck.y/Z,h:c.h,vx:Math.cos(c.crs)*c.sp*.25,vy:Math.sin(c.crs)*c.sp*.25,t:0,open:0,team:c.team,seed:Math.random()*9,land:0,fail:!fch&&Math.random()<.08});S.stats.chutes++}}}
 function dustBurst(x,y,n){for(let i=0;i<n;i++)puff(x+rnd(-10,10),y+rnd(-6,6),0,rnd(-40,40),rnd(-25,15),rnd(.9,1.6),3,8,'dust',.5,rnd(4,12))}
-function furrow(c){const t=window.PXGAME&&PXGAME.tctx;if(!t)return;const bx=Math.round(c.x*Z),by=Math.round(c.y*Z),nx=-Math.sin(c.hd),ny=Math.cos(c.hd);
+function furrow(c){const t=window.PXGAME&&PXGAME.tctx;if(!t||c.off)return;const bx=Math.round(c.x*Z),by=Math.round(c.y*Z),nx=-Math.sin(c.hd),ny=Math.cos(c.hd);
  for(let s=-2;s<=2;s++){t.fillStyle=Math.abs(s)===2?'#4a3a28':'#211a12';t.fillRect(Math.round(bx+nx*s),Math.round(by+ny*s),1,1)}}
-function impact(c){c.dead=true;const x=clamp(c.x,20,W-20),y=clamp(c.y,20,H-20),T=c.T;
- try{window.explode(x,y,T.R,T.PW,c.by)}catch(e){fail(e)}
- scorch(x,y,T.cls==='B'?13:T.cls==='f'?8:10);dustBurst(x,y,6);
+function impact(c){c.dead=true;const off=!!c.off,x=off?c.x:clamp(c.x,20,W-20),y=off?c.y:clamp(c.y,20,H-20),T=c.T;
+ if(!off){try{window.explode(x,y,T.R,T.PW,c.by)}catch(e){fail(e)}
+ scorch(x,y,T.cls==='B'?13:T.cls==='f'?8:10)}dustBurst(x,y,6);
  for(let i=0;i<14;i++){const a=Math.random()*TAU,s=rnd(40,150);DB.push({x,y,h:.02,vx:Math.cos(a)*s,vy:Math.sin(a)*s*.7,vh:rnd(.25,.6),t:0,col:Math.random()<.4?'#2a2620':Math.random()<.5?'#5a5547':'#ff9a2e',sz:Math.random()<.4?2:1,ground:1})}
- const hd=c.mode==='spin'?Math.random()*TAU:c.hd;WR.push({type:c.type,team:c.team,x,y,hd,t:0,seed:c.seed,bank:c.mode==='glide'?0:(Math.random()<.5?-10:10),cut:c.cut||(Math.random()<.4?(Math.random()<.5?-1:1):0),big:T.cls==='B',spr:null,ex:0});
- S.stats.wrecks++;if(WR.length>14)stampWreck(WR.shift())}
+ const hd=c.mode==='spin'?Math.random()*TAU:c.hd;WR.push({type:c.type,team:c.team,x,y,hd,t:0,seed:c.seed,bank:c.mode==='glide'?0:(Math.random()<.5?-10:10),cut:c.cut||(Math.random()<.4?(Math.random()<.5?-1:1):0),big:T.cls==='B',spr:null,ex:0,off});
+ S.stats.wrecks++;if(WR.length>14){const w=WR.shift();if(!w.off)stampWreck(w)}}
 function scorch(x,y,r){const t=window.PXGAME&&PXGAME.tctx;if(!t)return;const bx=Math.round(x*Z),by=Math.round(y*Z);
  for(let j=-r;j<=r;j++)for(let i=-r;i<=r;i++){const d=Math.sqrt(i*i+j*j*1.6)/r,n=hash(i+bx,j+by,5);if(d>1||n<d*.9)continue;t.fillStyle=d<.5?(n>.6?'#14110d':'#1d1812'):(n>.5?'#2a2219':'#33291d');t.fillRect(bx+i,by+j,1,1)}}
 function stampWreck(w){const t=window.PXGAME&&PXGAME.tctx;if(!t)return;const s=sprite(w.type,w.hd,w.bank,-6,'k',true);t.drawImage(s.c,Math.round(w.x*Z)-s.ax,Math.round(w.y*Z)-s.ay)}
@@ -505,6 +506,7 @@ function postUpdate(dt,airSnap){
  for(const p of planes){if(p.delay>0||p.downed)continue;let vp=VPS.get(p);if(!vp){vp=newVP(p,'g');VPS.set(p,vp)}else vpTick(vp,dt);seen.add(p)}
  for(const p of AIRp()){if(p.dead||p.wait>0)continue;let vp=VPS.get(p);if(!vp){vp=newVP(p,'a');VPS.set(p,vp)}else vpTick(vp,dt);seen.add(p)}
  for(const p of PXFLp()){if(p.st==='down'||p.dead)continue;let vp=VPS.get(p);if(!vp){vp=newVP(p,'f');VPS.set(p,vp)}else vpTick(vp,dt);seen.add(p)}
+ for(const p of (window.PXAW?.on?PXAW.planes():[])){if(p.dead||p.gone)continue;let vp=VPS.get(p);if(!vp){vp=newVP(p,'d');VPS.set(p,vp)}const [x,y]=rawPos(p,'d'),pose=PXAW.poseOf(p);vp.lastX=vp.x;vp.lastY=vp.y;vp.x=x;vp.y=y;vp.hd=pose.hd;vp.bank=pose.bank;vp.pitch=pose.pitch;vp.alt=Math.max(0,p.h)/PXAW.cfg.ALTV;vp.v=Math.hypot(...p.V);vp.t+=dt;vp.bob=!p.air&&p.st!=='park'&&p.st!=='start'&&(p.gv||0)>26?Math.round(Math.sin(vp.t*11+vp.seed)*.55+Math.sin(vp.t*27+vp.seed*2)*.3):0;vp.prop+=dt*(p.rpm??(p.engOn?.9:0))*(vp.T.eng==='rot'?-131:131);vp.gun=p.gunner?.angle||Math.PI;seen.add(p);if(p.engOn)emitExhaust(vp,dt)}
  for(const p of VPS.keys())if(!seen.has(p))VPS.delete(p);
  /* 3 · simulação das quedas e do que sobra */
  for(const c of CR)crTick(c,dt);CR=CR.filter(c=>!c.dead);
@@ -531,24 +533,36 @@ function groundLayer(c,ox,oy){OX=ox;OY=oy;
  for(const ch of CH)if(ch.land){const x=sx(ch.x),y=sy(ch.y);if(!onS(x,y,10))continue;const a=ch.land>22?1-(ch.land-22)/6:1;c.globalAlpha=clamp(a,0,1);
   const k=Math.min(1,ch.land/1.2);c.fillStyle='#d9d4c2';c.fillRect(x+1,y-1,Math.round(3+k*4),2);c.fillStyle='#b9b29c';c.fillRect(x+2,y+1,Math.round(2+k*4),1);c.fillStyle=ch.team?'#6d6b55':'#5e6b4a';c.fillRect(x-1,y-1,2,2);c.fillStyle='#c9a57a';c.fillRect(x-2,y-1,1,1);c.globalAlpha=1}}
 function drawPuffs(c){for(const p of PU){const k=p.t/p.max,x=sx(p.x),y=sy(p.y)-Math.round(p.z*Z*2);if(!onS(x,y,16))continue;const r=Math.max(1,Math.round(p.r0+(p.r1-p.r0)*Math.sqrt(k))),s=puffSpr(Math.min(12,r),p.c);c.globalAlpha=p.a*(1-k)*(k<.08?k/.08:1);c.drawImage(s.c,x-s.r,y-s.r)}c.globalAlpha=1}
-function drawProp(c,x,y,pr,phase,on){if(!pr.vis&&pr.fz>-.3)return;const cx=x+pr.x,cy=y+pr.y;
- if(on){/* disco translúcido pontilhado + pontas + duas pás "estroboscópicas" */
-  const ext=Math.ceil(Math.max(Math.abs(pr.ux)+Math.abs(pr.vx),Math.abs(pr.uy)+Math.abs(pr.vy))),det=pr.ux*pr.vy-pr.vx*pr.uy;
-  if(Math.abs(det)>.6){const fr=(time*30|0)&1;c.fillStyle='#d8dccc';for(let j=-ext;j<=ext;j++)for(let i=-ext;i<=ext;i++){if(((i+j+fr)&1))continue;const px=i+.5-(cx%1),py=j+.5-(cy%1),a=(px*pr.vy-py*pr.vx)/det,b=(py*pr.ux-px*pr.uy)/det,rr=a*a+b*b;if(rr>1)continue;c.globalAlpha=rr>.72?.42:.16;c.fillRect(Math.floor(cx)+i,Math.floor(cy)+j,1,1)}}
-  else{const n=hyp(pr.ux,pr.uy)||1,fx=Math.round(-pr.uy/n),fy=Math.round(pr.ux/n);c.globalAlpha=.42;PX.pline(c,cx-pr.ux,cy-pr.uy,cx+pr.ux,cy+pr.uy,'#dfe2d4');c.globalAlpha=.22;PX.pline(c,cx-pr.ux+fx,cy-pr.uy+fy,cx+pr.ux+fx,cy+pr.uy+fy,'#dfe2d4');c.globalAlpha=.6;c.fillStyle='#e8d9a0';c.fillRect(Math.floor(cx-pr.ux),Math.floor(cy-pr.uy),1,1);c.fillRect(Math.floor(cx+pr.ux),Math.floor(cy+pr.uy),1,1)}
-  const a=phase,bx=pr.ux*Math.cos(a)+pr.vx*Math.sin(a),by=pr.uy*Math.cos(a)+pr.vy*Math.sin(a);c.globalAlpha=.45;PX.pline(c,cx-bx*.9,cy-by*.9,cx+bx*.9,cy+by*.9,'#3a2c1c');c.globalAlpha=1}
- else{const a=phase,bx=pr.ux*Math.cos(a)+pr.vx*Math.sin(a),by=pr.uy*Math.cos(a)+pr.vy*Math.sin(a);PX.pline(c,cx-bx,cy-by,cx+bx,cy+by,'#7a5530');c.fillStyle='#2a2d30';c.fillRect(Math.floor(cx),Math.floor(cy),1,1)}
- if(pr.rotary&&on&&((time*24|0)%3===0)){c.fillStyle='#e8e2c8';c.fillRect(Math.floor(cx-pr.ux*.25),Math.floor(cy-pr.uy*.25),1,1)}}
+/* hélice por regime de rotação (rpm 0–1; true = 1; o airwar manda o rpm de cada avião). Parada: duas pás de madeira laminada com pontas de latão e cubo
+   de aço. Girando devagar (puxão do mecânico, partida, parada): pá nítida com rastro que acompanha o giro. A partir de ~22 % vira disco borrado, mais
+   denso quanto maior a rotação, com um traço estroboscópico. Vista de cima o disco é uma elipse achatada: o comprimento aparente da pá oscila com a fase. */
+function drawProp(c,x,y,pr,phase,rpm){if(!pr.vis&&pr.fz>-.3)return;const cx=x+pr.x,cy=y+pr.y,vx=pr.vx,vy=pr.vy-hyp(pr.ux,pr.uy)*.62;rpm=rpm===true?1:!rpm?0:rpm;   // visto de cima o disco fica de fio: ganha altura aparente (câmera ligeiramente oblíqua) para o giro aparecer
+ const vec=(a,k)=>[(pr.ux*Math.cos(a)+vx*Math.sin(a))*k,(pr.uy*Math.cos(a)+vy*Math.sin(a))*k];
+ const blade=(a,al,col,k=1)=>{const [bx,by]=vec(a,k);c.globalAlpha=al;PX.pline(c,cx-bx,cy-by,cx+bx,cy+by,col);return[bx,by]};
+ if(rpm<.22){
+  const sp=rpm<.045?0:Math.min(1,(rpm-.045)/.17),tr=Math.round(sp*3);
+  for(let k=tr;k>=1;k--)blade(phase-k*.32*(.5+sp),.22*(1-k/(tr+1)),'#2e2218');
+  const [bx,by]=blade(phase,1,'#6e4a28');blade(phase,.9,'#a47643',.96);                                    // pá: lado escuro e fio iluminado
+  c.globalAlpha=1;c.fillStyle='#d9b548';c.fillRect(Math.round(cx+bx),Math.round(cy+by),1,1);c.fillRect(Math.round(cx-bx),Math.round(cy-by),1,1);   // pontas de latão
+  c.fillStyle='#2a2d30';c.fillRect(Math.round(cx)-1,Math.round(cy)-1,2,2);c.fillStyle='#69707a';c.fillRect(Math.round(cx)-1,Math.round(cy)-1,1,1)}                   // cubo
+ if(rpm>=.12){/* disco borrado */
+  const a=rpm<.22?(rpm-.12)/.1:1,aR=(.25+.36*rpm)*a,aD=(.11+.17*rpm)*a,ext=Math.ceil(Math.max(Math.abs(pr.ux)+Math.abs(vx),Math.abs(pr.uy)+Math.abs(vy))),det=pr.ux*vy-vx*pr.uy;
+  if(Math.abs(det)>.6){const fr=(time*30|0)&1;c.fillStyle='#d8dccc';for(let j=-ext;j<=ext;j++)for(let i=-ext;i<=ext;i++){if(((i+j+fr)&1))continue;const px=i+.5-(cx%1),py=j+.5-(cy%1),u=(px*vy-py*vx)/det,v=(py*pr.ux-px*pr.uy)/det,rr=u*u+v*v;if(rr>1)continue;c.globalAlpha=rr>.72?aR:aD;c.fillRect(Math.floor(cx)+i,Math.floor(cy)+j,1,1)}}
+  else{const n=hyp(pr.ux,pr.uy)||1,fx=Math.round(-pr.uy/n),fy=Math.round(pr.ux/n);c.globalAlpha=aR;PX.pline(c,cx-pr.ux,cy-pr.uy,cx+pr.ux,cy+pr.uy,'#dfe2d4');c.globalAlpha=aR*.5;PX.pline(c,cx-pr.ux+fx,cy-pr.uy+fy,cx+pr.ux+fx,cy+pr.uy+fy,'#dfe2d4');c.globalAlpha=Math.min(.7,aR*1.4);c.fillStyle='#e8d9a0';c.fillRect(Math.floor(cx-pr.ux),Math.floor(cy-pr.uy),1,1);c.fillRect(Math.floor(cx+pr.ux),Math.floor(cy+pr.uy),1,1)}
+  blade(phase,(.18+.27*rpm)*a,'#3a2c1c',.9)}
+ c.globalAlpha=1;
+ if(pr.rotary&&rpm>.2&&((time*24|0)%3===0)){c.fillStyle='#e8e2c8';c.fillRect(Math.floor(cx-pr.ux*.25),Math.floor(cy-pr.uy*.25),1,1)}}
 function drawGunner(c,x,y,sp,gun){for(const r of sp.pts.rings){if(!r.vis)continue;const gx=Math.floor(x+r.x),gy=Math.floor(y+r.y),ca=Math.cos(gun),sa=Math.sin(gun);
  c.fillStyle='#202226';for(let i=1;i<=5;i++)c.fillRect(Math.round(gx+ca*i),Math.round(gy+sa*i),1,1);c.fillStyle='#0c0d0f';c.fillRect(Math.round(gx+ca*5),Math.round(gy+sa*5),1,1);
  c.fillStyle='#4a3a26';c.fillRect(gx-1,gy-1,2,2);c.fillStyle='#6b5233';c.fillRect(gx-1,gy-1,1,1)}}
 function drawFlames(c,x,y,sp,f,seed){if(f<=0)return;const fr=((time*14+seed)|0)%4,sz=f>.7?2:f>.35?1:0;for(const e of sp.pts.eng){const fs=flameSpr(sz,fr);c.drawImage(fs.c,Math.floor(x+e.x)-fs.ax,Math.floor(y+e.y)-fs.ay)}}
-function drawPlane(c,o,type,hd,bank,pitch,fl,bob,gun,engOn,fire){const sp=vpSprite(o,type,hd,bank,pitch,fl);if(!sp)return;const x=sx(o.x),y=sy(o.y)+bob;if(!onS(x,y,sp.N/2+4))return;
+function drawPlane(c,o,type,hd,bank,pitch,fl,bob,gun,engOn,fire){if(!onS(sx(o.x),sy(o.y)+bob,110))return;const sp=vpSprite(o,type,hd,bank,pitch,fl);if(!sp)return;const x=sx(o.x),y=sy(o.y)+bob;if(!onS(x,y,sp.N/2+4))return;
  const pz=[],pf=[];for(const pr of sp.pts.props)(pr.pusher?pz:pf).push(pr);
  for(const pr of pz)drawProp(c,x,y,pr,o.prop,engOn);
  c.drawImage(sp.c,x-sp.ax,y-sp.ay);
  for(const pr of pf)drawProp(c,x,y,pr,o.prop,engOn);
  if(gun!=null&&sp.pts.rings.length)drawGunner(c,x,y,sp,gun);
+ if(o.src==='d'&&o.p&&window.PXAFL&&PXAFL.on)try{PXAFL.overPlane(c,o.p,x,y,sp,o)}catch(e){fail(e)}   /* tripulação sentada, calços, mecânico na hélice: airfield-life.js */
  if(fire)drawFlames(c,x,y,sp,fire,o.seed||0)}
 function drawAir(c,ox,oy){OX=ox;OY=oy;const t0=performance.now();budget=3;
  /* fumaça das colunas e rastros (no ar), chamas no chão */
@@ -566,7 +580,7 @@ function drawAir(c,ox,oy){OX=ox;OY=oy;const t0=performance.now();budget=3;
  /* aviões: os mais baixos primeiro */
  const L=[];for(const vp of VPS.values())L.push([vp.alt,vp,0]);for(const k of CR)L.push([k.h,k,1]);L.sort((a,b)=>a[0]-b[0]);
  for(const [,o,isC] of L){if(isC){const fl=o.cut?(o.cut>0?'cR':'cL'):'';o.prop+=(o.burn?.18:.12);drawPlane(c,o,o.type,o.hd,o.bank,o.pitch,fl,0,o.gun,false,o.fire)}
-  else drawPlane(c,o,o.type,o.hd,o.bank,o.pitch,'',o.bob,o.gun,true,0)}
+  else drawPlane(c,o,o.type,o.hd,o.bank,o.pitch,o.src==='d'&&window.PXAFL&&PXAFL.on?'e':'',o.bob,o.gun,o.src==='d'?o.p.rpm??(o.p.engOn?1:0):true,o.src==='d'&&o.p.fire?.7:0)}
  const ms=performance.now()-t0,net=ms-(3-Math.max(0,budget));S.drawMs=S.drawMs==null?ms:S.drawMs*.95+ms*.05;S.drawNet=S.drawNet==null?net:S.drawNet*.95+net*.05}
 function drawChute(c,x,y,ch){const sw=Math.round(Math.sin(ch.t*1.6+ch.seed)*1.2);
  if(!ch.open){const f=(time*10|0)&1;c.fillStyle=INKC;c.fillRect(x-1,y-1,3,3);c.fillStyle=ch.team?'#7d7458':'#6b7a52';c.fillRect(x-1+f,y-1,2,2);if(ch.t>.5&&!ch.fail){c.fillStyle='#e9e6d8';c.fillRect(x-1,y-3-f,2,2)}return}
@@ -623,7 +637,7 @@ if(window.WW1A){const u0=WW1A.under,o0=WW1A.over;
  WW1A.over=function(c,ox,oy,dt){if(!S.on)return o0.call(this,c,ox,oy,dt);
   /* esconde os sprites antigos do aviation.js e do frontline.js (a lógica deles continua igual) */
   const A=AIRp(),F=PXFLp(),a=A.splice(0),f=F.splice(0);try{return o0.call(this,c,ox,oy,dt)}finally{A.push(...a);F.push(...f);try{indicators(c,ox,oy)}catch(e){fail(e)}}}}
-function shutdown(){restorePlanes();/* quedas em andamento: o dano não se perde */for(const c of CR)try{window.explode(clamp(c.x,20,W-20),clamp(c.y,20,H-20),c.T.R,c.T.PW,c.by)}catch{}CR=[];if(VO)for(const v of VO)try{v.g.gain.value=0}catch{}}
+function shutdown(){restorePlanes();/* quedas em andamento: o dano não se perde */for(const c of CR)if(!c.off)try{window.explode(clamp(c.x,20,W-20),clamp(c.y,20,H-20),c.T.R,c.T.PW,c.by)}catch{}CR=[];if(VO)for(const v of VO)try{v.g.gain.value=0}catch{}}
 
 /* ---------- API ---------- */
 P.crash=function(p,by,cause){if(!S.on||!p)return false;try{if(TAKEN.has(p))return true;
@@ -636,6 +650,7 @@ S.state=()=>({on:S.on,flying:[...VPS.values()].map(v=>({type:v.type,src:v.src,te
  crashes:CR.map(c=>({type:c.type,mode:c.mode,burn:c.burn,h:+c.h.toFixed(2),t:+c.t.toFixed(1),bail:c.bail.length})),wrecks:WR.map(w=>({type:w.type,t:Math.round(w.t),fire:+wFire(w).toFixed(2)})),
  chutes:CH.length,frags:FG.length,puffs:PU.length,sprites:SPR.size,drawMs:+(S.drawMs||0).toFixed(3),drawNetMs:+(S.drawNet||0).toFixed(3),buildMsTotal:Math.round(S.buildMs||0),stats:{...S.stats}});
 P.state=function(){const b=st0?st0.apply(this,arguments):{};try{b.anim=S.state()}catch{}return b};
-S.sprite=sprite;S.models=Object.keys(MODELS);S.TY=TY;S.build=build;S.list=()=>({vps:VPS,crashes:CR,wrecks:WR,chutes:CH});
+P.crashFrom=function(p,pose,by,cause,mode,options={}){if(!S.on)return false;if(TAKEN.has(p))return true;p.crashMode=mode;p.crashOff=!!options.off;   /* fora do mapa (aeródromos): anima igual, só não explode nem queima o terreno */const vp=VPS.get(p)||newVP(p,'d');Object.assign(vp,{hd:pose.hd,bank:pose.bank,pitch:pose.pitch,alt:pose.alt,v:pose.v});startCrash(p,'d',by,cause,vp);return true};
+S.sprite=sprite;S.models=Object.keys(MODELS);S.TY=TY;S.build=build;S.list=()=>({vps:VPS,crashes:CR,wrecks:WR,chutes:CH});S.puff=puff;S.vp=p=>VPS.get(p);   // puff/vp: para o airfield-life.js (poeira, fumaça de partida, posição da cabine)
 if(window.IronFront)window.IronFront.animAir=S;
 })();

@@ -14,7 +14,9 @@ Segundo pacote disponível: pedidos de apoio contra MGs atribuem equipes distint
 
 As ações conjuntas têm participantes persistentes, prazo, limite de duas ações simultâneas e interrupção por perdas, falta de apoio, alteração da operação ou controle humano. Resultados de manobra são avaliados por participantes originais e visibilidade; reforços não apagam baixas e perder contato não produz vitória fictícia. Resultados ruins elevam a força exigida para novos pedidos de apoio. O painel IA mostra as ações; `?coordenacao=0` desliga somente esta camada.
 
-Ainda previstas: pedidos mais amplos de fumaça, pioneiros e blindados entre líderes, inteligência por sons, turnos de passagem estreita, fintas, avisos novos de fogo amigo e memória opcional entre partidas. O roteiro de operações mais complexas permanece para as próximas versões.
+Terceiro pacote disponível: reconhecimento lateral, cobertura, flanco e assalto com condições reais entre etapas; hábitos de aproximação observados; reposicionamento defensivo e emboscada por recuo como isca; relatos e respostas ligados às ordens; reconhecimento aéreo do flanco. Escopo, prazos e verificação em `PLANO-MANOBRAS-IA.md`.
+
+Ainda previstas: pedidos mais amplos de fumaça, pioneiros e blindados entre líderes, inteligência por sons, turnos de passagem estreita, fintas ofensivas, avisos novos de fogo amigo e memória opcional entre partidas.
 
 Verificação: testes de esquadrões e inteligência, regressão das suítes existentes e integração no navegador por `tools/verify-human.cjs`. A matriz de 108 cenários abaixo continua sendo uma validação futura de equilíbrio, não um resultado já obtido.
 

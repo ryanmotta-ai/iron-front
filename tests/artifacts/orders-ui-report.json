@@ -1,0 +1,70 @@
+{
+ "steps": [
+  {
+   "name": "assault",
+   "selected": 10,
+   "group": {
+    "id": 1,
+    "name": "Alpha",
+    "team": 0,
+    "kind": "assault",
+    "state": "approach",
+    "n": 10,
+    "n0": 10,
+    "mission": "Assalto: posto médico",
+    "msg": "",
+    "ent": "Posto médico",
+    "ai": false
+   },
+   "destroyed": true
+  },
+  {
+   "name": "occupy",
+   "group": {
+    "id": 2,
+    "name": "Bravo",
+    "team": 0,
+    "kind": "occupy",
+    "state": "holding",
+    "n": 8,
+    "n0": 8,
+    "mission": "Segurando a trincheira",
+    "msg": "",
+    "ent": null,
+    "ai": false
+   },
+   "seated": 8,
+   "total": 8,
+   "panel": "BRAVO\nSegurando a trincheira\nSEGURANDO · 8/8\nSEGURAR POSIÇÃO\nABANDONAR\nPRÓXIMA TRINCHEIRA\nARTILHARIA\nAPOIO AÉREO"
+  },
+  {
+   "name": "advance",
+   "group": {
+    "id": 3,
+    "name": "Charlie",
+    "team": 0,
+    "kind": "advance",
+    "state": "arrived",
+    "n": 8,
+    "n0": 8,
+    "mission": "Posição alcançada",
+    "msg": "",
+    "ent": null,
+    "ai": false
+   },
+   "cx": 1195
+  },
+  {
+   "name": "repair",
+   "selected": 3,
+   "before": 320,
+   "after": 800
+  },
+  {
+   "name": "legacy",
+   "order": "move",
+   "groups": 0
+  }
+ ],
+ "errors": []
+}

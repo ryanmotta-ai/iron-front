@@ -46,7 +46,7 @@ assert.equal(G.rate(3), 1); assert.ok(G.rate(1) < G.rate(2) && G.rate(2) < 1); a
 assert.equal(G.enemyNormal(0, 1, 1).map(v => Math.round(v) + 0).join(), [1, 0].join(), 'normal de trecho N-S aponta para o leste do lado 0');
 assert.equal(G.enemyNormal(0, 1, -1).map(v => Math.round(v) + 0).join(), [-1, 0].join());
 
-// 2. início: os 6 fuzileiros mais recuados de cada lado viram pioneiros
+// 2. início: os 6 fuzileiros mais recuados de cada lado viram engenheiros de campo
 for (let t = 0; t < 2; t++) for (let i = 0; i < 10; i++) sb.newUnit('rifle', t, t ? 1700 + i * 20 : 700 - i * 20, 400 + i * 3);
 sb.fieldTrenches.push({ id: 'f0', type: 'trench', team: 0, x: 720, y: 400, hw: 16, hh: 16 }, { id: 'f1', type: 'trench', team: 1, x: 1680, y: 400, hw: 16, hh: 16 });
 sb.setup();
@@ -56,7 +56,7 @@ assert.ok(Math.max(...sap0.map(u => u.x)) < Math.min(...sb.units.filter(u => u.t
 assert.ok(Math.min(...sap1.map(u => u.x)) > Math.max(...sb.units.filter(u => u.team === 1 && !u.sap).map(u => u.x)), 'lado 1: os mais recuados (maior x)');
 assert.equal(S.state().front.join(), "720,1680");
 const nu = sb.newUnit('sapper', 0, 500, 500);
-assert.equal(nu.type, 'rifle', 'pioneiro comprado é fuzileiro (tabelas da física por tipo)'); assert.equal(nu.sap, 1);
+assert.equal(nu.type, 'rifle', 'engenheiro de campo comprado é fuzileiro (tabelas da física por tipo)'); assert.equal(nu.sap, 1);
 sb.units.splice(sb.units.indexOf(nu), 1);
 
 // 3. ordem do jogador: trincheira de ligação em 3 estágios
@@ -103,7 +103,7 @@ digger.manualUntil = sb.time + 25; run(.6);
 assert.ok(!p.crew.includes(digger.id)); assert.equal(digger.sapJob, null);
 run(90);
 assert.ok(p.done, 'obra concluída'); assert.ok(sb.toasts.some(t => /Trincheira de ligação concluída/.test(t)));
-assert.ok(sb.units.filter(u => u.team === 0 && u.sap).every(u => !u.sapJob), 'pioneiros liberados');
+assert.ok(sb.units.filter(u => u.team === 0 && u.sap).every(u => !u.sapJob), 'engenheiros de campo liberados');
 
 // 7. IA: sapa em zigue-zague a partir da trincheira da frente
 sb.aiEnabled[1] = true; sb.time = Math.max(sb.time, 45);
@@ -115,7 +115,7 @@ const nSeg = sap.segs.length;
 run(260);
 assert.ok(sap.legs > 2 && sap.segs.length > nSeg, 'a sapa se estende perna a perna');
 
-// 8. reparo de brecha: arame destruído é reinstalado pelos pioneiros
+// 8. reparo de brecha: arame destruído é reinstalado pelos engenheiros de campo
 sb.aiEnabled[1] = false;
 for (const q of S.projects) if (!q.done && q.team === 1) S.cancel(q);
 const wire = sb.newBuilding('wire', 1, 1640, 700);

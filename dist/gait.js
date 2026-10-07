@@ -14,9 +14,9 @@
      - aceleração e parada ... a velocidade desejada é limitada em taxa (190 u/s² para cima, 210 para baixo) e, quando a ordem
                                acaba, o soldado ainda desliza meio segundo em vez de travar; antes do destino ele já alivia o passo (60 % a 20 u);
      - relevo ................ subida (borda de cratera, talude) custa até 15 %, descida devolve até 8 %.
-   Não mexe em: jogador no Modo Soldado, tanques, cavalaria, guarnição de MG, pioneiros cavando/deitados/fugindo de obus, feridos,
+   Não mexe em: jogador no Modo Soldado, tanques, cavalaria, guarnição de MG, engenheiros de campo cavando/deitados/fugindo de obus, feridos,
    fixados pelo fogo, quem se esquiva de granada (atraso aqui mata gente), quem está em trincheira e o assalto à baioneta.
-   Pioneiros e a tropa da trégua (u.sap) a caminho da obra andam como os demais.
+   Engenheiros de Campo e a tropa da trégua (u.sap) a caminho da obra andam como os demais.
    Ligação: 1 linha em physics.js (stepFoot) chama PHYS.gait(u,pv,dt,vdx,vdy,vdm) com a velocidade desejada final e lê PHYS.gv.
    Um wrap de update guarda o rumo do quadro anterior (o game.js já terá virado o corpo para o destino quando o gancho rodar).
    ?marcha=0 desliga · PXGAIT.state() · PXGAIT.cfg (valores ajustáveis) */
@@ -50,7 +50,7 @@ function G(u){let g=u.gt;if(g)return g;const i=(u.id|0)+1,n=(h01(i,1)+h01(i,2)+h
 function eligible(u){if(u.type!=='rifle'||u.hp<=0)return false;
  if(u===player&&mode==='soldier')return false;
  if(u.down||u.rs||u.sh||u.mgc||u.lunge||u.lunge2>time||u.pinned||u.dodgeUntil>time||(u.pv&&u.pv.stun>0))return false;
- /* pioneiro (e todo fuzileiro na trégua): só a caminhada da obra; cavando, deitado, lutando ou fugindo de obus é do sappers.js */
+ /* engenheiro de campo (e todo fuzileiro na trégua): só a caminhada da obra; cavando, deitado, lutando ou fugindo de obus é do sappers.js */
  if(u.sap&&((u.sapState&&u.sapState!=='walk')||u.sapProne>time||u.sapEvade>time))return false;
  const L=u.lf;if(L&&(L.tr||L.climb>time||L.trip>time||L.duck>time))return false;
  return true}

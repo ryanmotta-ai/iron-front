@@ -1,0 +1,1444 @@
+{
+  "maps": [
+    {
+      "map": "trenches",
+      "samples": [
+        {
+          "time": 30,
+          "ended": false,
+          "supplies": [
+            238,
+            218
+          ],
+          "engineers": [
+            6,
+            6
+          ],
+          "works": [
+            [
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": false,
+                "complete": false
+              },
+              {
+                "kind": "trench",
+                "done": false,
+                "complete": false
+              }
+            ],
+            [
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": false,
+                "complete": false
+              },
+              {
+                "kind": "trench",
+                "done": false,
+                "complete": false
+              }
+            ]
+          ],
+          "roles": [
+            {
+              "base-de-fogo": 4,
+              "avanço-alternado": 26,
+              "reserva-movel": 8,
+              "cobrindo-avanco": 6,
+              "guarda-objetivo": 7,
+              "apoio-medico": 5,
+              "pressão-secundária": 14,
+              "reconhecimento": 7,
+              "ruptura": 2,
+              "escolta": 8,
+              "reunindo-esquadrao": 2
+            },
+            {
+              "fogo-cruzado": 10,
+              "posição-defensiva": 51,
+              "guarda-objetivo": 8,
+              "reserva-movel": 6,
+              "apoio-medico": 5
+            }
+          ],
+          "errors": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "invalid": 0
+        },
+        {
+          "time": 60,
+          "ended": false,
+          "supplies": [
+            447.832,
+            259.832
+          ],
+          "engineers": [
+            6,
+            6
+          ],
+          "works": [
+            [
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "sniper",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": false,
+                "complete": false
+              }
+            ],
+            [
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": false,
+                "complete": false
+              },
+              {
+                "kind": "foxhole",
+                "done": false,
+                "complete": false
+              }
+            ]
+          ],
+          "roles": [
+            {
+              "base-de-fogo": 7,
+              "deitado": 2,
+              "reserva-movel": 8,
+              "avanço-alternado": 36,
+              "guarda-objetivo": 7,
+              "apoio-medico": 6,
+              "pressão-secundária": 22,
+              "reunindo-esquadrao": 3,
+              "reconhecimento": 7,
+              "ruptura": 1,
+              "escolta": 8
+            },
+            {
+              "fogo-cruzado": 9,
+              "posição-defensiva": 55,
+              "guarda-objetivo": 8,
+              "evasão": 7,
+              "apoio-medico": 5,
+              "contra-ataque": 5,
+              "reorganização-local": 3
+            }
+          ],
+          "errors": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "invalid": 0
+        },
+        {
+          "time": 90,
+          "ended": false,
+          "supplies": [
+            203.88000000000017,
+            185.8800000000001
+          ],
+          "engineers": [
+            6,
+            6
+          ],
+          "works": [
+            [
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "sniper",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": false,
+                "complete": false
+              },
+              {
+                "kind": "plank",
+                "done": false,
+                "complete": false
+              }
+            ],
+            [
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "foxhole",
+                "done": false,
+                "complete": false
+              },
+              {
+                "kind": "plank",
+                "done": false,
+                "complete": false
+              }
+            ]
+          ],
+          "roles": [
+            {
+              "base-de-fogo": 8,
+              "reserva-movel": 8,
+              "reagrupamento": 33,
+              "guarda-objetivo": 7,
+              "apoio-medico": 8,
+              "pressão-secundária": 23,
+              "reunindo-esquadrao": 8,
+              "deitado": 5,
+              "reconhecimento": 7
+            },
+            {
+              "fogo-cruzado": 9,
+              "posição-defensiva": 69,
+              "guarda-objetivo": 8,
+              "reserva-movel": 7,
+              "apoio-medico": 6,
+              "contra-ataque": 1,
+              "retirada-trincheira": 1
+            }
+          ],
+          "errors": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "invalid": 0
+        },
+        {
+          "time": 120,
+          "ended": false,
+          "supplies": [
+            586.2000000000003,
+            240.20000000000027
+          ],
+          "engineers": [
+            6,
+            6
+          ],
+          "works": [
+            [
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "sniper",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": false,
+                "complete": false
+              },
+              {
+                "kind": "plank",
+                "done": false,
+                "complete": false
+              }
+            ],
+            [
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "aid",
+                "done": false,
+                "complete": false
+              }
+            ]
+          ],
+          "roles": [
+            {
+              "base-de-fogo": 10,
+              "reserva-movel": 15,
+              "avanço-alternado": 37,
+              "cobrindo-avanco": 4,
+              "guarda-objetivo": 6,
+              "socorro": 1,
+              "pressão-secundária": 24,
+              "reconhecimento": 7,
+              "apoio-medico": 7,
+              "deitado": 1,
+              "reunindo-esquadrao": 1
+            },
+            {
+              "fogo-cruzado": 9,
+              "posição-defensiva": 62,
+              "guarda-objetivo": 8,
+              "reserva-movel": 8,
+              "apoio-medico": 6,
+              "isca-em-posicao": 8,
+              "preparar-emboscada": 11
+            }
+          ],
+          "errors": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "invalid": 0
+        }
+      ]
+    },
+    {
+      "map": "forest",
+      "samples": [
+        {
+          "time": 30,
+          "ended": false,
+          "supplies": [
+            250,
+            230
+          ],
+          "engineers": [
+            6,
+            6
+          ],
+          "works": [
+            [
+              {
+                "kind": "op",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "sniper",
+                "done": false,
+                "complete": false
+              },
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              }
+            ],
+            [
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "sniper",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "sniper",
+                "done": false,
+                "complete": false
+              }
+            ]
+          ],
+          "roles": [
+            {
+              "base-de-fogo": 4,
+              "avanço-alternado": 44,
+              "guarda-objetivo": 6,
+              "escolta": 4,
+              "apoio-medico": 4,
+              "reconhecimento": 7,
+              "reserva-movel": 8,
+              "reagrupamento": 1,
+              "ruptura": 2
+            },
+            {
+              "fogo-cruzado": 10,
+              "posição-defensiva": 60,
+              "guarda-objetivo": 3,
+              "apoio-medico": 4,
+              "reserva-movel": 1
+            }
+          ],
+          "errors": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "invalid": 0
+        },
+        {
+          "time": 60,
+          "ended": false,
+          "supplies": [
+            234,
+            244
+          ],
+          "engineers": [
+            6,
+            6
+          ],
+          "works": [
+            [
+              {
+                "kind": "op",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "sniper",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": false,
+                "complete": false
+              },
+              {
+                "kind": "comm",
+                "done": false,
+                "complete": false
+              }
+            ],
+            [
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "sniper",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "sniper",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "wire",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "op",
+                "done": false,
+                "complete": false
+              },
+              {
+                "kind": "comm",
+                "done": false,
+                "complete": false
+              }
+            ]
+          ],
+          "roles": [
+            {
+              "base-de-fogo": 6,
+              "avanço-alternado": 34,
+              "cobrindo-avanco": 16,
+              "guarda-objetivo": 6,
+              "escolta": 4,
+              "apoio-medico": 5,
+              "evasão": 3,
+              "deitado": 5,
+              "socorro": 1,
+              "reconhecimento": 7,
+              "reserva-movel": 8,
+              "apoio-solicitado": 1,
+              "reagrupamento": 1,
+              "ruptura": 2,
+              "pressão-secundária": 8
+            },
+            {
+              "fogo-cruzado": 4,
+              "posição-defensiva": 55,
+              "guarda-objetivo": 3,
+              "apoio-medico": 4,
+              "evasão": 9,
+              "reorganização-local": 3,
+              "reserva-movel": 6,
+              "deitado": 3,
+              "contra-ataque": 2,
+              "socorro": 2
+            }
+          ],
+          "errors": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "invalid": 0
+        },
+        {
+          "time": 90,
+          "ended": false,
+          "supplies": [
+            196.89600000000004,
+            166.89600000000002
+          ],
+          "engineers": [
+            6,
+            2
+          ],
+          "works": [
+            [
+              {
+                "kind": "op",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "sniper",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "comm",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "dugout",
+                "done": false,
+                "complete": false
+              }
+            ],
+            [
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "sniper",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "sniper",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "wire",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "op",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "comm",
+                "done": false,
+                "complete": false
+              }
+            ]
+          ],
+          "roles": [
+            {
+              "base-de-fogo": 7,
+              "guarda-objetivo": 6,
+              "reagrupamento": 40,
+              "apoio-medico": 5,
+              "reconhecimento": 7,
+              "deitado": 2,
+              "reorganização-local": 3,
+              "reserva-movel": 16,
+              "evasão": 1,
+              "fixado": 1,
+              "pressão-secundária": 15
+            },
+            {
+              "fogo-cruzado": 4,
+              "posição-defensiva": 53,
+              "guarda-objetivo": 3,
+              "apoio-medico": 3,
+              "deitado": 4,
+              "evasão": 4,
+              "contra-ataque": 2,
+              "socorro": 5,
+              "reorganização-local": 1
+            }
+          ],
+          "errors": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "invalid": 0
+        },
+        {
+          "time": 120,
+          "ended": false,
+          "supplies": [
+            216.61600000000044,
+            241.61600000000027
+          ],
+          "engineers": [
+            6,
+            4
+          ],
+          "works": [
+            [
+              {
+                "kind": "op",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "sniper",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": false
+              },
+              {
+                "kind": "comm",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "dugout",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "sniper",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "sniper",
+                "done": false,
+                "complete": false
+              }
+            ],
+            [
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "sniper",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "sniper",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "wire",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "op",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "comm",
+                "done": false,
+                "complete": false
+              }
+            ]
+          ],
+          "roles": [
+            {
+              "base-de-fogo": 10,
+              "guarda-objetivo": 6,
+              "avanço-alternado": 33,
+              "apoio-medico": 6,
+              "cobrindo-avanco": 12,
+              "reunindo-esquadrao": 4,
+              "reconhecimento": 7,
+              "socorro": 1,
+              "reserva-movel": 16,
+              "deitado": 1,
+              "reagrupamento": 1,
+              "pressão-secundária": 15
+            },
+            {
+              "fogo-cruzado": 4,
+              "posição-defensiva": 52,
+              "guarda-objetivo": 3,
+              "apoio-medico": 4,
+              "evasão": 5,
+              "deitado": 3,
+              "socorro": 4,
+              "reserva-movel": 2
+            }
+          ],
+          "errors": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "invalid": 0
+        }
+      ]
+    },
+    {
+      "map": "winter",
+      "samples": [
+        {
+          "time": 30,
+          "ended": false,
+          "supplies": [
+            250,
+            262
+          ],
+          "engineers": [
+            6,
+            6
+          ],
+          "works": [
+            [
+              {
+                "kind": "op",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "sniper",
+                "done": false,
+                "complete": true
+              },
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              }
+            ],
+            [
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "op",
+                "done": false,
+                "complete": false
+              }
+            ]
+          ],
+          "roles": [
+            {
+              "base-de-fogo": 4,
+              "guarda-objetivo": 7,
+              "avanço-alternado": 39,
+              "reagrupamento": 1,
+              "apoio-medico": 5,
+              "reserva-movel": 8,
+              "reconhecimento": 7,
+              "ruptura": 2,
+              "pressão-secundária": 7
+            },
+            {
+              "fogo-cruzado": 10,
+              "posição-defensiva": 55,
+              "apoio-medico": 3,
+              "reserva-movel": 8,
+              "guarda-objetivo": 2
+            }
+          ],
+          "errors": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "invalid": 0
+        },
+        {
+          "time": 60,
+          "ended": false,
+          "supplies": [
+            234,
+            164
+          ],
+          "engineers": [
+            6,
+            6
+          ],
+          "works": [
+            [
+              {
+                "kind": "op",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "sniper",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": false,
+                "complete": false
+              },
+              {
+                "kind": "comm",
+                "done": false,
+                "complete": false
+              }
+            ],
+            [
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "op",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "wire",
+                "done": false,
+                "complete": false
+              },
+              {
+                "kind": "sniper",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "dugout",
+                "done": false,
+                "complete": false
+              }
+            ]
+          ],
+          "roles": [
+            {
+              "base-de-fogo": 6,
+              "guarda-objetivo": 5,
+              "avanço-alternado": 41,
+              "cobrindo-avanco": 7,
+              "reagrupamento": 1,
+              "apoio-medico": 6,
+              "deitado": 3,
+              "reunindo-esquadrao": 2,
+              "reserva-movel": 8,
+              "apoio-solicitado": 1,
+              "reconhecimento": 7,
+              "evasão": 1,
+              "ruptura": 1,
+              "flanco-apoiado": 4,
+              "pressão-secundária": 14
+            },
+            {
+              "deitado": 1,
+              "posição-defensiva": 64,
+              "apoio-medico": 5,
+              "evasão": 6,
+              "reserva-movel": 6,
+              "fogo-cruzado": 9,
+              "guarda-objetivo": 2
+            }
+          ],
+          "errors": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "invalid": 0
+        },
+        {
+          "time": 90,
+          "ended": false,
+          "supplies": [
+            241.78285714285713,
+            189.78285714285713
+          ],
+          "engineers": [
+            6,
+            1
+          ],
+          "works": [
+            [
+              {
+                "kind": "op",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "sniper",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "comm",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "kitchen",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "wire",
+                "done": false,
+                "complete": false
+              }
+            ],
+            [
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "op",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "wire",
+                "done": false,
+                "complete": false
+              },
+              {
+                "kind": "sniper",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "dugout",
+                "done": false,
+                "complete": false
+              }
+            ]
+          ],
+          "roles": [
+            {
+              "base-de-fogo": 10,
+              "guarda-objetivo": 7,
+              "reorganização-local": 6,
+              "reagrupamento": 1,
+              "apoio-medico": 7,
+              "retirada-coberta": 24,
+              "reserva-movel": 8,
+              "reconhecimento": 7,
+              "deitado": 3,
+              "avanço-alternado": 1,
+              "cobrindo-retirada": 14,
+              "recuo": 1,
+              "pressão-secundária": 14
+            },
+            {
+              "posição-defensiva": 64,
+              "apoio-medico": 4,
+              "socorro": 3,
+              "evasão": 4,
+              "deitado": 2,
+              "retirada-trincheira": 1,
+              "fogo-cruzado": 9,
+              "guarda-objetivo": 2,
+              "reserva-movel": 2
+            }
+          ],
+          "errors": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "invalid": 0
+        },
+        {
+          "time": 120,
+          "ended": false,
+          "supplies": [
+            218.90099999999978,
+            190.2779999999998
+          ],
+          "engineers": [
+            6,
+            7
+          ],
+          "works": [
+            [
+              {
+                "kind": "op",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "sniper",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "trench",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "comm",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "kitchen",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "wire",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "dugout",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "comm",
+                "done": false,
+                "complete": false
+              },
+              {
+                "kind": "op",
+                "done": false,
+                "complete": false
+              }
+            ],
+            [
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "foxhole",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "op",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "wire",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "sniper",
+                "done": true,
+                "complete": true
+              },
+              {
+                "kind": "dugout",
+                "done": false,
+                "complete": false
+              },
+              {
+                "kind": "sniper",
+                "done": false,
+                "complete": false
+              }
+            ]
+          ],
+          "roles": [
+            {
+              "base-de-fogo": 13,
+              "guarda-objetivo": 5,
+              "avanço-alternado": 40,
+              "reagrupamento": 1,
+              "apoio-medico": 8,
+              "deitado": 3,
+              "reunindo-esquadrao": 2,
+              "reserva-movel": 8,
+              "reconhecimento": 7,
+              "cobrindo-avanco": 5,
+              "pressão-secundária": 20
+            },
+            {
+              "posição-defensiva": 62,
+              "apoio-medico": 5,
+              "evasão": 1,
+              "fogo-cruzado": 10,
+              "reserva-movel": 9,
+              "deitado": 1,
+              "guarda-objetivo": 8,
+              "socorro": 1
+            }
+          ],
+          "errors": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "invalid": 0
+        }
+      ]
+    }
+  ],
+  "probes": [
+    {
+      "need": "kitchen",
+      "cash": 1147.9760000000006,
+      "projects": [
+        {
+          "kind": "kitchen",
+          "complete": true,
+          "crew": 3
+        }
+      ],
+      "native": 1,
+      "decisions": [
+        {
+          "time": 120.1,
+          "stress": 24,
+          "phase": "recon",
+          "chosen": "kitchen",
+          "service": false,
+          "cash": 1500
+        }
+      ],
+      "errors": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effect": {
+        "cohesion": 0.44,
+        "suppression": 0.76
+      }
+    },
+    {
+      "need": "depot",
+      "cash": 1134,
+      "projects": [
+        {
+          "kind": "depot",
+          "complete": true,
+          "crew": 3
+        }
+      ],
+      "native": 1,
+      "decisions": [
+        {
+          "time": 120.1,
+          "stress": 0,
+          "phase": "recon",
+          "chosen": "depot",
+          "service": false,
+          "cash": 1500
+        }
+      ],
+      "errors": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "effect": {
+        "gren": 1,
+        "ammo": 5
+      }
+    },
+    {
+      "need": "op",
+      "cash": 908,
+      "projects": [
+        {
+          "kind": "op",
+          "complete": true,
+          "crew": 3
+        }
+      ],
+      "native": 1,
+      "decisions": [
+        {
+          "time": 120.1,
+          "stress": 0,
+          "phase": "recon",
+          "chosen": "op",
+          "service": false,
+          "cash": 1360
+        }
+      ],
+      "errors": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "errors": [],
+  "preparation": {
+    "before": 22,
+    "preserved": true,
+    "sameCash": true,
+    "deferred": 22,
+    "newWorks": [
+      "op",
+      "op",
+      "sniper",
+      "pillbox",
+      "foxhole",
+      "bunker",
+      "trench",
+      "kitchen"
+    ],
+    "errors": [
+      0,
+      0
+    ]
+  },
+  "obsolete": {
+    "before": 860,
+    "after": 930,
+    "cost": 70,
+    "afterAgain": 930,
+    "untouchedCancelled": true,
+    "partialPreserved": true
+  }
+}

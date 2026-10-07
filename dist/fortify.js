@@ -1,7 +1,7 @@
 'use strict';
 /* Iron Front 1.5 — fortificação de campo: fase de preparação, catálogo de construções e IA construtora.
    Carrega DEPOIS de sappers.js e assault.js (e antes do ui-art.js). Usa o sistema de obras do sappers.js (projetos em estágios,
-   pioneiros, âncoras de trincheira) e acrescenta tipos novos; peças de artilharia viram baterias tripuladas do battery.js
+   engenheiros de campo, âncoras de trincheira) e acrescenta tipos novos; peças de artilharia viram baterias tripuladas do battery.js
    (PXBAT.addGun). Não altera game.js: envolve setup / update / shoot / aiGrenade / grenade / runCommander / place /
    protectedBy / explode / makeCards / icon e desenha em WW1A.under/over.
    Preparação ... "A Última Trincheira" sem fortificações (PX.WW1.CLEAN.forts=false): 300 s de trégua com barreira no centro,
@@ -26,7 +26,7 @@ const CFG={
  PREP:qs.has('preparo')?Math.max(0,+qs.get('preparo')||0):300,
  BUDGET:4500,
  WORKX:2.6,                                  // ritmo de obra na trégua: toda a tropa cavando, sem fogo inimigo
- WORKX_WAR:1.6,                              // ritmo dos pioneiros depois da trégua
+ WORKX_WAR:1.6,                              // ritmo dos engenheiros de campo depois da trégua
  BARRIER:[1130,1270],
  FX:720,                                     // linha de frente planejada (lado 0; o lado 1 é espelhado)
  PREP_CREW:6,
@@ -173,14 +173,31 @@ function adaptiveBuild(t){
  for(const p of projects)for(const s of p.segs){if(s.stage<K[p.kind].target||s.b&&s.b.hp<=0)continue;
   if(p.kind==='aa'&&!AAS.some(a=>a.s===s&&a.hp>0))continue;
   if(p.kind==='depot'&&!window.PXWORKS?.depots().some(a=>a.s===s&&a.hp>0))continue;
+  if(p.kind==='op'&&!window.PXWORKS?.ops().some(a=>a.s===s&&a.hp>0))continue;
+  if(p.kind==='kitchen'&&!window.PXLOGI?.kitchens().some(a=>a.s===s&&a.hp>0))continue;
+  if(p.kind==='sniper'&&!window.PXLOGI?.snipers().some(a=>a.s===s&&a.hp>0))continue;
   if(p.kind==='aid'&&!window.PXMED?.posts.some(a=>a.seg===s&&a.hp>0))continue;
   if((p.kind==='gunf'||p.kind==='gunh')&&!GUNS.some(g=>g.s===s&&g.hp>0))continue;
   assets.push({kind:p.kind,x:s.x,y:s.y})}
  for(const a of fieldTrenches)if(a.team===t&&a.hp>0)assets.push({kind:'trench',x:a.x,y:a.y});
- for(const p of projects)if(!p.done&&p.src==='fort'&&!p.crew.length&&p.segs.every(s=>s.stage===0)&&
-  (time-p.t0>120||time-p.t0>30&&!p.keepHuman&&!own.some(u=>!u.sap&&p.segs.some(s=>hyp(u.x-s.x,u.y-s.y)<350))))SAP.cancel(p);
- const it=E.choose({team:t,height:H,width:W,time,own,wounded:units.filter(u=>u.team===t&&u.hp>0),workers:own.filter(u=>u.sap&&!u.rs&&u.cls!=='medic'&&u.hp>u.maxhp*.35).length,projects,assets,catalog:K,cash:sandbox?Infinity:supplies[t],maxSegments:SAP.cfg.MAXSEGS,usable:s=>s.kind==='aid'?!!window.PXMED?.posts.some(a=>a.seg===s&&a.hp>0):s.kind==='depot'?!!window.PXWORKS?.depots().some(a=>a.s===s&&a.hp>0):s.kind==='aa'?AAS.some(a=>a.s===s&&a.hp>0):(s.kind==='gunf'||s.kind==='gunh')?GUNS.some(g=>g.s===s&&g.hp>0):true,income:incomeFor(t),airThreat:time-airSeen[t]<60,artillery:!!window.PXBAT?.active?.(),plan:window.IronFrontBrain?.lastPlans[t],enemies:window.IronFrontBrain?.operations?.contacts(t)||[],obstacles:[...decor,...buildings.filter(b=>b.hp>0)],shells,dry,cost:costOf});
- if(!it||!pay(t,it.cost))return;
+ for(const p of projects)if(!p.done&&p.src==='fort'&&!p.crew.length&&p.segs.every(s=>s.stage===0&&s.work<=0)&&
+  (time-p.t0>120||time-p.t0>30&&!p.keepHuman&&!own.some(u=>!u.sap&&p.segs.some(s=>hyp(u.x-s.x,u.y-s.y)<350)))){
+  SAP.cancel(p);if(!sandbox)supplies[t]+=p.item?costOf(p.item):p.segs.length*K[p.kind].cost;
+ }
+ const catalog={...K};
+ if(window.PXWORKS?.on===false)for(const kind of ['depot','op','foxhole','chevaux'])delete catalog[kind];
+ if(window.PXLOGI?.on===false)for(const kind of ['kitchen','sniper'])delete catalog[kind];
+ const nativeUsable=s=>s.kind==='aid'?!!window.PXMED?.posts.some(a=>a.seg===s&&a.hp>0):s.kind==='depot'?!!window.PXWORKS?.depots().some(a=>a.s===s&&a.hp>0):s.kind==='op'?!!window.PXWORKS?.ops().some(a=>a.s===s&&a.hp>0):s.kind==='kitchen'?!!window.PXLOGI?.kitchens().some(a=>a.s===s&&a.hp>0):s.kind==='sniper'?!!window.PXLOGI?.snipers().some(a=>a.s===s&&a.hp>0):s.kind==='aa'?AAS.some(a=>a.s===s&&a.hp>0):(s.kind==='gunf'||s.kind==='gunh')?GUNS.some(g=>g.s===s&&g.hp>0):!s.wreck;
+ const it=E.choose({team:t,height:H,width:W,time,own,wounded:units.filter(u=>u.team===t&&u.hp>0),workers:own.filter(u=>u.sap&&!u.rs&&u.cls!=='medic'&&u.hp>u.maxhp*.35).length,projects,assets,catalog,cash:sandbox?Infinity:supplies[t],maxSegments:SAP.cfg.MAXSEGS,anchorCount:SAP.segs.filter(s=>s.team===t&&(s.anchor||!s.p.done&&K[s.kind]?.line&&!K[s.kind].noAnchor)).length,serviceDemand:!!(window.PXLOGI?.needsService?.(t)||window.PXMANAGE?.needsService?.(t)||window.PXDEF?.needsService?.(t)),usable:nativeUsable,income:incomeFor(t),airThreat:time-airSeen[t]<60,artillery:!!window.PXBAT?.active?.(),plan:window.IronFrontBrain?.lastPlans[t],enemies:window.IronFrontBrain?.operations?.contacts(t)||[],obstacles:[...decor,...buildings.filter(b=>b.hp>0)],shells,dry,cost:costOf});
+ if(!it){
+  const workers=own.filter(u=>u.sap&&!u.rs&&u.cls!=='medic'&&u.hp>u.maxhp*.35).length,capacity=Math.min(4,Math.max(1,Math.floor(workers/3)));
+  const service=window.PXLOGI?.needsService?.(t)||window.PXMANAGE?.needsService?.(t)||window.PXDEF?.needsService?.(t),limit=service&&capacity>1?capacity-1:capacity;
+  if(!workers||service&&capacity===1&&time%30>=20||projects.filter(p=>!p.done&&!p.aiDeferred).length>=limit)return;
+  const deferred=projects.filter(p=>!p.done&&p.aiDeferred&&p.segs.some(s=>own.some(u=>!u.sap&&hyp(u.x-s.x,u.y-s.y)<350))&&canPrepare({pts:p.segs.slice(p.cur).map(s=>[s.x,s.y])},t));
+  deferred.sort((a,b)=>b.segs.reduce((n,s)=>n+s.stage,0)/b.segs.length-a.segs.reduce((n,s)=>n+s.stage,0)/a.segs.length||a.t0-b.t0);
+  if(deferred[0])SAP.resume(deferred[0]);return;
+ }
+ if(!pay(t,it.cost))return;
  const p=SAP.project(t,it.kind,'fort',it.pts,{keep:true,line:it.line});
  if(!p){if(!sandbox)supplies[t]+=it.cost;return}p.item=it;it.p=p;DONE[t].push(it);E.committed(t,it,p,time);
 }
@@ -252,6 +269,8 @@ function deploy(){PH.deploy=true;releaseTemp();
 function endPrep(){if(!PH.on)return;PH.on=false;SAP.hold=false;if(window.PXAS)PXAS.hold=false;
  SAP.cfg.CREW=3;SAP.cfg.WORKX=CFG.WORKX_WAR;SAP.cfg.MAXPROJ.player=8;K.trench.anchorLine=undefined;
  releaseTemp();
+ // Preserve paid work, but release preparation crews so wartime needs get a fresh decision.
+ if(window.IronFrontEngineering)for(const p of SAP.projects)if(!p.done&&p.src==='fort')SAP.defer(p);
  try{SAP.refreshFront()}catch{}try{window.PXAS&&PXAS.refresh&&PXAS.refresh()}catch{}
  for(let t=0;t<2;t++)aiDecisionTimer[t]=0;
  whistleAll();toast('A trégua acabou! A barreira caiu — às armas!')}
@@ -314,17 +333,17 @@ function drawOver(c,ox,oy){if(!active())return;
   if(a.fl>0)rect(c,Math.round(x+ca*7)-1,Math.round(y-2+sa*5)-1,3,3,'#ffeab0')}}
 
 /* ======================================================================================
-   ENTRADA DO JOGADOR: cartas de DEFESAS = catálogo de obras (os pioneiros constroem)
+   ENTRADA DO JOGADOR: cartas de DEFESAS = catálogo de obras (os engenheiros de campo constroem)
    ====================================================================================== */
 function setMode(kind){placement=null;SAP.ui.mode=SAP.ui.mode===kind?null:kind;SAP.ui.drag=null;makeCards();
  const h=document.getElementById('placehint');if(h)h.textContent=SAP.ui.mode?`${K[kind].label} · ◈ ${sandbox?'∞':K[kind].cost}${K[kind].line?'/trecho':''} · ESC cancela`:'Escolha uma unidade e posicione no campo';
- if(SAP.ui.mode)toast(`${SHORT[kind]}: ${K[kind].line?'arraste uma linha no campo':'clique no campo'}. Os pioneiros constroem.`)}
+ if(SAP.ui.mode)toast(`${SHORT[kind]}: ${K[kind].line?'arraste uma linha no campo':'clique no campo'}. Os engenheiros de campo constroem.`)}
 const ICON=new Map();
 function iconFor(kind){if(ICON.has(kind))return ICON.get(kind);const fake={stage:K[kind].target,work:999,need:K[kind].need,len:30,ax:0,ay:1,team:playerTeam,kind,p:{}};let c=null;
  try{if(kind==='trench'||kind==='comm'||kind==='wire'||kind==='sandbag'||kind==='nest'||kind==='mortar')c=null;else c=K[kind].sprite(fake)}catch{}ICON.set(kind,c);return c}
 wrap('makeCards',orig=>{orig();try{const box=document.getElementById('cards');if(box){const two=S.on&&tab==='build';box.style.flexWrap=two?'wrap':'';box.style.maxWidth=two?'37rem':'';box.style.rowGap=two?'.25rem':''}
  if(!S.on||tab!=='build')return;box.replaceChildren();
- KINDS.filter(k=>K[k]).forEach((kind,i)=>{const k=K[kind],b=document.createElement('button');b.className='card'+(SAP.ui.mode===kind?' active':'');
+ KINDS.filter(k=>K[k]).forEach((kind,i)=>{const k=K[kind],b=document.createElement('button');b.className='card'+(SAP.ui.mode===kind?' active':'');b.dataset.kind=kind;b.dataset.cost=k.cost;
   b.innerHTML=`<canvas width="48" height="48"></canvas><b>${SHORT[kind]}</b><small>${SUB[kind]}</small><span class="cost">◈ ${sandbox?'∞':k.cost}</span>${i<10?`<kbd>${(i+1)%10}</kbd>`:''}`;
   b.style.minWidth='5.9rem';b.style.height='2.9rem';b.onclick=()=>setMode(kind);box.append(b);const cv=b.querySelector('canvas'),g=cv.getContext('2d');icon(kind,g)})}catch(e){fail(e)}});
 wrap('icon',(orig,type,c)=>{if(!KINDS.includes(type))return orig(type,c);

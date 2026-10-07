@@ -15,7 +15,7 @@ const wrap=(name,fn)=>{const orig=window[name];if(typeof orig!=='function'){cons
 const rect=(c,x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(x,y,w,h)};
 
 /* ---------- grade de pixels: canvas interno ampliado por fator inteiro; zoom = trocar o fator ---------- */
-function clampCam(){const hw=vw/2/Z,hh=vh/2/Z;cam.x=W<=hw*2?W/2:clamp(cam.x,hw,W-hw);cam.y=H<=hh*2?H/2:clamp(cam.y,hh,H-hh)}
+function clampCam(){if(window.PXAW?.on&&mode==='commander'){const b=PXAW.theatre();cam.x=clamp(cam.x,b.x0,b.x1);cam.y=clamp(cam.y,b.y0,b.y1);return}const hw=vw/2/Z,hh=vh/2/Z;cam.x=W<=hw*2?W/2:clamp(cam.x,hw,W-hw);cam.y=H<=hh*2?H/2:clamp(cam.y,hh,H-hh)}
 function pxResize(){const f=$$('field'),cw=f.clientWidth||960,ch=f.clientHeight||540;dpr=window.devicePixelRatio||1;pxs=Math.max(1,Math.round(lvl*dpr));vw=Math.ceil(cw*dpr/pxs);vh=Math.ceil(ch*dpr/pxs);canvas.width=vw;canvas.height=vh;canvas.style.width=vw*pxs/dpr+'px';canvas.style.height=vh*pxs/dpr+'px';cam.z=Z*pxs/dpr/1.5;clampCam()}
 function camOff(){ox=Math.round(vw/2-cam.x*Z);oy=Math.round(vh/2-cam.y*Z)}
 function pxWorldMouse(){camOff();mouse.wx=(mouse.x-ox)/Z;mouse.wy=(mouse.y-oy)/Z}

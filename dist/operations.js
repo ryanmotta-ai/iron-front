@@ -11,6 +11,10 @@ const Intelligence=root.IronFrontIntelligence||(typeof require==='function'?requ
 const Coordination=root.IronFrontCoordination||(typeof require==='function'?require('./coordination.js'):null);
 const Stories=root.IronFrontStories||(typeof require==='function'?require('./battle-stories.js'):null);
 const Opportunities=root.IronFrontOpportunities||(typeof require==='function'?require('./battle-opportunities.js'):null);
+const ArmyNeeds=root.IronFrontArmyNeeds||(typeof require==='function'?require('./army-needs.js'):null);
+const Patterns=root.IronFrontOpponentPatterns||(typeof require==='function'?require('./opponent-patterns.js'):null);
+const BattlePlans=root.IronFrontBattlePlans||(typeof require==='function'?require('./battle-plans.js'):null);
+const Refinement=root.IronFrontRefinement||(typeof require==='function'?require('./battle-refinement.js'):null);
 const legacy=Brain.plan, memories=[null,null], dir=[1,-1], home=[350,2050];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const alive=u=>u.hp>0&&!u.down;
@@ -28,7 +32,7 @@ const attackPace={recon:5,prepare:6,musterTimeout:45,prepareTimeout:28,recover:1
 function reset(team){if(team===undefined)memories.fill(null);else memories[team]=null}
 function memory(team,time){
  let m=memories[team];
- if(!m||time<m.time)m=memories[team]={time,seen:new Map(),pending:new Map(),owned:new Set(),squads:[],next:1,fail:[0,0,0,0,0],operation:null,events:[],serial:0,learning:Learning.create(),coordination:Coordination.create(),stories:Stories.create()};
+ if(!m||time<m.time)m=memories[team]={time,seen:new Map(),pending:new Map(),owned:new Set(),squads:[],next:1,fail:[0,0,0,0,0],operation:null,events:[],serial:0,learning:Learning.create(),coordination:Coordination.create(),stories:Stories.create(),patterns:Patterns.create(),battlePlans:BattlePlans.create()};
  const dt=Math.max(0,time-m.time);m.time=time;
  for(let i=0;i<5;i++)m.fail[i]=Math.max(0,m.fail[i]-dt/240);
  return m;
@@ -132,11 +136,13 @@ function operation(state,m,ss,groups,own){
  op.smokeReady=!!state.smokeCover;
  op.peak=Math.max(op.peak,own.length);
  const forward=op.phase==='advance'||op.phase==='consolidate'?own.filter(u=>op.fighting?.includes(u.id)):local.flatMap(g=>g.members);
- const d=forward.length?forward.reduce((v,u)=>v+Math.hypot(u.x-s.x,u.y-s.y),0)/forward.length:Infinity;
+ const progressTarget=Refinement.objective(state,op)||s;
+ const d=forward.length?forward.reduce((v,u)=>v+distance(u,progressTarget),0)/forward.length:Infinity;
  if(d<op.best-35){op.best=d;op.lastProgress=state.time}
  const captured=op.objective&&state.points.find(p=>p.name===op.objective)?.owner===state.team;
  if(captured&&['advance','consolidate'].includes(op.phase))Learning.finish(m.learning,op,state,true);
- const close=own.filter(u=>Math.abs(u.y-s.y)<240&&Math.abs(u.x-s.x)<170).length;
+ const actualObjective=Refinement.objective(state,op)||s;
+ const close=own.filter(u=>!u.sap&&u.cls!=='medic'&&distance(u,actualObjective)<115).length;
  if(op.phase==='advance'&&(captured||close>=Math.max(3,s.threat*1.4)&&d<150))transition(m,op,'consolidate',state);
  else if(op.phase==='advance'&&(cohortRetention(op,state)<.65||pressure>1.3||state.time-op.lastProgress>55)){
   op.failureReason=cohortRetention(op,state)<.65?'perdas':pressure>1.3?'supressao':'pouco-progresso';
@@ -213,15 +219,22 @@ function orders(state,m,op,ss,groups,enemies,legacyOrders){
  if(homeFlag&&infantry.length>=3&&![...reserve].some(id=>!guards.has(id))){const extra=infantry.filter(g=>!guards.has(g.id)).sort((a,b)=>distance(a,homeFlag)-distance(b,homeFlag))[0];if(extra){reserve.add(extra.id);extra.source.reserve=true}}
  const enabled=state.humanAI!==false&&state.jointAI!==false;
  if(!enabled&&m.coordination.missions.length)Coordination.cancel(m.coordination,state);
- const joint=enabled?Coordination.update(m.coordination,state,groups,enemies,op,defender):new Map();
+ if(!enabled&&m.battlePlans.active)BattlePlans.cancel(m.battlePlans,state);
+ const blocked=new Set([...guards,...m.coordination.missions.flatMap(m=>m.participants),...groups.filter(g=>g.members.some(u=>emergencies.has(byId.get(u.id)?.role))).map(g=>g.id)]);
+ const staged=enabled?BattlePlans.update(m.battlePlans,state,groups,enemies,op,defender,Patterns.snapshot(m.patterns),blocked):new Map();
+ const joint=enabled?Coordination.update(m.coordination,state,groups.filter(g=>!staged.has(g.id)),enemies,op,defender):new Map();
  const exploitation=enabled?Opportunities.reserve(groups,state,enemies,op,ss,defender):null;
  const secondary=ss.filter(s=>s.id!==op.sector.id&&s.target).sort((a,b)=>b.score-a.score)[0]||op.sector;
  const anticipated=ss.filter(s=>m.learning.sectors[s.id].exposure>=20).sort((a,b)=>m.learning.sectors[b.id].pressure-m.learning.sectors[a.id].pressure)[0];
+ const habit=enabled?Patterns.preferred(m.patterns):null,expected=habit?ss[habit.sector]:null;
+ let supplyGroups=0,recoveryGroups=0;const serviceLimit=Math.max(1,Math.floor(infantry.length/5));
  for(const g of groups){
   let s=op.sector,task='assalto';
   const breach=ss.filter(s=>s.invasion>0).sort((a,b)=>b.invasion-a.invasion)[0];
   if(defender){s=ss[clamp(Math.floor(g.y/((state.height||1600)/5)),0,4)];task=g.kind==='fire'?'fogo-cruzado':'posição-defensiva';
    if(reserve.has(g.id)){task='reserva-movel';s=breach||(anticipated&&m.learning.sectors[anticipated.id].pressure>2?anticipated:s)}
+   if(expected&&!breach&&reserve.has(g.id))s=expected;
+   if(expected&&g.kind==='fire'&&!staged.has(g.id)&&Math.abs(g.y-expected.y)<550&&g.id%2===0)s=expected;
    if(g.kind==='fire'&&anticipated&&g.id%3===0&&Math.abs(g.y-anticipated.y)<650&&m.learning.sectors[anticipated.id].pressure>4)s=anticipated;
    if(op.phase==='counter'&&Math.abs(g.y-op.sector.y)<420&&(reserve.has(g.id)||g.kind==='armor'||op.recapture&&g.kind==='infantry'&&g.id%3===0)){s=op.sector;task=op.recapture?'recuperar-objetivo':'contra-ataque'}
    else if(s.invasion>s.force*1.25&&s.invasion>=4)task='retirada-coberta';
@@ -241,7 +254,7 @@ function orders(state,m,op,ss,groups,enemies,legacyOrders){
   const armor=groups.filter(a=>a.kind==='armor'&&(a.members[0].atr?.bog||0)<=state.time&&Math.abs(a.y-s.y)<300).sort((a,b)=>distance(g,a)-distance(g,b))[0];
   if(task==='avanço-alternado'&&armor&&g.id%3===0&&distance(g,armor)<300)task='escolta';
   g.source.task=task;g.source.sector=s.id;
-  let goal={x:s.x,y:s.y};
+  let goal=!defender&&['advance','consolidate'].includes(op.phase)?Refinement.attackGoal(state,op,g):{x:s.x,y:s.y};
   if(task==='explorar-brecha')goal={x:s.x-d*35,y:s.y};
   if(task==='guarda-objetivo'){const point=guards.has(g.id)?homeFlag:s.friendly;goal={x:point.x+d*(guards.has(g.id)?35:-35),y:point.y+(g.id%3-1)*24}};
   if(task==='recuperar-objetivo'){const point=state.points.find(p=>p.name===op.objective);if(point)goal={x:point.x,y:point.y+(g.id%3-1)*24}}
@@ -251,6 +264,10 @@ function orders(state,m,op,ss,groups,enemies,legacyOrders){
   else if(task==='base-de-fogo'||task==='pressão-secundária'){
    const forward=op.phase==='advance'?Math.max(0,...infantry.filter(a=>!reserve.has(a.id)&&Math.abs(a.y-s.y)<300).map(a=>d*(a.x-s.front)-85)):0;
    goal={x:s.front+d*Math.min(Math.max(110,forward),Math.max(0,d*(s.x-s.front)-200)),y:s.y+(g.id%2?90:-90)};
+   if(task==='base-de-fogo'&&op.phase==='advance'){
+    const leading=infantry.filter(a=>!reserve.has(a.id)&&!guards.has(a.id)&&a.source.sector===s.id&&d*(a.x-s.front)>400).sort((a,b)=>d*(b.x-a.x))[0];
+    if(leading)goal={x:leading.x-d*110,y:clamp(leading.y+(g.id%2?60:-60),35,(state.height||1600)-35)};
+   }
   }
   else if(task==='reconhecimento')goal={x:s.front+d*150,y:s.y};
   else if(task==='abrindo-passagem')goal={x:s.front+d*150,y:s.y};
@@ -258,7 +275,7 @@ function orders(state,m,op,ss,groups,enemies,legacyOrders){
   else if(task==='escolta')goal={x:armor.x-d*55,y:armor.y+(g.id%2?45:-45)};
   else if(task==='consolidação'){const captured=state.points.find(p=>p.name===op.objective);goal=captured?{x:captured.x-d*25,y:captured.y}:goal}
   if(task==='avanço-alternado'||task==='ruptura')goal.y=clamp(goal.y+(g.id%3-1)*85,35,(state.height||1600)-35);
-  if(task==='avanço-alternado'&&op.style.name==='flank'){
+  if(task==='avanço-alternado'&&op.style.name==='flank'&&Math.abs(goal.y-s.y)<100){
    const side=g.id%2?1:-1,flankY=clamp(s.y+side*210,40,(state.height||1600)-40);
    if(Math.abs(g.y-flankY)>65&&Math.abs(g.x-s.x)>130){goal.x=s.x-d*175;goal.y=flankY;task='flanqueamento-coordenado'}
   }
@@ -273,10 +290,13 @@ function orders(state,m,op,ss,groups,enemies,legacyOrders){
    const support=groups.some(a=>a.kind==='fire'&&distance(a,g)<420&&a.pressure<.9);
    const tactical=Squads.maneuver(g.source,g,state,task,goal,enemies,support,s.front);task=tactical.task;goal=tactical.goal;reason=tactical.reason||task;
    const supplies=(state.supplyPosts||[]).filter(p=>p.team===state.team&&p.stock>0&&distance(p,g)<260&&!enemies.some(e=>state.time-e.at<12&&distance(e,p)<200));
-   if(!tactical.recover&&!['retirada-coberta','reforço-defensivo','guarnição','guarda-objetivo','reorganização-local'].includes(task)&&g.kind==='infantry'&&g.id%4===0&&g.members.filter(u=>u.gren===0).length>=Math.max(2,g.members.length*.6)&&supplies.length&&g.pressure<.6){task='reabastecimento';const post=supplies.sort((a,b)=>distance(g,a)-distance(g,b))[0];goal={x:post.x,y:post.y};reason='Repondo granadas e reorganizando equipe'}
-   const mission=joint.get(g.id);
-   if(mission&&!tactical.recover&&!['retirada-coberta','reforço-defensivo','guarda-objetivo','recuperar-objetivo','reabastecimento'].includes(task)){task=mission.task;goal=mission.goal;reason=mission.reason}
-   if(!mission&&!defender&&op.phase==='advance'){const opening=Opportunities.choose(g,state,enemies,task,goal);task=opening.task;goal=opening.goal;reason=opening.reason||reason}
+   const essential=guards.has(g.id)||['retirada-coberta','reforço-defensivo','guarnição','guarda-objetivo','recuperar-objetivo'].includes(task);
+   if(!tactical.recover&&!essential&&g.kind==='infantry'&&supplyGroups<serviceLimit&&g.members.filter(u=>u.cls!=='medic'&&u.gren===0).length>=Math.max(2,g.members.length*.6)&&supplies.length&&g.pressure<.6){task='reabastecimento';const post=supplies.sort((a,b)=>distance(g,a)-distance(g,b))[0];goal={x:post.x,y:post.y};reason='Repondo granadas e reorganizando equipe';supplyGroups++}
+   const kitchens=(state.recoveryPosts||[]).filter(p=>p.team===state.team&&p.hp>0&&distance(p,g)<380&&!enemies.some(e=>state.time-e.at<12&&distance(e,p)<240));
+   if(!essential&&task!=='reabastecimento'&&g.kind==='infantry'&&recoveryGroups<serviceLimit&&kitchens.length&&g.pressure<.65&&g.members.filter(u=>(u.cohesion??1)<.65||(u.suppression||0)>.7).length>=Math.max(2,g.members.length*.5)){const post=kitchens.sort((a,b)=>distance(g,a)-distance(g,b))[0];task='recuperação-logística';goal={x:post.x,y:post.y};reason='Recuperando coesão na cozinha de campanha';recoveryGroups++}
+   const mission=staged.get(g.id)||joint.get(g.id);
+   if(mission&&!tactical.recover&&!['retirada-coberta','reforço-defensivo','guarda-objetivo','recuperar-objetivo','reabastecimento','recuperação-logística'].includes(task)){task=mission.task;goal=mission.goal;reason=mission.reason}
+   if(!mission&&!defender&&op.phase==='advance'&&!['reabastecimento','recuperação-logística'].includes(task)){const opening=Opportunities.choose(g,state,enemies,task,goal);task=opening.task;goal=opening.goal;reason=opening.reason||reason}
    else g.source.occupation=null;
    const stable=Squads.intent(g.source,task,goal,state,reason,['retirada-coberta','reorganização-local','reforço-defensivo','conter-acesso'].includes(task));task=stable.task;goal=stable.goal;
    g.source.task=task;
@@ -315,19 +335,21 @@ function orders(state,m,op,ss,groups,enemies,legacyOrders){
  return result;
 }
 function plan(state){
- state={...state,supplies:Math.max(0,state.supplies-(state.infrastructureReserve||0))};
+ const fighting=state.units.filter(u=>u.team===state.team&&alive(u)&&!u.sap&&u.cls!=='medic').length;
+ state={...state,supplies:Math.max(0,state.supplies-(fighting<8?0:state.infrastructureReserve||0))};
  const m=memory(state.team,state.time||0),intel=observe(state,m);
  for(const p of state.points||[])if(p.owner===state.team)m.owned.add(p.name);
  Learning.update(state,intel.own,intel.enemies,m.learning);
  state={...state,learnedRisk:(x,y)=>Learning.risk(m.learning,x,y)};
  const groups=squads(state,m,intel.own),ss=sectors(state,intel.own,intel.enemies,m);
+ Patterns.update(m.patterns,state,intel.enemies,ss);
  const observed={...state,units:[...intel.own,...intel.enemies.filter(e=>state.time-e.at<12)]};
  const base=legacy({...observed,reactionsOnly:true,supportReady:false}),op=operation(state,m,ss,groups,intel.own);
  const coordinated=orders(state,m,op,ss,groups,intel.enemies,base.orders);
  if(op.pendingTrial){
-  const participating=new Set(op.pendingTrial==='counter'?['contra-ataque','recuperar-objetivo','conter-acesso']:['avanço-alternado','flanqueamento-coordenado','infiltração','fixar-flanquear','limpeza-trincheira','flanco-apoiado','preparar-brecha','assalto-brecha','ocupar-trincheira','explorar-brecha','apoio-solicitado','cobrindo-avanco','escolta','ruptura','base-de-fogo']);
+  const participating=new Set(op.pendingTrial==='counter'?['contra-ataque','recuperar-objetivo','conter-acesso']:['avanço-alternado','flanqueamento-coordenado','infiltração','fixar-flanquear','limpeza-trincheira','flanco-apoiado','preparar-brecha','assalto-brecha','ocupar-trincheira','explorar-brecha','apoio-solicitado','cobrindo-avanco','escolta','ruptura','base-de-fogo','sondar-flanco','aguardar-flanco','aguardar-apoio','manobra-flanco','assalto-coordenado','fixar-posicao']);
   const ids=coordinated.filter(o=>o.sector===op.sector.id&&participating.has(o.role)).map(o=>o.id);
-  op.fighting=coordinated.filter(o=>o.sector===op.sector.id&&participating.has(o.role)&&!['base-de-fogo','apoio-solicitado'].includes(o.role)).map(o=>o.id);
+  op.fighting=coordinated.filter(o=>o.sector===op.sector.id&&participating.has(o.role)&&!['base-de-fogo','apoio-solicitado','fixar-posicao'].includes(o.role)).map(o=>o.id);
   const fighters=new Set(op.fighting);op.cohort=intel.own.filter(u=>fighters.has(u.id)).map(u=>({id:u.id,hp:u.hp}));
   const participants=intel.own.filter(u=>fighters.has(u.id));op.best=participants.length?participants.reduce((n,u)=>n+Math.hypot(u.x-op.sector.x,u.y-op.sector.y),0)/participants.length:Infinity;
   Learning.begin(m.learning,op,{...state,knownEnemies:intel.enemies},ids,op.pendingTrial);op.pendingTrial=null;
@@ -343,25 +365,27 @@ function plan(state){
  if(purchase==='mg'&&intel.own.filter(u=>u.type==='mg').length>=Math.max(3,Math.ceil(intel.own.length*(Brain.getRoles()[state.team]==='defend'?.22:.14))))purchase=null;
  if(purchase==='cavalry'&&intel.own.filter(u=>u.type==='cavalry').length>=Math.max(5,Math.ceil(intel.own.length*.08)))purchase=null;
  const occupied=state.units.filter(u=>u.team===state.team&&u.hp>0).length;
- const room=state.maxUnits-occupied,counts=type=>intel.own.filter(u=>u.type===type).length;
+ const room=state.maxUnits-occupied,counts=type=>intel.own.filter(u=>u.type===type&&!u.sap&&u.cls!=='medic').length;
  const canBuy=type=>state.defs[type]&&room>=state.defs[type].count&&state.supplies>=state.defs[type].cost+80;
  const infantryShort=counts('rifle')<Math.max(8,Math.ceil(intel.own.filter(u=>!u.sap).length*.5));
  if(infantryShort&&canBuy('rifle'))purchase='rifle';
  else if(m.learning.sectors[op.sector.id].mg>1&&counts('tank')<Math.min(2,state.maxUnits>=120?2:1)&&canBuy('tank'))purchase='tank';
  else if(m.learning.sectors[op.sector.id].tanks>1&&counts('tank')<(state.maxUnits>=120?3:2)&&canBuy('tank'))purchase='tank';
  else if(!purchase&&canBuy('rifle'))purchase='rifle';
+ purchase=ArmyNeeds.choose(state,op,purchase);
  if(purchase&&room<state.defs[purchase].count)purchase=null;
  let available=state.supplies;
  const reinforce=base.reinforce&&available>=(state.defs.reinforce?.cost||0);if(reinforce)available-=state.defs.reinforce?.cost||0;
  if(support){const cost=state.defs[support.type]?.cost||0;if(cost>available)support=null;else available-=cost}
  if(purchase&&state.defs[purchase].cost>available)purchase=null;
- return {...base,reinforce,defense:state.managedConstruction?null:base.defense,purchase,summary:phases[op.phase]+' · '+op.sector.name+' · '+op.style.label,orders:coordinated,support,assault,
-  dialogue:state.humanAI!==false?Stories.update(m.stories,state,groups,coordinated):[],
-  learning:Learning.snapshot(m.learning),coordination:Coordination.snapshot(m.coordination),squadMind:m.squads.map(Squads.snapshot).filter(Boolean),intelligence:Intelligence.snapshot(m.seen,state.time),operation:{phase:op.phase,sector:op.sector.id,x:op.sector.x,y:op.sector.y,since:op.since,style:op.style.name},
+ return {...base,reinforce,defense:state.managedConstruction?null:base.defense,purchase,summary:phases[op.phase]+' · '+op.sector.name+' · '+op.style.label+(m.battlePlans.active?' · '+m.battlePlans.note:''),orders:coordinated,support,assault,
+  dialogue:state.humanAI!==false?Stories.update(m.stories,state,groups,coordinated,m.battlePlans.reports):[],
+  strategy:BattlePlans.snapshot(m.battlePlans),opponent:Patterns.snapshot(m.patterns),
+  learning:Learning.snapshot(m.learning),coordination:Coordination.snapshot(m.coordination),squadMind:m.squads.map(Squads.snapshot).filter(Boolean),intelligence:Intelligence.snapshot(m.seen,state.time),operation:{phase:op.phase,sector:op.sector.id,x:op.sector.x,y:op.sector.y,since:op.since,style:op.style.name,objective:Refinement.objective(state,op)?{name:Refinement.objective(state,op).name,x:Refinement.objective(state,op).x,y:Refinement.objective(state,op).y}:null},
   sectors:ss.map(s=>({id:s.id,name:s.name,x:s.x,y:s.y,front:s.front,threat:s.threat,force:s.force,invasion:s.invasion})),events:m.events.map(e=>({...e}))};
 }
 function supportResult(team,success){const m=memories[team],op=m?.operation;if(!op)return;op.smokeAt=m.time;op.smokeUntil=success?m.time+30:0}
-function state(team){const m=memories[team];if(!m)return null;return {phase:m.operation?.phase,sector:m.operation?.sector.id,style:m.operation?.style.name,learning:Learning.snapshot(m.learning),fail:[...m.fail],known:m.seen.size,squads:m.squads.map(s=>({...s,ids:[...s.ids]})),events:m.events.map(e=>({...e}))}}
-Brain.plan=plan;Brain.lastPlans=[null,null];Brain.operations={reset:team=>{reset(team);if(team===undefined)Brain.lastPlans.fill(null);else Brain.lastPlans[team]=null},state,supportResult,riskAt,route,contacts:team=>[...(memories[team]?.seen.values()||[])].filter(e=>(memories[team]?.time||0)-e.at<12).map(e=>({...e}))};
+function state(team){const m=memories[team];if(!m)return null;return {phase:m.operation?.phase,sector:m.operation?.sector.id,style:m.operation?.style.name,learning:Learning.snapshot(m.learning),strategy:BattlePlans.snapshot(m.battlePlans),opponent:Patterns.snapshot(m.patterns),fail:[...m.fail],known:m.seen.size,squads:m.squads.map(s=>({...s,ids:[...s.ids]})),events:m.events.map(e=>({...e}))}}
+Brain.plan=plan;Brain.lastPlans=[null,null];Brain.operations={reset:team=>{reset(team);if(team===undefined)Brain.lastPlans.fill(null);else Brain.lastPlans[team]=null},state,supportResult,riskAt,route,receiveAirReport:(team,reports,at)=>{const m=memories[team];if(!m)return;for(const e of reports)if(e.team!==team&&e.hp>0&&Number.isFinite(e.x)&&Number.isFinite(e.y)){const old=m.seen.get(e.id);if(!old||old.at<at)m.seen.set(e.id,{...e,at,status:'observado'})}},contacts:team=>[...(memories[team]?.seen.values()||[])].filter(e=>(memories[team]?.time||0)-e.at<12).map(e=>({...e}))};
 if(typeof module!=='undefined'&&module.exports)module.exports=Brain;
 })(typeof window!=='undefined'?window:globalThis);

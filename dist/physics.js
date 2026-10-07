@@ -131,11 +131,12 @@ function growBuffers(n){if(n<=RA.length)return;const m=n*2;uNext=new Int32Array(
 function separation(U,n){
  uHead.fill(-1);
  for(let i=0;i<n;i++){const u=U[i];if(u.hp<=0){RA[i]=0;continue}const pv=pvOf(u);
-  RA[i]=pv.stun>0&&u.type!=='tank'?4:(CFG.R[u.type]||7);MA[i]=(u===player&&mode==='soldier')?1.6:(CFG.M[u.type]||1);SX[i]=0;SY[i]=0;
+  RA[i]=pv.stun>0&&u.type!=='tank'?4:(CFG.R[u.type]||7);MA[i]=(u===player&&mode==='soldier')?1.6:u.down?6:(CFG.M[u.type]||1);SX[i]=0;SY[i]=0;
   const c=ucell(u.x,u.y);uNext[i]=uHead[c];uHead[c]=i}
  for(let i=0;i<n;i++){const Ri=RA[i];if(Ri<=0)continue;const u=U[i],cx=Math.floor(u.x/UC),cy=Math.floor(u.y/UC);
   for(let gy=Math.max(0,cy-1);gy<=Math.min(UGY-1,cy+1);gy++)for(let gx=Math.max(0,cx-1);gx<=Math.min(UGX-1,cx+1);gx++)
    for(let j=uHead[gy*UGX+gx];j>=0;j=uNext[j]){if(j<=i)continue;const v=U[j],rr=Ri+RA[j],dx=u.x-v.x,dy=u.y-v.y,d2=dx*dx+dy*dy;if(d2>=rr*rr)continue;
+    if(v.down&&v.cz&&v.cz.res===u||u.down&&u.cz&&u.cz.res===v)continue;      // ferido e quem o socorre/arrasta não se empurram (medcare)
     let d=Math.sqrt(d2),nx,ny;if(d<.01){const a=(u.id*2.399+v.id*1.7)%TAU2;nx=Math.cos(a);ny=Math.sin(a);d=0}else{nx=dx/d;ny=dy/d}
     const f=CFG.KPUSH*(rr-d),mi=MA[i],mj=MA[j],wi=mj/(mi+mj),wj=mi/(mi+mj);
     SX[i]+=nx*f*wi;SY[i]+=ny*f*wi;SX[j]-=nx*f*wj;SY[j]-=ny*f*wj}}

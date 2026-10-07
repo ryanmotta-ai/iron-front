@@ -107,7 +107,7 @@ const drawn = pt => { sb.playerTeam = pt; let n = 0; const c = ctxStub(); c.draw
 sb.vw = 2000; sb.vh = 2000;
 assert.equal(drawn(0), 3, 'o dono vê as 3 minas'); assert.equal(drawn(1), 0, 'o inimigo não vê nada');
 const sap = mkUnit('rifle', 1, 780, 610); sap.sap = 1; D.detect();
-assert.equal(drawn(1), 3, 'pioneiro inimigo a menos de 48 px revela o campo todo'); sb.playerTeam = 0;
+assert.equal(drawn(1), 3, 'engenheiro de campo inimigo a menos de 48 px revela o campo todo'); sb.playerTeam = 0;
 const bp = K.mines.sprite({ ...mkSeg('mines', 1, 0, 0), stage: 0 }); assert.equal(bp.width, 1, 'canteiro do inimigo não aparece para o jogador');
 const bp0 = K.mines.sprite({ ...mkSeg('mines', 0, 0, 0), stage: 0 }); assert.ok(bp0.width > 1, 'canteiro do dono aparece');
 assert.ok(K.mines.sprite({ stage: 1, work: 999, need: [6], team: 0, p: null }).width > 1, 'ícone do cartão usa a arte real');
@@ -208,9 +208,9 @@ reset(); { const s = mkSeg('mines', 0, 800, 600); K.mines.onStage(s, 1); const k
 /* ---------- 8. desminagem ---------- */
 reset(); { let acc = 0, n = 0; const T = 400;
   for (let i = 0; i < T; i++) { reset(); const s = mkSeg('mines', 1, 900, 700); K.mines.onStage(s, 1); const d = mkSeg('demine', 0, 900, 700); K.demine.onStage(d, 1); acc += D.stats.accidents; n += 3; }
-  console.log(`  vm desminagem: ${acc} explosões em ${n} minas (${(acc / n * 100).toFixed(1)}%)`); assert.ok(acc / n > .06 && acc / n < .14, '~10% explodem nos pioneiros');
+  console.log(`  vm desminagem: ${acc} explosões em ${n} minas (${(acc / n * 100).toFixed(1)}%)`); assert.ok(acc / n > .06 && acc / n < .14, '~10% explodem nos engenheiros de campo');
   reset(); const s = mkSeg('mines', 1, 900, 700); K.mines.onStage(s, 1); const far = mkSeg('demine', 0, 900, 900); K.demine.onStage(far, 1); assert.equal(D.state().mines[1], 3, 'varredura longe não acha nada'); assert.ok(sb.toasts.some(t => /nenhuma mina/.test(t)));
-  /* imunidade da equipe e o risco de explodir nos pioneiros */
+  /* imunidade da equipe e o risco de explodir nos engenheiros de campo */
   reset(); const s3 = mkSeg('mines', 1, 900, 700); K.mines.onStage(s3, 1); const p = mkUnit('rifle', 0, 900, 700); p.sap = 1;
   const pr = SAPmock.project(0, 'demine', 'player', [[900, 700]]); pr.crew.push(p.id); D.demClock(); step(2); assert.equal(D.state().mines[1], 3, 'equipe de desminagem não pisa'); pr.done = true; D.demClock(); step(2); assert.equal(D.state().mines[1], 2, 'fora da equipe, pisa');
   /* IA: só desmina o que foi revelado a ela e perto das suas tropas; nunca na trégua */
@@ -234,9 +234,9 @@ reset(); pio(); { sb.aiEnabled = [true, false]; sb.sandbox = false; sb.supplies 
   /* minas contra massa de infantaria a pé */
   reset(); pio(); sb.aiEnabled = [true, false]; sb.sandbox = true; sb.time = 100; sb.fieldTrenches.push({ team: 0, x: 720, y: 700, line: 'front' }); for (let i = 0; i < 8; i++) mkUnit('rifle', 1, 1050 + rnd(-30, 30), 700 + rnd(-60, 60));
   D.aiReact(0); const mp = SAPmock.projects.find(p => p.kind === 'mines'); assert.ok(mp, 'grupo de 8 a pé: campo minado'); assert.ok(mp.segs[0].x > 770 && mp.segs[0].x < 840, 'à frente da linha');
-  /* sem 3 pioneiros livres a IA não encomenda a obra (ela ficaria parada ocupando uma vaga da engenharia) */
+  /* sem 3 engenheiros de campo livres a IA não encomenda a obra (ela ficaria parada ocupando uma vaga da engenharia) */
   reset(); sb.aiEnabled = [true, false]; sb.sandbox = true; sb.time = 100; sb.fieldTrenches.push({ team: 0, x: 720, y: 700, line: 'front' }); mkUnit('tank', 1, 1250, 700); for (let i = 0; i < 2; i++) { const u = mkUnit('rifle', 0, 500, 500 + i * 10); u.sap = 1; }
-  D.aiReact(0); assert.equal(SAPmock.projects.length, 0, 'só 2 pioneiros livres: não encomenda');
+  D.aiReact(0); assert.equal(SAPmock.projects.length, 0, 'só 2 engenheiros de campo livres: não encomenda');
   /* obra que ninguém pegou em 30 s é cancelada e devolvida */
   reset(); pio(); sb.aiEnabled = [true, false]; sb.sandbox = false; sb.supplies = [999, 999]; sb.time = 100; sb.fieldTrenches.push({ team: 0, x: 720, y: 700, line: 'front' }); for (let i = 0; i < 8; i++) mkUnit('rifle', 1, 1050 + rnd(-30, 30), 700 + rnd(-60, 60));
   D.aiReact(0); assert.equal(SAPmock.projects.length, 1); assert.equal(sb.supplies[0], 999 - 36, 'campo minado de 2 trechos custa ◈36');

@@ -154,14 +154,14 @@ const sd = a => { const m = mean(a); return Math.sqrt(mean(a.map(x => (x - m) **
   };
   same({ type: 'tank' }, 'tanque'); same({ type: 'cavalry' }, 'cavalaria');
   same({ setup: 'u.mgc=1' }, 'guarnição de MG'); same({ setup: 'u.pinned=1' }, 'fixado pelo fogo'); same({ setup: 'u.dodgeUntil=99' }, 'esquivando');
-  same({ setup: "u.sap=1;u.sapState='dig'" }, 'pioneiro cavando'); same({ setup: "u.sap=1;u.sapState='walk';u.sapEvade=99" }, 'pioneiro fugindo de obus'); same({ setup: 'u.sap=1;u.sapProne=99' }, 'pioneiro deitado'); same({ setup: 'u.down=1' }, 'ferido'); same({ setup: 'u.lunge=1' }, 'baioneta');
+  same({ setup: "u.sap=1;u.sapState='dig'" }, 'engenheiro de campo cavando'); same({ setup: "u.sap=1;u.sapState='walk';u.sapEvade=99" }, 'engenheiro de campo fugindo de obus'); same({ setup: 'u.sap=1;u.sapProne=99' }, 'engenheiro de campo deitado'); same({ setup: 'u.down=1' }, 'ferido'); same({ setup: 'u.lunge=1' }, 'baioneta');
   same({ setup: 'player=u;mode=\'soldier\'' }, 'jogador no Modo Soldado');
   same({ setup: 'u.lf={tr:{}}' }, 'em trincheira');
   const { run } = makeWorld(); run(`const u=newUnit('rifle',0,300,400);u.order='move';u.tx=700;u.ty=400`); run('update(1/30)');
   assert.ok(run('!!units[0].gt'), 'o fuzileiro comum recebe u.gt');
   const { run: rs } = makeWorld(); rs(`const u=newUnit('rifle',0,300,400);u.sap=1;u.sapTmp=1;u.sapState='walk';u.order='move';u.tx=700;u.ty=400`); rs('update(1/30)');
-  assert.ok(rs('!!units[0].gt'), 'pioneiro a caminho da obra (e a tropa da trégua) recebe u.gt');
-  console.log('  exclusões: tanque, cavalaria, MG, fixado, esquiva, pioneiro cavando/deitado/fugindo, ferido, baioneta, jogador e trincheira andam como no original');
+  assert.ok(rs('!!units[0].gt'), 'engenheiro de campo a caminho da obra (e a tropa da trégua) recebe u.gt');
+  console.log('  exclusões: tanque, cavalaria, MG, fixado, esquiva, engenheiro de campo cavando/deitado/fugindo, ferido, baioneta, jogador e trincheira andam como no original');
 }
 
 /* ---------- 5b. quem volta de uma inelegibilidade curta (trincheira, esquiva, fixado, obus) não ganha atraso de reação ---------- */

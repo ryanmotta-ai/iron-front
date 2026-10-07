@@ -27,13 +27,12 @@ function closestEnemy(unit,units,range){
 }
 
 /* Alvos importantes devem chamar a atenção antes de um soldado qualquer:
-   blindados ameaçam romper a linha, metralhadoras travam o avanço e feridos
-   podem ser eliminados rapidamente. Isso deixa o fogo automático mais parecido
+   blindados ameaçam romper a linha e metralhadoras travam o avanço. Isso deixa o fogo automático mais parecido
    com uma decisão de comandante do que com uma busca pelo ponto mais próximo. */
 function selectTarget(unit,units,range,canHit){
   let best=null,bestScore=-Infinity,limit=range*range;
   for(const other of units){
-    if(other.team===unit.team||other.hp<=0)continue;
+    if(other.team===unit.team||other.hp<=0||other.down)continue;
     const distance=(other.x-unit.x)**2+(other.y-unit.y)**2;
     if(distance>limit||canHit&&!canHit(unit,other))continue;
     const d=Math.sqrt(distance),health=other.maxhp?1-other.hp/other.maxhp:0;
@@ -171,7 +170,7 @@ function trenchSlots(state){
 
 /* postura por papel: a cada decisão (5 s) a tropa procura o melhor encaixe nas trincheiras que já estão prontas, inclusive as que acabaram de ficar prontas.
    defensor: metralhadoras na vala mais à frente (campo de tiro), fuzileiros na linha principal, 1 em 5 na linha de trás como reserva
-   atacante: entre ondas ocupa as valas mais avançadas (base de assalto, até as sapas dos pioneiros); metralhadoras apoiam dali mesmo durante a onda */
+   atacante: entre ondas ocupa as valas mais avançadas (base de assalto, até as sapas dos engenheiros de campo); metralhadoras apoiam dali mesmo durante a onda */
 function postureSlot(unit,mode,slots,occupied,reserved,span){
   if(unit.type!=='rifle'&&unit.type!=='mg')return null;
   const dir=direction[unit.team];let best=null,bestScore=-Infinity;

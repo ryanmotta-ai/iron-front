@@ -5,11 +5,11 @@
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const styles={balanced:'Avanço combinado',flank:'Flanqueamento',armor:'Ruptura blindada',infiltrate:'Infiltração cautelosa'};
 const manual=(u,time)=>u.manualUntil>time&&![u.pinStamp,u.sapStamp,u.postStamp,u.depStamp].includes(u.manualUntil);
-const sector=y=>clamp(Math.floor(y/320),0,4),key=(x,y)=>`${Math.floor(x/80)},${Math.floor(y/80)}`;
+const sector=(y,height=1600)=>clamp(Math.floor(y/(height/5)),0,4),key=(x,y)=>`${Math.floor(x/80)},${Math.floor(y/80)}`;
 function create(){return {time:null,own:new Map(),heat:new Map(),contexts:{},sectors:Array.from({length:5},()=>({pressure:0,mg:0,tanks:0,exposure:0,losses:0,successes:0,attempts:0,styles:Object.fromEntries(Object.keys(styles).map(s=>[s,{trials:0,reward:0}]))})),trial:null,note:'Reconhecimento em andamento',history:[]}}
-function context(state,id,enemies){const y=id*320+160,point=(state.points||[]).filter(p=>p.owner!==state.team).sort((a,b)=>Math.abs(a.y-y)-Math.abs(b.y-y))[0]||{x:1200,y};
+function context(state,id,enemies){const y=(id+.5)*(state.height||1600)/5,point=(state.points||[]).filter(p=>p.owner!==state.team).sort((a,b)=>Math.abs(a.y-y)-Math.abs(b.y-y))[0]||{x:1200,y};
  const terrain=state.terrainRisk?.(point.x,point.y,'rifle')>3?'passagem':(state.trenches||[]).some(t=>t.hp>0&&Math.hypot(t.x-point.x,t.y-point.y)<180)?'trincheira':'aberto';
- const near=enemies.filter(e=>sector(e.y)===id&&state.time-e.at<12),threat=near.some(e=>e.type==='tank')?'blindados':near.some(e=>e.type==='mg')?'mg':'infantaria';return `${terrain}/${state.visibilityRange<400?'neblina':'visivel'}/${threat}`;
+ const near=enemies.filter(e=>sector(e.y,state.height)===id&&state.time-e.at<12),threat=near.some(e=>e.type==='tank')?'blindados':near.some(e=>e.type==='mg')?'mg':'infantaria';return `${terrain}/${state.visibilityRange<400?'neblina':'visivel'}/${threat}`;
 }
 function update(state,own,enemies,l){
  const dt=l.time===null?1:Math.max(0,state.time-l.time);if(!dt)return;
@@ -19,14 +19,14 @@ function update(state,own,enemies,l){
   const u=current.get(id),disabled=!u||u.hp<=0||u.down;
   const damage=prev.active?(disabled?prev.hp:Math.max(0,prev.hp-u.hp)):0;
   if(damage>0){
-   const x=u?.x??prev.x,y=u?.y??prev.y,k=key(x,y),s=l.sectors[sector(y)];
+   const x=u?.x??prev.x,y=u?.y??prev.y,k=key(x,y),s=l.sectors[sector(y,state.height)];
    const h=l.heat.get(k)||{x:Math.floor(x/80)*80+40,y:Math.floor(y/80)*80+40,value:0,at:state.time};
    h.value=clamp(h.value+damage/100,0,8);h.at=state.time;l.heat.set(k,h);s.losses+=damage/100;
   }
  }
  const alpha=1-Math.exp(-Math.min(dt,15)/35);
  for(let i=0;i<5;i++){
-  const observed=enemies.filter(e=>state.time-e.at<12&&sector(e.y)===i),s=l.sectors[i];
+  const observed=enemies.filter(e=>state.time-e.at<12&&sector(e.y,state.height)===i),s=l.sectors[i];
   const pressure=observed.reduce((v,e)=>v+(e.type==='tank'?5:e.type==='mg'?2.5:1),0);
   s.pressure+=(pressure-s.pressure)*alpha;s.mg+=(observed.filter(e=>e.type==='mg').length-s.mg)*alpha;
   s.tanks+=(observed.filter(e=>e.type==='tank').length-s.tanks)*alpha;
@@ -38,7 +38,7 @@ function update(state,own,enemies,l){
  l.own=new Map(own.map(u=>[u.id,{hp:u.hp,x:u.x,y:u.y,active:u.hp>0&&!u.down}]));
 }
 function select(l,id,state,enemies){
- const s=l.sectors[id],near=enemies.filter(e=>sector(e.y)===id&&state.time-e.at<12);
+ const s=l.sectors[id],near=enemies.filter(e=>sector(e.y,state.height)===id&&state.time-e.at<12);
  const mg=near.filter(e=>e.type==='mg').length,tanks=state.units.filter(u=>u.team===state.team&&u.hp>0&&!u.down&&u.type==='tank'&&(u.atr?.bog||0)<=state.time).length;
  const prior={balanced:.25,flank:mg>=2?.55:.1,armor:mg>=2?.6:.05,infiltrate:state.visibilityRange<400?.4:.05};
  const learned=l.contexts[context(state,id,enemies)];

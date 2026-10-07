@@ -17,7 +17,8 @@ window.hud=function(...args){const r=hud0.apply(this,args);const plan=Brain.last
  const text=show&&started&&!ended&&aiEnabled[playerTeam]&&plan?plan.summary:'';if(status.textContent!==text)status.textContent=text;
  const engineering=window.IronFrontEngineering?.state(playerTeam);
  const learned=plan?.learning?`Aprendizado da sua facção: ${plan.learning.note}. Operações avaliadas: ${plan.learning.evaluated}.${engineering?` Engenharia: ${engineering.layout?.name||'planejamento local'} · ${engineering.stage||'posição'}. ${engineering.note}. Obras avaliadas: ${engineering.evaluated}; investimento: ${Math.round(engineering.spent)}.`:''}`:'';
- if(lesson.textContent!==learned)lesson.textContent=learned;
+ const maneuvers=plan?.strategy?` Manobra: ${plan.strategy.note}. ${plan.opponent?.note||''}.` :'';
+ if(lesson.textContent!==learned+maneuvers)lesson.textContent=learned+maneuvers;
  if(plan&&aiEnabled[playerTeam]){const e=plan.events.at(-1);if(e&&e.id!==lastEvent[playerTeam]){lastEvent[playerTeam]=e.id;
   if(time-lastToast[playerTeam]>12&&['advance','withdraw','counter'].includes(plan.operation.phase)){lastToast[playerTeam]=time;toast(e.text)}}}
  return r};
@@ -25,7 +26,7 @@ const mini0=window.minimap;
 window.minimap=function(...args){const r=mini0.apply(this,args),plan=Brain.lastPlans[playerTeam];if(!show||!plan||!aiEnabled[playerTeam])return r;
  const sx=mini.canvas.width/W,sy=mini.canvas.height/H;mini.save();mini.strokeStyle='#d8e6a1';mini.lineWidth=1;
  for(const s of plan.sectors){mini.globalAlpha=s.id===plan.operation.sector?1:.35;mini.beginPath();mini.moveTo(0,Math.round((s.y-(H/10))*sy));mini.lineTo(mini.canvas.width,Math.round((s.y-(H/10))*sy));mini.stroke()}
- mini.globalAlpha=.85;const op=plan.operation,x=op.x*sx,y=op.y*sy;mini.strokeRect(Math.round(x)-4,Math.round(y)-4,8,8);
+ mini.globalAlpha=.85;const op=plan.operation,target=op.objective||op,x=target.x*sx,y=target.y*sy;mini.strokeRect(Math.round(x)-4,Math.round(y)-4,8,8);
  const drawn=new Set();for(const o of plan.orders){if(drawn.has(o.squad))continue;drawn.add(o.squad);const u=units.find(u=>u.id===o.id);if(!u)continue;
   mini.beginPath();mini.moveTo(Math.round(u.x*sx),Math.round(u.y*sy));mini.lineTo(Math.round(o.tx*sx),Math.round(o.ty*sy));mini.stroke()}
  for(const contact of plan.intelligence||[]){if(contact.status!=='ultima-posicao')continue;mini.globalAlpha=contact.confidence;mini.strokeStyle='#d8ac78';mini.setLineDash([2,2]);mini.strokeRect(Math.round(contact.x*sx)-3,Math.round(contact.y*sy)-3,6,6)}

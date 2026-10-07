@@ -24,7 +24,7 @@ s=engine();s.PXMED.cfg.RANGE=0;const doctor=s.newUnit('rifle',0,700,800);doctor.
 s=engine();const post=s.PXMED.posts[0];post.beds=[{id:-1},{id:-2}];const w1=s.wound(500,800,'critical',60),w2=s.wound(510,800,'light',90);s.PXMED.tick(.1);assert.equal(post.crews.filter(c=>c.st==='go').length,1);assert.equal(w1.claimed,post.crews[0]);assert.equal(w2.claimed,null);
 // A full post is not chosen for an infantry drag; destroyed destinations are replaced.
 s=engine();const rescuer=s.newUnit('rifle',0,650,800);rescuer.cls='medic';const w=s.wound(660,800);const full=s.PXMED.addPost(0,640,800);full.beds=[{}, {}, {}];const alternate=s.PXMED.addPost(0,600,800);assert.equal(s.PXCAS.chooseDest(rescuer,w).post,alternate);
-const crew=full.crews[0];crew.st='carry';crew.u=w;crew.dest=full;crew.x=600;crew.y=816;w.claimed=crew;w.carried=true;s.PXMED.tick(.5);s.PXMED.tick(.5);assert.ok(alternate.beds.includes(w),'maca entrega em posto alternativo quando o original está cheio');
+const crew=full.crews[0];crew.st='carry';crew.u=w;crew.dest=full;crew.x=600;crew.y=816;w.claimed=crew;w.carried=true;s.PXMED.tick(.5);s.PXMED.tick(.5);assert.equal(crew.st,'lay','maca inicia a entrega no catre');for(let i=0;i<Math.ceil(s.PXMED.cfg.LAY/.5);i++)s.PXMED.tick(.5);assert.ok(alternate.beds.includes(w),'maca entrega em posto alternativo quando o original está cheio');
 // Builders exclude casualties and medical/rescue roles and obey human preemption.
 s=engine();const a=s.newUnit('rifle',0,700,500),b=s.newUnit('rifle',0,705,500),c=s.newUnit('rifle',0,710,500);for(const u of [a,b,c])u.sap=1;
 const auto=s.PXSAP.project(0,'trench','fort',[[720,480],[720,520]],{keep:true});s.PXSAP.tick(.5);assert.equal(auto.crew.length,3);
@@ -35,4 +35,11 @@ s.shells=[{x:730,y:515,r:80,t:1,team:1}];s.PXSAP.tick(.5);assert.equal(manual.cr
 // Stalled movement releases the worker and avoids repeating the same failed route immediately.
 s=engine();const worker=s.newUnit('rifle',0,300,500);worker.sap=1;const p=s.PXSAP.project(0,'trench','player',[[700,500],[700,530]]);for(let i=0;i<45;i++){s.time+=.5;s.PXSAP.tick(.5)}assert.ok(worker.sapAvoid?.id===p.id);assert.equal(worker.sapJob,null);
 assert.equal(s.PXSAP.stats.errors,0);assert.equal(s.PXCAS.stats.errors,0);
+// Switching from preparation to war preserves the paid project while freeing its crew.
+s=engine();const builder=s.newUnit('rifle',0,710,500);builder.sap=1;
+const unfinished=s.PXSAP.project(0,'trench','fort',[[720,480],[720,520]],{keep:true});s.PXSAP.tick(.5);
+unfinished.segs[0].work=5;const paidCash=s.supplies[0];assert.equal(unfinished.crew.length,1);
+s.PXSAP.defer(unfinished);assert.equal(unfinished.crew.length,0);assert.equal(builder.sapJob,null);assert.equal(unfinished.segs[0].work,5);assert.equal(unfinished.done,false);
+s.PXSAP.tick(.5);assert.equal(unfinished.crew.length,0,'deferred project does not reclaim crew');assert.equal(s.supplies[0],paidCash,'no free money or second payment');
+s.PXSAP.resume(unfinished);s.PXSAP.tick(.5);assert.equal(unfinished.crew.length,1,'old work resumes with available manpower');
 console.log('Support AI: triagem, chegada viável, rotas, prioridade humana, vagas, médicos em apoio, equipes, pausa sob fogo e bloqueios OK');

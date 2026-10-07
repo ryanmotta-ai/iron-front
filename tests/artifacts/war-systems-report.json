@@ -1,0 +1,179 @@
+{
+ "estruturas": {
+  "rifleVsBrick": 180,
+  "rifleVsCanvasDestroyed": true,
+  "shellsToKillHQ": 7,
+  "integrity": [
+   1,
+   0.81
+  ]
+ },
+ "hq-colapso": {
+  "crisis": [
+   null,
+   40
+  ],
+  "ended": true,
+  "result": {
+   "loser": 1,
+   "winner": 0,
+   "why": "hq",
+   "at": 70.58000000000027,
+   "sup": [
+    50.90621797692552,
+    49.093782023074475
+   ]
+  }
+ },
+ "assalto-fogo": {
+  "states": [
+   [
+    0,
+    "approach"
+   ],
+   [
+    5,
+    "cover"
+   ],
+   [
+    8,
+    "stalled"
+   ],
+   [
+    50,
+    "retreat"
+   ]
+  ],
+  "panel": "ALPHA | Assalto: posição de artilharia | PARADO · Fogo inimigo pesado · 16/18 | ESPERAR | CONTINUAR | RECUAR | ARTILHARIA | APOIO AÉREO | FLANQUEAR",
+  "decision": true,
+  "stalledReports": 2,
+  "reports": 8,
+  "alive": 4
+ },
+ "sem-armas": {
+  "noArms": true,
+  "state": "stalled",
+  "dbg": [
+   0,
+   -99,
+   2.0000000000000004,
+   false,
+   1
+  ],
+  "report": 1
+ },
+ "avanco": {
+  "arrivedAt": 3,
+  "groups": 0,
+  "free": 8
+ },
+ "engenheiros": {
+  "repaired": true,
+  "rebuilt": true,
+  "tank": {
+   "hp": 650,
+   "trk": 0,
+   "mot": 0
+  },
+  "speed": {
+   "ok": 379,
+   "trackBroken": 133
+  },
+  "hulks": 3,
+  "recovered": 1
+ },
+ "limpeza": {
+  "start": {
+   "corpses": 80,
+   "hulks": 1
+  },
+  "blood0": 282548,
+  "t70": {
+   "corpses": 0,
+   "smears": 79
+  },
+  "t180": {
+   "corpses": 0,
+   "smears": 0,
+   "hulks": 1
+  },
+  "bloodKept": 0.15,
+  "t480": {
+   "hulks": 1
+  }
+ },
+ "bunker": {
+  "inside": 2,
+  "pop": 3,
+  "noLos": 10,
+  "bunkerGone": true,
+  "crewAfter": [
+   "vivo",
+   "vivo",
+   "vivo"
+  ]
+ },
+ "aerodromo": {
+  "flights": 1,
+  "panel": "block",
+  "retask": true,
+  "kind": "atk",
+  "runwayHp": -53,
+  "canLaunch": false,
+  "hangarLost": true,
+  "planes": [
+   19,
+   17
+  ],
+  "aaPosts": 4,
+  "runwayRecovered": true
+ },
+ "comunicacoes": {
+  "proposal": true,
+  "lines": [
+   "Forças necessárias: 16 homens (disponíveis: 16).",
+   "Risco: baixo.",
+   "Probabilidade estimada: 93 %."
+  ],
+  "delayOk": 0.76,
+  "destroyed": true,
+  "delayDown": 14,
+  "autonomous": true
+ },
+ "ia": {
+  "stats": {
+   "raids": 7,
+   "raidsDone": 2,
+   "retargets": 19,
+   "badTargets": 4,
+   "noLosBunker": 74,
+   "stuck": [
+    19,
+    9,
+    10
+   ],
+   "idleMoves": 234,
+   "counterBattery": 0,
+   "errors": 0,
+   "spread": 380,
+   "capped": 149,
+   "flankRoutes": 6,
+   "unsafe": 4
+  },
+  "structs": [
+   3,
+   8
+  ],
+  "groups": {
+   "groups": 14,
+   "covers": 57,
+   "stalls": 4,
+   "decisions": 1,
+   "done": 2,
+   "noarms": 1,
+   "blocked": 0,
+   "errors": 0
+  }
+ },
+ "errors": []
+}

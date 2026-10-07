@@ -103,7 +103,7 @@ if(window.PXBAT&&PXBAT.mission){const o=PXBAT.mission;PXBAT.mission=function(tea
  if(S.on&&kind!=='smoke'&&spotterOver(team,x,y)){spread*=CFG.SPOT.spread;S.stats.spotCorrected++}return o.call(this,team,x,y,count,spread,kind,cb,strict)}}
 
 /* ---------- IA ---------- */
-function aiTick(){for(let t=0;t<2;t++){if(!aiEnabled[t])continue;const C=aiCd[t],foe=1-t;
+function aiTick(){if(window.PXAW?.on)return;for(let t=0;t<2;t++){if(!aiEnabled[t])continue;const C=aiCd[t],foe=1-t;
  const foeAir=planes.some(q=>q.team===foe&&!q.downed)||AIR.some(q=>q.team===foe&&!q.dead)||(window.PXFL&&PXFL.planes&&PXFL.planes().some(q=>q.team===foe&&q.hp>0));
  if(foeAir&&time>C.cap&&!AIR.some(q=>q.role==='cap'&&q.team===t)&&!grounded()&&aiSpend('cap',t)){C.cap=time+CFG.CAP.aiCd;const q=AIR.find(q=>q.team===foe)||planes.find(q=>q.team===foe)||{y:H/2};launchCap(t,q.y)}
  /* trincheira inimiga mais cheia perto da própria frente → ataque ao solo */
@@ -129,7 +129,7 @@ wrap('place',(orig,x,y)=>{const t=placement;if(!S.on||!(t==='cap'||t==='atk'||t=
  else{launchSpot(playerTeam,x,y);toast(`${NAMES.spot[playerTeam]}: observação por 45 s · artilharia ali com dispersão −65% e pedidos de fogo.`)}
  try{sound('click')}catch{}if(!keys.Shift){placement=null;makeCards();const h=document.getElementById('placehint');if(h)h.textContent='Escolha uma unidade e posicione no campo'}});
 wrap('makeCards',orig=>{orig();try{if(!S.on||tab!=='support')return;
- for(const [type,key] of [['cap','7'],['atk','8'],['spot','9']]){const d=defs[type],b=document.createElement('button');b.className='card'+(placement===type?' active':'');
+ for(const [type,key] of [['cap','7'],['atk','8'],['spot','9']]){if(window.PXAW?.on&&type!=='cap')continue;const d=defs[type],b=document.createElement('button');b.className='card'+(placement===type?' active':'');b.dataset.kind=type;
   b.innerHTML=`<canvas width="48" height="48"></canvas><b>${NAMES[type][playerTeam]}</b><small>${d.sub}</small><span class="cost">◈ ${sandbox?'∞':d.cost}</span><kbd>${key}</kbd>`;
   b.onclick=()=>choose(type);document.getElementById('cards').append(b);icon(type,b.querySelector('canvas').getContext('2d'))}}catch(e){fail(e)}});
 wrap('icon',(orig,type,c)=>{if(type!=='cap'&&type!=='atk'&&type!=='spot')return orig(type,c);c.clearRect(0,0,48,48);try{const sp=PX.planeSprite('fighter',playerTeam,false),r=PX.rotSprite(sp.c,type==='atk'?.5:type==='spot'?-.25:-.5);c.drawImage(r,24-r.width/2,24-r.height/2);

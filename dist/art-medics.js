@@ -147,9 +147,9 @@ const wardTent=()=>spr('med:ward',56,36,(x,W,Hh)=>tentDraw(x,W,Hh,{ins:5,rb:19,c
 const surgTent=()=>spr('med:surg',44,32,(x,W,Hh)=>tentDraw(x,W,Hh,{ins:4,rb:15,cross:4,door:[4,33],inside:(x,X,Y,w,h)=>{
  for(let j=0;j<h;j++)for(let i=0;i<w;i++){const d=Math.hypot(i-w/2,(j-1)*1.8)/(w/2);x.fillStyle=d<.35?'#8a7350':d<.6?pick2(i,j,'#8a7350','#6a5a40'):d<.85?'#5a4a34':'#3a3226';x.fillRect(X+i,Y+j,1,1)}
  const tx=X+Math.floor(w/2)-5,ty=Y+h-5;R(x,tx,ty,11,3,'#ece8da');R(x,tx,ty,11,1,'#fffaf0');R(x,tx,ty+3,1,2,'#3a3d40');R(x,tx+10,ty+3,1,2,'#3a3d40');  // mesa de operação
- dot(x,tx+1,ty,'#dcb690');R(x,tx+2,ty,5,1,'#cbd0c4');R(x,tx+7,ty,3,1,'#8f8870');dot(x,tx+5,ty+1,'#b8302a');                                     // paciente sob o lençol
+ if(ART.decorPatients!==false){dot(x,tx+1,ty,'#dcb690');R(x,tx+2,ty,5,1,'#cbd0c4');R(x,tx+7,ty,3,1,'#8f8870');dot(x,tx+5,ty+1,'#b8302a')}                                     // paciente sob o lençol
  R(x,tx+13,ty+1,4,1,'#8f969a');dot(x,tx+14,ty+1,'#dfe6ea');R(x,tx+13,ty+2,1,3,'#3a3d40');R(x,tx+16,ty+2,1,3,'#3a3d40');                         // bandeja de instrumentos
- R(x,X+2,Y+h-6,2,1,WHT);R(x,X+2,Y+h-5,2,4,'#6d7f99');R(x,X+2,Y+h-5,2,2,'#ecebe2');                                                               // enfermeira instrumentadora
+ if(ART.decorPatients!==false){R(x,X+2,Y+h-6,2,1,WHT);R(x,X+2,Y+h-5,2,4,'#6d7f99');R(x,X+2,Y+h-5,2,2,'#ecebe2')}                                                               // enfermeira instrumentadora
  R(x,X+w-4,Y+h-4,3,4,'#4a5056');R(x,X+w-4,Y+h-4,3,1,'#7d858c')}}),{ax:22,ay:30,sh:[3,3]});                                                      // bacia/estufa
 const aidTent=()=>spr('med:aidt',40,28,(x,W,Hh)=>tentDraw(x,W,Hh,{ins:4,rb:13,cross:4,door:[12,21],inside:(x,X,Y,w,h)=>{R(x,X,Y,w,h,'#2b251c');cotFront(x,X+1,Y+h-4,6,0,1);dot(x,X+w-2,Y,'#f0c860')}}),{ax:20,ay:26,sh:[2,2]});
 /* catre vertical (cabeça ao norte) */
@@ -201,7 +201,7 @@ function drawField(x,P,ax,ay,f,team){
  if(SPR.barrels)P(SPR.barrels(2),82,-18);P(bin(),30,-4);P(basin(),20,28);
  for(const l of FIELD.lamps)P(lantern(),l[0],l[1]);
  for(const k of FIELD.cots)P(cot(),k[0],k[1]);
- for(const k of FIELD.decor){P(cot(),k[0],k[1]);const cx=ax+f*k[0],cy=ay+k[1];if(k[2]===2){const s=cached('sitter'+team,()=>{const o=outlined(fromGrid(SITTER,lipPal(team)));return{c:o,ax:5,ay:o.height-1}});blitP(x,s,cx,cy+3)}else x.drawImage(lieV(team,k[2]),cx-2,cy-6)}}
+ for(const k of FIELD.decor){P(cot(),k[0],k[1]);if(ART.decorPatients===false)continue;const cx=ax+f*k[0],cy=ay+k[1];if(k[2]===2){const s=cached('sitter'+team,()=>{const o=outlined(fromGrid(SITTER,lipPal(team)));return{c:o,ax:5,ay:o.height-1}});blitP(x,s,cx,cy+3)}else x.drawImage(lieV(team,k[2]),cx-2,cy-6)}}
 function drawAid(x,P,ax,ay,f,team){
  ground(x,ax,ay,[[0,-4,20,14],[0,14,15,9]],team+7);
  P(tarp(26,13),0,15);P(aidTent(),AIDL.tent[0],AIDL.tent[1]);P(sandV(9),19,-3);P(sandH(3),-14,-16);
@@ -234,7 +234,7 @@ const lay=p=>isField(p)?FIELD:AIDL;
 /* catre fixo por paciente (o índice em p.beds muda quando alguém sai) */
 const COTS=new WeakMap();
 function cotsOf(p){const L=lay(p);let A=COTS.get(p);if(!A){A=new Map();COTS.set(p,A)}for(const u of A.keys())if(!p.beds.includes(u))A.delete(u);
- for(const u of p.beds){if(!A.has(u)){const used=new Set(A.values());let i=0;while(used.has(i)&&i<L.cots.length-1)i++;A.set(u,i)}
+ for(const u of p.beds){if(!A.has(u)){const used=new Set(A.values());let bi=-1,bd=1e9;for(let i=0;i<L.cots.length;i++){if(used.has(i))continue;const k=L.cots[i],d=(p.x+face(p.team)*k[0]/Z-u.x)**2+(p.y+k[1]/Z-u.y)**2;if(d<bd){bd=d;bi=i}}A.set(u,bi<0?0:bi)}
   const k=L.cots[A.get(u)]||L.cots[0];u.x=p.x+face(p.team)*k[0]/Z;u.y=p.y+k[1]/Z}return A}
 function cotScreen(p,i,ox,oy){const L=lay(p),k=L.cots[i]||L.cots[0];return[ox+Math.round(p.x*Z)+face(p.team)*k[0],oy+Math.round(p.y*Z)+k[1]]}
 
@@ -285,7 +285,7 @@ function staffOf(p){let S=STAFF.get(p);if(S)return S;const F=isField(p);
  S=F?[{k:'doctor',x:54,y:-6,role:'doc'},{k:'nurse',x:16,y:29,role:'n1'},{k:'nurse',x:4,y:-8,role:'n2'},{k:'orderly',x:-9,y:36,role:'ord'}]:[{k:'bearer',x:-16,y:4,role:'med'}];
  for(const s of S){s.tx=s.x;s.ty=s.y;s.wait=Math.random()*2;s.pose='stand';s.dir='S';s.i=0}STAFF.set(p,s0(S));return S}
 const s0=S=>S;
-function occupiedCots(p){const L=lay(p),A=COTS.get(p),r=[];if(A)for(const i of A.values())r.push(L.cots[i]);return r}
+function occupiedCots(p){const L=lay(p),A=COTS.get(p),r=[];if(A)for(const i of A.values())r.push(L.cots[i]);if(window.PXMCH&&PXMCH.on&&PXMCH.extraCots)for(const k of PXMCH.extraCots(p))r.push(k);return r}
 function nextGoal(s,p){const L=lay(p),occ=occupiedCots(p),all=L.cots.concat(L.decor.map(d=>[d[0],d[1]]));s.i++;
  const atCot=k=>{s.tx=k[0];s.ty=k[1]+(isField(p)?11:9);s.after='bend';s.hold=2.5+Math.random()*2};
  if(s.role==='doc'){if(s.i%2){const k=occ.length?occ[s.i%occ.length]:all[s.i%all.length];atCot(k)}else{s.tx=54;s.ty=-6;s.after='stand';s.hold=3+Math.random()*3}}
@@ -312,19 +312,21 @@ function drawStaff(S,p,bx,by){const f=face(p.team),now=tm();
 function under(c,ox,oy,dt){c_=c;const now=tm();
  for(const p of M.posts){const bx=ox+Math.round(p.x*Z),by=oy+Math.round(p.y*Z);const F=isField(p),A=cotsOf(p);if(!seen(bx,by,F?130:50))continue;
   const B=F?fieldBase(p.team):aidBase(p.team);c.drawImage(B.c,bx-B.ax,by-B.ay);const f=face(p.team);
-  if(F){/* cirurgia animada e luzes */const sx=bx+f*FIELD.surg[0],sy=by+FIELD.surg[1];c.drawImage(surgFrame(((now*2.2)|0)%3),sx-7,sy-11);
+  if(F){/* cirurgia animada e luzes */const sx=bx+f*FIELD.surg[0],sy=by+FIELD.surg[1];if(!(window.PXMCH&&PXMCH.on&&PXMCH.surgery(c,p,bx,by,f,now)))c.drawImage(surgFrame(((now*2.2)|0)%3),sx-7,sy-11);
    const bl=bx+f*FIELD.boil[0],bly=by+FIELD.boil[1];c.fillStyle=((now*7)|0)%3?'#e0772a':'#ffb347';c.fillRect(bl-1,bly-5,2,1);
    for(let i=0;i<3;i++){const ph=(now*.6+i/3)%1,px=bl+f*3+Math.round(Math.sin(ph*6+i)*1+ph*3),py=bly-16-Math.round(ph*10);c.globalAlpha=.55*(1-ph);c.fillStyle='#e4e2da';c.fillRect(px,py,ph>.5?2:1,ph>.5?2:1)}c.globalAlpha=1;
    for(const l of FIELD.lamps){const lx=bx+f*l[0],ly=by+l[1];c.fillStyle=((now*3+l[0])|0)%4?'#f0c860':'#ffe9a0';c.fillRect(lx+(f>0?1:-1),ly-8,1,1)}}
   /* internados nos catres */
   const vis=p.team===pt()||!(window.PXW&&PXW.fow&&PXW.fow.on);
+  if(window.PXMCH&&PXMCH.on&&PXMCH.beds(c,p,ox,oy,bx,by,vis,A))continue;
   for(const u of p.beds){if(!vis&&window.PXW&&PXW.visible&&!PXW.visible(u))continue;const[cx,cy]=cotScreen(p,A.get(u)||0,ox,oy),cv=lieV(u.team,u.id%3);c.drawImage(cv,cx-2,cy-6);
    if(((now*.5+u.id*.37)%4)<.5){c.fillStyle=TEAM[u.team].u;c.fillRect(cx+(u.id&1?-3:3),cy-2,1,2);c.fillStyle=TEAM[u.team].s;c.fillRect(cx+(u.id&1?-3:3),cy-3,1,1)}}}}  // um mexe o braço de vez em quando
 function over(c,ox,oy,dt){c_=c;const now=tm(),P=pt();
  for(const p of M.posts){const bx=ox+Math.round(p.x*Z),by=oy+Math.round(p.y*Z),F=isField(p),f=face(p.team);
   const S=staffOf(p);staffTick(S,p,Math.min(.1,dt||0));
-  if(seen(bx,by,F?130:50)){drawStaff(S,p,bx,by);const L=lay(p);drawFlag(c,bx+f*L.flag[0],by+L.flag[1])}
-  for(const k of p.crews)drawCrew(k,p,ox,oy,Math.min(.1,dt||.016))}
+  if(seen(bx,by,F?130:50)){if(!(window.PXMCH&&PXMCH.on&&PXMCH.staff(c,p,bx,by,dt,ox,oy)))drawStaff(S,p,bx,by);const L=lay(p);drawFlag(c,bx+f*L.flag[0],by+L.flag[1])}
+  for(const k of p.crews)if(!(window.PXMCH&&PXMCH.on&&PXMCH.crew(c,k,p,ox,oy,Math.min(.1,dt||.016))))drawCrew(k,p,ox,oy,Math.min(.1,dt||.016));
+  if(window.PXMCH&&PXMCH.on&&seen(bx,by,F?160:60))PXMCH.actors(c,p,ox,oy,bx,by,dt)}
  /* marcadores de ferido (só do seu lado) */
  for(const u of units){if(!u.down||u.inBed||u.carried||u.team!==P)continue;const cl=u.claimed;if(cl&&cl.st==='load'&&(1-cl.t/LOAD)>=.45)continue;
   const x=ox+Math.round(u.x*Z),y=oy+Math.round(u.y*Z)-11;if(!seen(x,y,10))continue;
@@ -373,4 +375,7 @@ if(window.PHYS){const d0=PHYS.draw||(()=>false);PHYS.draw=function(c,u,sp,sx,sy,
 if(window.PXSAP&&PXSAP.cfg&&PXSAP.cfg.KIND&&PXSAP.cfg.KIND.aid){const k=PXSAP.cfg.KIND.aid,old=k.sprite;k.sprite=s=>{if(!ART.on)return old(s);try{return aidStage(s)}catch(e){fail(e);return old(s)}}}
 ART.state=()=>({on:ART.on,errors:ART.errors,posts:M.posts.map(p=>({id:p.id,team:p.team,field:isField(p),beds:p.beds.map(u=>(COTS.get(p)||new Map()).get(u)),crews:p.crews.map(c=>c.st+(VIS.get(c)?':'+VIS.get(c).dir:'')).join('/')}))});
 ART._vis=c=>VIS.get(c);ART.sprites={person,stretcherH,stretcherV,groundSpr,fieldBase,aidBase,aidStage,lieV};
+ART.cotsOf=cotsOf;ART.cotScreen=cotScreen;ART.lay=lay;ART.isField=isField;ART.FIELD=FIELD;ART.AIDL=AIDL;ART.face=face;ART.staffOf=staffOf;ART.crewVis=crewVis;ART.cached=cached;ART.lipPal=lipPal;ART.LOAD=LOAD;
+/* medcare: a simulação leva o ferido até o catre exato que o desenho usa (primeiro livre, contando os já reservados por quem está pousando) */
+M.bedPos=(p,i)=>{const L=lay(p),A=cotsOf(p),used=new Set(A.values());for(const q of M.posts)for(const c of q.crews)if(c.st==='lay'&&c.lay&&c.lay.dest===p&&c.lay.i!=null)used.add(c.lay.i);let ix=0;while(used.has(ix)&&ix<L.cots.length-1)ix++;const k=L.cots[ix];return{x:p.x+face(p.team)*k[0]/Z,y:p.y+k[1]/Z,i:ix}};
 })();

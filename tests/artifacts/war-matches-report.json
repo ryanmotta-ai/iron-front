@@ -1,0 +1,2782 @@
+{
+ "args": {
+  "maps": [
+   "trenches",
+   "forest",
+   "winter"
+  ],
+  "scale": "120",
+  "maxT": 1100,
+  "game": "sandbox",
+  "seed": 7,
+  "extra": ""
+ },
+ "matches": [
+  {
+   "map": "trenches",
+   "ended": true,
+   "time": 900.109900000135,
+   "result": {
+    "loser": 0,
+    "winner": 1,
+    "why": "stalemate",
+    "at": 900.109900000135,
+    "sup": [
+     47.148682403985156,
+     52.85131759601484
+    ]
+   },
+   "sup": [
+    47.1,
+    52.9
+   ],
+   "peakCluster": [
+    50,
+    58
+   ],
+   "peakDensity": [
+    31,
+    21
+   ],
+   "meanDensity": [
+    19,
+    13.7
+   ],
+   "samples": [
+    {
+     "t": 30,
+     "units": [
+      93,
+      98
+     ],
+     "cluster": [
+      18,
+      58
+     ],
+     "dens": [
+      14,
+      17
+     ],
+     "sup": [
+      50,
+      50
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 60,
+     "units": [
+      112,
+      117
+     ],
+     "cluster": [
+      46,
+      46
+     ],
+     "dens": [
+      26,
+      17
+     ],
+     "sup": [
+      48.3,
+      51.7
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 90,
+     "units": [
+      111,
+      120
+     ],
+     "cluster": [
+      49,
+      21
+     ],
+     "dens": [
+      30,
+      14
+     ],
+     "sup": [
+      46.1,
+      53.9
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 121,
+     "units": [
+      120,
+      120
+     ],
+     "cluster": [
+      32,
+      33
+     ],
+     "dens": [
+      27,
+      12
+     ],
+     "sup": [
+      46.3,
+      53.7
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 151,
+     "units": [
+      119,
+      118
+     ],
+     "cluster": [
+      45,
+      20
+     ],
+     "dens": [
+      23,
+      13
+     ],
+     "sup": [
+      45.4,
+      54.6
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 181,
+     "units": [
+      112,
+      118
+     ],
+     "cluster": [
+      29,
+      27
+     ],
+     "dens": [
+      28,
+      14
+     ],
+     "sup": [
+      45.3,
+      54.7
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 211,
+     "units": [
+      118,
+      113
+     ],
+     "cluster": [
+      26,
+      24
+     ],
+     "dens": [
+      26,
+      15
+     ],
+     "sup": [
+      47,
+      53
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 241,
+     "units": [
+      116,
+      113
+     ],
+     "cluster": [
+      26,
+      16
+     ],
+     "dens": [
+      19,
+      14
+     ],
+     "sup": [
+      46.4,
+      53.6
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 271,
+     "units": [
+      113,
+      120
+     ],
+     "cluster": [
+      23,
+      23
+     ],
+     "dens": [
+      19,
+      13
+     ],
+     "sup": [
+      48.3,
+      51.7
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 301,
+     "units": [
+      119,
+      120
+     ],
+     "cluster": [
+      29,
+      23
+     ],
+     "dens": [
+      19,
+      16
+     ],
+     "sup": [
+      49.1,
+      50.9
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 332,
+     "units": [
+      113,
+      115
+     ],
+     "cluster": [
+      31,
+      16
+     ],
+     "dens": [
+      18,
+      12
+     ],
+     "sup": [
+      47.9,
+      52.1
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 362,
+     "units": [
+      118,
+      116
+     ],
+     "cluster": [
+      23,
+      15
+     ],
+     "dens": [
+      15,
+      15
+     ],
+     "sup": [
+      49.3,
+      50.7
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 392,
+     "units": [
+      116,
+      118
+     ],
+     "cluster": [
+      20,
+      23
+     ],
+     "dens": [
+      18,
+      14
+     ],
+     "sup": [
+      49.5,
+      50.5
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 422,
+     "units": [
+      120,
+      118
+     ],
+     "cluster": [
+      15,
+      21
+     ],
+     "dens": [
+      14,
+      13
+     ],
+     "sup": [
+      49.1,
+      50.9
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 452,
+     "units": [
+      116,
+      117
+     ],
+     "cluster": [
+      22,
+      45
+     ],
+     "dens": [
+      17,
+      12
+     ],
+     "sup": [
+      46.9,
+      53.1
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 482,
+     "units": [
+      115,
+      114
+     ],
+     "cluster": [
+      16,
+      19
+     ],
+     "dens": [
+      15,
+      15
+     ],
+     "sup": [
+      45.3,
+      54.7
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 512,
+     "units": [
+      118,
+      113
+     ],
+     "cluster": [
+      18,
+      14
+     ],
+     "dens": [
+      17,
+      8
+     ],
+     "sup": [
+      46.3,
+      53.7
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 543,
+     "units": [
+      110,
+      116
+     ],
+     "cluster": [
+      21,
+      14
+     ],
+     "dens": [
+      14,
+      13
+     ],
+     "sup": [
+      44.9,
+      55.1
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 573,
+     "units": [
+      118,
+      116
+     ],
+     "cluster": [
+      45,
+      18
+     ],
+     "dens": [
+      24,
+      15
+     ],
+     "sup": [
+      45.2,
+      54.8
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 603,
+     "units": [
+      110,
+      119
+     ],
+     "cluster": [
+      50,
+      18
+     ],
+     "dens": [
+      26,
+      13
+     ],
+     "sup": [
+      44.2,
+      55.8
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 633,
+     "units": [
+      118,
+      119
+     ],
+     "cluster": [
+      39,
+      44
+     ],
+     "dens": [
+      31,
+      14
+     ],
+     "sup": [
+      45.8,
+      54.2
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 663,
+     "units": [
+      119,
+      118
+     ],
+     "cluster": [
+      42,
+      43
+     ],
+     "dens": [
+      23,
+      12
+     ],
+     "sup": [
+      46.3,
+      53.7
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 693,
+     "units": [
+      119,
+      118
+     ],
+     "cluster": [
+      21,
+      27
+     ],
+     "dens": [
+      17,
+      13
+     ],
+     "sup": [
+      47.6,
+      52.4
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 723,
+     "units": [
+      115,
+      117
+     ],
+     "cluster": [
+      16,
+      23
+     ],
+     "dens": [
+      14,
+      10
+     ],
+     "sup": [
+      46.7,
+      53.3
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 753,
+     "units": [
+      120,
+      116
+     ],
+     "cluster": [
+      15,
+      20
+     ],
+     "dens": [
+      12,
+      11
+     ],
+     "sup": [
+      47.2,
+      52.8
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 783,
+     "units": [
+      114,
+      115
+     ],
+     "cluster": [
+      14,
+      51
+     ],
+     "dens": [
+      12,
+      13
+     ],
+     "sup": [
+      47.7,
+      52.3
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 813,
+     "units": [
+      118,
+      115
+     ],
+     "cluster": [
+      14,
+      27
+     ],
+     "dens": [
+      12,
+      15
+     ],
+     "sup": [
+      49.4,
+      50.6
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 843,
+     "units": [
+      115,
+      115
+     ],
+     "cluster": [
+      27,
+      19
+     ],
+     "dens": [
+      13,
+      10
+     ],
+     "sup": [
+      48.7,
+      51.3
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 873,
+     "units": [
+      113,
+      115
+     ],
+     "cluster": [
+      14,
+      38
+     ],
+     "dens": [
+      14,
+      18
+     ],
+     "sup": [
+      47,
+      53
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 900,
+     "units": [
+      117,
+      118
+     ],
+     "cluster": [
+      14,
+      34
+     ],
+     "dens": [
+      12,
+      21
+     ],
+     "sup": [
+      47.1,
+      52.9
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    }
+   ],
+   "modules": {
+    "strategy": {
+     "raids": 17,
+     "raidsDone": 0,
+     "retargets": 296,
+     "badTargets": 11,
+     "noLosBunker": 20,
+     "stuck": [
+      66,
+      31,
+      55
+     ],
+     "idleMoves": 695,
+     "counterBattery": 3,
+     "errors": 0,
+     "spread": 1094,
+     "capped": 648,
+     "flankRoutes": 15,
+     "unsafe": 7
+    },
+    "structs": [
+     3,
+     0
+    ],
+    "captured": 0,
+    "orders": {
+     "groups": 25,
+     "covers": 210,
+     "stalls": 3,
+     "decisions": 0,
+     "done": 0,
+     "noarms": 0,
+     "blocked": 0,
+     "errors": 0
+    },
+    "eng": {
+     "repaired": 474.8061137383818,
+     "rebuilt": 0,
+     "recovered": 0,
+     "tracks": 8,
+     "motors": 3,
+     "reinforced": 0,
+     "errors": 0
+    },
+    "clean": {
+     "corpsesAged": 130,
+     "hulks": 9,
+     "hulksGone": 0,
+     "bloodFades": 176,
+     "errors": 0
+    },
+    "bunk": {
+     "inside": 20,
+     "killed": 0,
+     "wounded": 0,
+     "survived": 0,
+     "released": 8,
+     "errors": 0
+    },
+    "air": {
+     "runwayHits": 0,
+     "hangarsLost": 0,
+     "planesLost": 0,
+     "blocked": 0,
+     "aiMissions": 9,
+     "retasks": 0,
+     "errors": 0
+    },
+    "comms": {
+     "reports": 10,
+     "proposals": 0,
+     "accepted": 0,
+     "declined": 0,
+     "delayed": 0,
+     "errors": 0
+    }
+   },
+   "realSeconds": 151,
+   "errors": []
+  },
+  {
+   "map": "forest",
+   "ended": true,
+   "time": 900.2996000001348,
+   "result": {
+    "loser": 0,
+    "winner": 1,
+    "why": "stalemate",
+    "at": 900.2996000001348,
+    "sup": [
+     47.4178186714328,
+     52.5821813285672
+    ]
+   },
+   "sup": [
+    47.4,
+    52.6
+   ],
+   "peakCluster": [
+    53,
+    74
+   ],
+   "peakDensity": [
+    32,
+    24
+   ],
+   "meanDensity": [
+    17.5,
+    16.1
+   ],
+   "samples": [
+    {
+     "t": 30,
+     "units": [
+      93,
+      98
+     ],
+     "cluster": [
+      49,
+      63
+     ],
+     "dens": [
+      22,
+      18
+     ],
+     "sup": [
+      49.7,
+      50.3
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 60,
+     "units": [
+      114,
+      118
+     ],
+     "cluster": [
+      49,
+      41
+     ],
+     "dens": [
+      32,
+      22
+     ],
+     "sup": [
+      48.2,
+      51.8
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 90,
+     "units": [
+      110,
+      118
+     ],
+     "cluster": [
+      46,
+      36
+     ],
+     "dens": [
+      24,
+      14
+     ],
+     "sup": [
+      48.1,
+      51.9
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 121,
+     "units": [
+      117,
+      119
+     ],
+     "cluster": [
+      49,
+      65
+     ],
+     "dens": [
+      28,
+      18
+     ],
+     "sup": [
+      47.2,
+      52.8
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 151,
+     "units": [
+      115,
+      120
+     ],
+     "cluster": [
+      53,
+      51
+     ],
+     "dens": [
+      25,
+      10
+     ],
+     "sup": [
+      47,
+      53
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 181,
+     "units": [
+      114,
+      116
+     ],
+     "cluster": [
+      33,
+      18
+     ],
+     "dens": [
+      13,
+      17
+     ],
+     "sup": [
+      46.1,
+      53.9
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 211,
+     "units": [
+      116,
+      116
+     ],
+     "cluster": [
+      30,
+      56
+     ],
+     "dens": [
+      20,
+      17
+     ],
+     "sup": [
+      45.8,
+      54.2
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 241,
+     "units": [
+      119,
+      118
+     ],
+     "cluster": [
+      31,
+      24
+     ],
+     "dens": [
+      13,
+      13
+     ],
+     "sup": [
+      45.4,
+      54.6
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 271,
+     "units": [
+      114,
+      113
+     ],
+     "cluster": [
+      38,
+      29
+     ],
+     "dens": [
+      18,
+      15
+     ],
+     "sup": [
+      47.3,
+      52.7
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 301,
+     "units": [
+      113,
+      113
+     ],
+     "cluster": [
+      30,
+      43
+     ],
+     "dens": [
+      17,
+      12
+     ],
+     "sup": [
+      45.7,
+      54.3
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 332,
+     "units": [
+      114,
+      118
+     ],
+     "cluster": [
+      27,
+      39
+     ],
+     "dens": [
+      16,
+      17
+     ],
+     "sup": [
+      46.1,
+      53.9
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 362,
+     "units": [
+      109,
+      114
+     ],
+     "cluster": [
+      11,
+      25
+     ],
+     "dens": [
+      9,
+      20
+     ],
+     "sup": [
+      46.7,
+      53.3
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 392,
+     "units": [
+      111,
+      113
+     ],
+     "cluster": [
+      23,
+      42
+     ],
+     "dens": [
+      22,
+      14
+     ],
+     "sup": [
+      46.3,
+      53.7
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 422,
+     "units": [
+      117,
+      112
+     ],
+     "cluster": [
+      16,
+      27
+     ],
+     "dens": [
+      10,
+      15
+     ],
+     "sup": [
+      47.5,
+      52.5
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 452,
+     "units": [
+      120,
+      117
+     ],
+     "cluster": [
+      23,
+      27
+     ],
+     "dens": [
+      23,
+      10
+     ],
+     "sup": [
+      49.2,
+      50.8
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 482,
+     "units": [
+      113,
+      114
+     ],
+     "cluster": [
+      53,
+      20
+     ],
+     "dens": [
+      21,
+      20
+     ],
+     "sup": [
+      50.3,
+      49.7
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 512,
+     "units": [
+      119,
+      116
+     ],
+     "cluster": [
+      33,
+      26
+     ],
+     "dens": [
+      18,
+      17
+     ],
+     "sup": [
+      54,
+      46
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 542,
+     "units": [
+      120,
+      113
+     ],
+     "cluster": [
+      22,
+      49
+     ],
+     "dens": [
+      16,
+      18
+     ],
+     "sup": [
+      53.3,
+      46.7
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 572,
+     "units": [
+      119,
+      113
+     ],
+     "cluster": [
+      23,
+      26
+     ],
+     "dens": [
+      14,
+      16
+     ],
+     "sup": [
+      53.6,
+      46.4
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 603,
+     "units": [
+      119,
+      118
+     ],
+     "cluster": [
+      17,
+      64
+     ],
+     "dens": [
+      15,
+      24
+     ],
+     "sup": [
+      53.5,
+      46.5
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 633,
+     "units": [
+      112,
+      119
+     ],
+     "cluster": [
+      18,
+      50
+     ],
+     "dens": [
+      16,
+      24
+     ],
+     "sup": [
+      54,
+      46
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 663,
+     "units": [
+      116,
+      119
+     ],
+     "cluster": [
+      19,
+      74
+     ],
+     "dens": [
+      13,
+      19
+     ],
+     "sup": [
+      55.8,
+      44.2
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 693,
+     "units": [
+      119,
+      113
+     ],
+     "cluster": [
+      27,
+      43
+     ],
+     "dens": [
+      18,
+      18
+     ],
+     "sup": [
+      57.2,
+      42.8
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 723,
+     "units": [
+      119,
+      116
+     ],
+     "cluster": [
+      22,
+      55
+     ],
+     "dens": [
+      19,
+      22
+     ],
+     "sup": [
+      57.6,
+      42.4
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 753,
+     "units": [
+      117,
+      112
+     ],
+     "cluster": [
+      34,
+      17
+     ],
+     "dens": [
+      16,
+      15
+     ],
+     "sup": [
+      55.2,
+      44.8
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 783,
+     "units": [
+      111,
+      114
+     ],
+     "cluster": [
+      20,
+      36
+     ],
+     "dens": [
+      15,
+      10
+     ],
+     "sup": [
+      52.3,
+      47.7
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 813,
+     "units": [
+      118,
+      115
+     ],
+     "cluster": [
+      29,
+      15
+     ],
+     "dens": [
+      16,
+      11
+     ],
+     "sup": [
+      51.9,
+      48.1
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 843,
+     "units": [
+      118,
+      113
+     ],
+     "cluster": [
+      15,
+      32
+     ],
+     "dens": [
+      15,
+      13
+     ],
+     "sup": [
+      51,
+      49
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 873,
+     "units": [
+      117,
+      119
+     ],
+     "cluster": [
+      14,
+      16
+     ],
+     "dens": [
+      11,
+      16
+     ],
+     "sup": [
+      49.5,
+      50.5
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 900,
+     "units": [
+      118,
+      120
+     ],
+     "cluster": [
+      12,
+      8
+     ],
+     "dens": [
+      10,
+      8
+     ],
+     "sup": [
+      47.4,
+      52.6
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    }
+   ],
+   "modules": {
+    "strategy": {
+     "raids": 16,
+     "raidsDone": 4,
+     "retargets": 471,
+     "badTargets": 15,
+     "noLosBunker": 161,
+     "stuck": [
+      74,
+      33,
+      37
+     ],
+     "idleMoves": 264,
+     "counterBattery": 0,
+     "errors": 0,
+     "spread": 1756,
+     "capped": 1010,
+     "flankRoutes": 8,
+     "unsafe": 9
+    },
+    "structs": [
+     6,
+     10
+    ],
+    "captured": 0,
+    "orders": {
+     "groups": 16,
+     "covers": 200,
+     "stalls": 1,
+     "decisions": 0,
+     "done": 4,
+     "noarms": 0,
+     "blocked": 0,
+     "errors": 0
+    },
+    "eng": {
+     "repaired": 1145.0619897229553,
+     "rebuilt": 0,
+     "recovered": 0,
+     "tracks": 9,
+     "motors": 7,
+     "reinforced": 0,
+     "errors": 0
+    },
+    "clean": {
+     "corpsesAged": 477,
+     "hulks": 9,
+     "hulksGone": 0,
+     "bloodFades": 176,
+     "errors": 0
+    },
+    "bunk": {
+     "inside": 22,
+     "killed": 0,
+     "wounded": 1,
+     "survived": 0,
+     "released": 18,
+     "errors": 0
+    },
+    "air": {
+     "runwayHits": 0,
+     "hangarsLost": 0,
+     "planesLost": 0,
+     "blocked": 0,
+     "aiMissions": 9,
+     "retasks": 0,
+     "errors": 0
+    },
+    "comms": {
+     "reports": 27,
+     "proposals": 0,
+     "accepted": 0,
+     "declined": 0,
+     "delayed": 0,
+     "errors": 0
+    }
+   },
+   "realSeconds": 181,
+   "errors": []
+  },
+  {
+   "map": "winter",
+   "ended": true,
+   "time": 900.2795000001346,
+   "result": {
+    "loser": 0,
+    "winner": 1,
+    "why": "stalemate",
+    "at": 900.2795000001346,
+    "sup": [
+     46.60617326744504,
+     53.39382673255496
+    ]
+   },
+   "sup": [
+    46.6,
+    53.4
+   ],
+   "peakCluster": [
+    55,
+    63
+   ],
+   "peakDensity": [
+    31,
+    20
+   ],
+   "meanDensity": [
+    18,
+    12.3
+   ],
+   "samples": [
+    {
+     "t": 30,
+     "units": [
+      93,
+      98
+     ],
+     "cluster": [
+      50,
+      63
+     ],
+     "dens": [
+      26,
+      13
+     ],
+     "sup": [
+      50,
+      50
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 60,
+     "units": [
+      119,
+      120
+     ],
+     "cluster": [
+      47,
+      45
+     ],
+     "dens": [
+      22,
+      20
+     ],
+     "sup": [
+      48.5,
+      51.5
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 90,
+     "units": [
+      110,
+      120
+     ],
+     "cluster": [
+      51,
+      22
+     ],
+     "dens": [
+      31,
+      13
+     ],
+     "sup": [
+      47.4,
+      52.6
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 121,
+     "units": [
+      120,
+      120
+     ],
+     "cluster": [
+      55,
+      54
+     ],
+     "dens": [
+      22,
+      14
+     ],
+     "sup": [
+      45.5,
+      54.5
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 151,
+     "units": [
+      118,
+      119
+     ],
+     "cluster": [
+      51,
+      48
+     ],
+     "dens": [
+      28,
+      12
+     ],
+     "sup": [
+      45,
+      55
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 181,
+     "units": [
+      115,
+      108
+     ],
+     "cluster": [
+      19,
+      36
+     ],
+     "dens": [
+      12,
+      10
+     ],
+     "sup": [
+      44.4,
+      55.6
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 211,
+     "units": [
+      116,
+      113
+     ],
+     "cluster": [
+      23,
+      48
+     ],
+     "dens": [
+      13,
+      12
+     ],
+     "sup": [
+      45.9,
+      54.1
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 241,
+     "units": [
+      112,
+      120
+     ],
+     "cluster": [
+      20,
+      33
+     ],
+     "dens": [
+      13,
+      10
+     ],
+     "sup": [
+      46.5,
+      53.5
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 271,
+     "units": [
+      120,
+      119
+     ],
+     "cluster": [
+      31,
+      46
+     ],
+     "dens": [
+      20,
+      10
+     ],
+     "sup": [
+      47.7,
+      52.3
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 302,
+     "units": [
+      119,
+      119
+     ],
+     "cluster": [
+      32,
+      18
+     ],
+     "dens": [
+      29,
+      10
+     ],
+     "sup": [
+      46.9,
+      53.1
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 332,
+     "units": [
+      118,
+      119
+     ],
+     "cluster": [
+      26,
+      15
+     ],
+     "dens": [
+      16,
+      13
+     ],
+     "sup": [
+      45.2,
+      54.8
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 362,
+     "units": [
+      110,
+      120
+     ],
+     "cluster": [
+      37,
+      12
+     ],
+     "dens": [
+      16,
+      9
+     ],
+     "sup": [
+      43.8,
+      56.2
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 392,
+     "units": [
+      116,
+      119
+     ],
+     "cluster": [
+      38,
+      15
+     ],
+     "dens": [
+      16,
+      12
+     ],
+     "sup": [
+      44.7,
+      55.3
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 422,
+     "units": [
+      112,
+      118
+     ],
+     "cluster": [
+      36,
+      29
+     ],
+     "dens": [
+      17,
+      15
+     ],
+     "sup": [
+      44.4,
+      55.6
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 452,
+     "units": [
+      114,
+      117
+     ],
+     "cluster": [
+      27,
+      24
+     ],
+     "dens": [
+      17,
+      13
+     ],
+     "sup": [
+      46.9,
+      53.1
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 482,
+     "units": [
+      117,
+      115
+     ],
+     "cluster": [
+      22,
+      16
+     ],
+     "dens": [
+      17,
+      8
+     ],
+     "sup": [
+      49.1,
+      50.9
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 512,
+     "units": [
+      111,
+      120
+     ],
+     "cluster": [
+      36,
+      21
+     ],
+     "dens": [
+      14,
+      11
+     ],
+     "sup": [
+      48.8,
+      51.2
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 542,
+     "units": [
+      114,
+      118
+     ],
+     "cluster": [
+      32,
+      21
+     ],
+     "dens": [
+      15,
+      14
+     ],
+     "sup": [
+      50.1,
+      49.9
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 572,
+     "units": [
+      117,
+      120
+     ],
+     "cluster": [
+      26,
+      11
+     ],
+     "dens": [
+      9,
+      8
+     ],
+     "sup": [
+      49.1,
+      50.9
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 603,
+     "units": [
+      112,
+      118
+     ],
+     "cluster": [
+      19,
+      15
+     ],
+     "dens": [
+      13,
+      15
+     ],
+     "sup": [
+      46.5,
+      53.5
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 633,
+     "units": [
+      111,
+      111
+     ],
+     "cluster": [
+      11,
+      13
+     ],
+     "dens": [
+      8,
+      12
+     ],
+     "sup": [
+      46.8,
+      53.2
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 663,
+     "units": [
+      121,
+      116
+     ],
+     "cluster": [
+      17,
+      31
+     ],
+     "dens": [
+      10,
+      13
+     ],
+     "sup": [
+      46.2,
+      53.8
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 693,
+     "units": [
+      118,
+      113
+     ],
+     "cluster": [
+      19,
+      42
+     ],
+     "dens": [
+      14,
+      20
+     ],
+     "sup": [
+      45.6,
+      54.4
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 723,
+     "units": [
+      120,
+      120
+     ],
+     "cluster": [
+      20,
+      25
+     ],
+     "dens": [
+      12,
+      14
+     ],
+     "sup": [
+      45.1,
+      54.9
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 753,
+     "units": [
+      113,
+      119
+     ],
+     "cluster": [
+      14,
+      27
+     ],
+     "dens": [
+      11,
+      15
+     ],
+     "sup": [
+      44.7,
+      55.3
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 783,
+     "units": [
+      116,
+      114
+     ],
+     "cluster": [
+      36,
+      14
+     ],
+     "dens": [
+      19,
+      10
+     ],
+     "sup": [
+      45.3,
+      54.7
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 813,
+     "units": [
+      118,
+      119
+     ],
+     "cluster": [
+      32,
+      48
+     ],
+     "dens": [
+      22,
+      14
+     ],
+     "sup": [
+      43.8,
+      56.2
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 843,
+     "units": [
+      119,
+      114
+     ],
+     "cluster": [
+      27,
+      27
+     ],
+     "dens": [
+      22,
+      10
+     ],
+     "sup": [
+      45.5,
+      54.5
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 874,
+     "units": [
+      108,
+      113
+     ],
+     "cluster": [
+      32,
+      39
+     ],
+     "dens": [
+      25,
+      10
+     ],
+     "sup": [
+      46.3,
+      53.7
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 900,
+     "units": [
+      116,
+      120
+     ],
+     "cluster": [
+      40,
+      25
+     ],
+     "dens": [
+      30,
+      9
+     ],
+     "sup": [
+      46.6,
+      53.4
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    }
+   ],
+   "modules": {
+    "strategy": {
+     "raids": 18,
+     "raidsDone": 1,
+     "retargets": 85,
+     "badTargets": 4,
+     "noLosBunker": 6,
+     "stuck": [
+      39,
+      23,
+      15
+     ],
+     "idleMoves": 673,
+     "counterBattery": 0,
+     "errors": 0,
+     "spread": 1408,
+     "capped": 272,
+     "unsafe": 33,
+     "flankRoutes": 17
+    },
+    "structs": [
+     5,
+     5
+    ],
+    "captured": 0,
+    "orders": {
+     "groups": 18,
+     "covers": 155,
+     "stalls": 0,
+     "decisions": 0,
+     "done": 1,
+     "noarms": 0,
+     "blocked": 0,
+     "errors": 0
+    },
+    "eng": {
+     "repaired": 2727.2360631075608,
+     "rebuilt": 0,
+     "recovered": 0,
+     "tracks": 15,
+     "motors": 7,
+     "reinforced": 0,
+     "errors": 0
+    },
+    "clean": {
+     "corpsesAged": 502,
+     "hulks": 13,
+     "hulksGone": 0,
+     "bloodFades": 176,
+     "errors": 0
+    },
+    "bunk": {
+     "inside": 38,
+     "killed": 0,
+     "wounded": 0,
+     "survived": 1,
+     "released": 22,
+     "errors": 0
+    },
+    "air": {
+     "runwayHits": 0,
+     "hangarsLost": 0,
+     "planesLost": 0,
+     "blocked": 0,
+     "aiMissions": 7,
+     "retasks": 0,
+     "errors": 0
+    },
+    "comms": {
+     "reports": 30,
+     "proposals": 0,
+     "accepted": 0,
+     "declined": 0,
+     "delayed": 0,
+     "errors": 0
+    }
+   },
+   "realSeconds": 166,
+   "errors": []
+  }
+ ]
+}

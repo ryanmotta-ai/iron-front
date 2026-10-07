@@ -139,7 +139,7 @@ function hitPlane(p,dmg,by,real=true){if(p.st==='down'||p.dead)return;const v=vi
  if(!real)return;p.hp-=dmg;snd('ping');
  if(p.hp<=0){p.st='down';p.fall=0;FL.stats.downed++;if(typeof teamKills!=='undefined'&&by!==p.team)teamKills[by]++;
   say(p.team,'Seu avião de observação foi abatido!');say(1-p.team,'Avião de observação inimigo abatido!')}}
-const spotted=(team,x,y)=>SP.some(p=>p.team===team&&p.st!=='down'&&hyp(p.x-x,p.y-y)<=A.SEC);
+const spotted=(team,x,y)=>!!window.IronFrontAirCommand?.onStation?.(team,x,y)||SP.some(p=>p.team===team&&p.st!=='down'&&hyp(p.x-x,p.y-y)<=A.SEC);
 function aaTick(dt){
  /* flak: cada canhão ajusta a mira (lock) enquanto o alvo está no alcance; o tiro leva ~0,65 s e leva em conta a velocidade */
  for(const g of AAG){g.flash=Math.max(0,g.flash-dt);if(g.hp<=0)continue;let tgt=null,bd=A.FLAK_R;
@@ -168,7 +168,7 @@ function revealFog(){const f=window.PXW&&PXW.fow;if(!f||!f.on||!f.grid)return;
  for(const p of SP){if(p.team!==f.team||p.st==='down')continue;const R=A.SEC+45,ch=Math.ceil(H/64);
   for(let y=Math.max(0,Math.floor((p.y-R)/64));y<=Math.min(ch-1,Math.floor((p.y+R)/64));y++)for(let x=Math.max(0,Math.floor((p.x-R)/64));x<=Math.min(f.cw-1,Math.floor((p.x+R)/64));x++)
    if(hyp(x*64+32-p.x,y*64+32-p.y)<R)f.grid[y*f.cw+x]=1}}
-function aiCalls(){if(typeof aiEnabled==='undefined'||typeof started==='undefined'||!started||ended||grounded())return;
+function aiCalls(){if(window.PXAW?.on)return;if(typeof aiEnabled==='undefined'||typeof started==='undefined'||!started||ended||grounded())return;
  for(let team=0;team<2;team++){if(!aiEnabled[team]||time<callAt[team])continue;callAt[team]=time+rnd(...A.AI_EVERY);
   if(SP.some(p=>p.team===team&&p.st!=='down'&&p.st!=='out'))continue;
   if(!sandbox&&supplies[team]<A.COST+defs.artillery.cost)continue;
@@ -211,7 +211,7 @@ wrap('place',(orig,x,y)=>{if(!FL.on||placement!=='recon')return orig(x,y);
  if(!spend('recon'))return;const p=launch(playerTeam,x,y),eta=Math.round(hyp(p.x-(p.cx+A.RX*Math.cos(p.phi)),p.y-(p.cy+A.RY*Math.sin(p.phi)))/A.V);
  toast(`Avião de observação a caminho (~${eta} s). Ele orbita o setor por ${A.ORBIT} s.`);snd('click');hud();
  if(!keys.Shift){placement=null;makeCards();$('placehint').textContent='Escolha uma unidade e posicione no campo'}});
-wrap('makeCards',orig=>{orig();try{if(tab!=='support'||!defs.recon)return;const d=defs.recon,b=document.createElement('button');b.className='card'+(placement==='recon'?' active':'');
+wrap('makeCards',orig=>{orig();try{if(tab!=='support'||!defs.recon)return;const d=defs.recon,b=document.createElement('button');b.className='card'+(placement==='recon'?' active':'');b.dataset.kind='recon';
  b.innerHTML=`<canvas width="48" height="48"></canvas><b>${['Salmson 2A2','Rumpler C.VII'][playerTeam]}</b><small>${d.sub}</small><span class="cost">◈ ${sandbox?'∞':d.cost}</span><kbd>5</kbd>`;
  b.onclick=()=>choose('recon');$('cards').append(b);icon('recon',b.querySelector('canvas').getContext('2d'))}catch(e){fail(e)}});
 wrap('icon',(orig,type,c)=>{if(type!=='recon')return orig(type,c);c.clearRect(0,0,48,48);try{const s=planeSprite(playerTeam,-PI/6);if(s)c.drawImage(s.c,24-s.c.width/2,24-s.c.height/2)}catch(e){}});

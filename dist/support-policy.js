@@ -11,7 +11,7 @@ function risk(s,p){let v=0;
  return Math.max(0,v);
 }
 function route(s,start,goal){const length=dist(start,goal);if(length<25)return {...goal};const reach=Math.min(length,110),dx=(goal.x-start.x)/length,dy=(goal.y-start.y)/length;let best=null,score=Infinity;
- for(const off of [0,-55,55,-110,110]){const p={x:clamp(start.x+dx*reach-dy*off,20,2380),y:clamp(start.y+dy*reach+dx*off,20,1580)};
+ for(const off of [0,-55,55,-110,110]){const p={x:clamp(start.x+dx*reach-dy*off,20,(s.width||root.IronFrontWorld?.width||2400)-20),y:clamp(start.y+dy*reach+dx*off,20,(s.height||root.IronFrontWorld?.height||1600)-20)};
   const cost=dist(p,goal)*.035+Math.abs(off)*.014+risk(s,p)+risk(s,{x:(start.x+p.x)/2,y:(start.y+p.y)/2})*.7+(s.clear&&!s.clear(start,p)?12:0);
   if(cost<score){score=cost;best=p}}
  return best;

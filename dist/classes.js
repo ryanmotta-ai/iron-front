@@ -1,7 +1,7 @@
 'use strict';
 /* Iron Front 1.9 — classes de infantaria com função própria (classes.js). Carrega DEPOIS de casualty.js.
    Toda classe é um fuzileiro (u.type==='rifle') com u.cls: medics.js, Brain, assault.js, sappers.js e casualty.js
-   continuam funcionando. Pioneiros (u.sap) não recebem classe.
+   continuam funcionando. Engenheiros de Campo (u.sap) não recebem classe.
    Distribuição automática (vale para o exército inicial e para TODA compra de fuzileiros, inclusive da IA, sem tocar no ai.js):
    a cada 16 fuzileiros de um lado → 2 granadeiros, 1 médico, 1 atirador designado; a cada 48 → 1 observador de artilharia.
    Cartas novas (aba TROPAS): "Tropas de assalto" (6, ◈150) e "Seção de especialistas" (médico, granadeiro, atirador, observador; ◈140).
@@ -155,7 +155,7 @@ function melee(u){const near=typeof nearest==='function'?nearest(u,CFG.ASLT.mele
 const PRE=[];
 function tick(dt){slow-=dt;const heavy=slow<=0;if(heavy)slow=.25;
  trackTick();
- for(const u of units){if(!u.cls)continue;if(u.sap){if(!u.sapTmp)delete u.cls;continue}if(!live(u)||!isAI(u))continue;   // pioneiro de verdade perde a classe; o da trégua (sapTmp) só pausa
+ for(const u of units){if(!u.cls)continue;if(u.sap){if(!u.sapTmp)delete u.cls;continue}if(!live(u)||!isAI(u))continue;   // engenheiro de campo de verdade perde a classe; o da trégua (sapTmp) só pausa
   u.ccd=(u.ccd||0)-dt;
   switch(u.cls){
   case 'medic':u.cd=Math.max(u.cd||0,.6);break;
@@ -177,7 +177,7 @@ wrap('update',(orig,dt)=>{if(!S.on||!started||ended)return orig(dt);
 /* ---------- cartas ---------- */
 const NAT={assault:['Trench Raiders','Stoßtrupp']};
 wrap('makeCards',orig=>{orig();try{if(!S.on||tab!=='units')return;
- for(const [type,key] of [['assault','7'],['specialists','8']]){const d=defs[type],b=document.createElement('button');b.className='card'+(placement===type?' active':'');
+ for(const [type,key] of [['assault','7'],['specialists','8']]){const d=defs[type],b=document.createElement('button');b.className='card'+(placement===type?' active':'');b.dataset.kind=type;
   b.innerHTML=`<canvas width="48" height="48"></canvas><b>${type==='assault'?NAT.assault[playerTeam]:d.name}</b><small>${d.sub}</small><span class="cost">◈ ${sandbox?'∞':d.cost}</span><kbd>${key}</kbd>`;
   b.onclick=()=>choose(type);document.getElementById('cards').append(b);icon(type,b.querySelector('canvas').getContext('2d'))}}catch(e){fail(e)}});
 wrap('icon',(orig,type,c)=>{if(type!=='assault'&&type!=='specialists')return orig(type,c);orig('rifle',c);const k=c.canvas.width/48,p=(x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(Math.round(x*k),Math.round(y*k),Math.max(1,Math.round(w*k)),Math.max(1,Math.round(h*k)))};

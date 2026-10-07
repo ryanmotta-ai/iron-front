@@ -1,6 +1,6 @@
 'use strict';
 /* Iron Front 1.9 — obras novas para o modo construtor (works.js). Carrega DEPOIS de aviation.js. Usa o catálogo do sappers/fortify
-   (PXSAP.cfg.KIND + PXFORT.KINDS/SHORT/SUB): as obras aparecem na aba DEFESAS e os pioneiros as constroem como as outras.
+   (PXSAP.cfg.KIND + PXFORT.KINDS/SHORT/SUB): as obras aparecem na aba DEFESAS e os engenheiros de campo as constroem como as outras.
    Toca individual ..... (◈8, 4 s de obra) buraco de atirador para 1 homem na terra de ninguém: vira cobertura (âncora) como a
                          trincheira, sem precisar de uma linha. Serve para segurar o terreno ganho até a sapa chegar.
    Depósito de munição . (◈90) caixotes sob lona: a cada 5 s, infantaria a até 140 px completa o pente e recupera 1 granada; MG
@@ -10,7 +10,7 @@
                          artilharia a até 480 px dele (dispersão −40%, soma com observador e avião).
    Cavalo de frisa ..... (◈22, 5 s) obstáculo portátil de estacas e arame: um trecho de arame curto (freia quem passa) que dá para
                          fechar uma brecha ou o fundo de uma trincheira tomada.
-   A IA põe 2 depósitos e 1 posto de observação no plano da trégua e pioneiros cavam tocas à frente na guerra.
+   A IA põe 2 depósitos e 1 posto de observação no plano da trégua e engenheiros de campo cavam tocas à frente na guerra.
    ?obras=0 desliga · IronFront.works.state(). */
 (function(){
 if(!window.PXSAP||!window.PXFORT||!PXSAP.cfg||!PXSAP.cfg.KIND)return;
@@ -69,8 +69,8 @@ function revealOP(){const f=window.PXW&&PXW.fow;if(!f||!f.on||!f.grid)return;con
  for(const o of OPS){if(o.team!==f.team)continue;for(let y=Math.max(0,Math.floor((o.y-Rr)/64));y<=Math.min(ch-1,Math.floor((o.y+Rr)/64));y++)for(let x=Math.max(0,Math.floor((o.x-Rr)/64));x<=Math.min(f.cw-1,Math.floor((o.x+Rr)/64));x++)if(hyp(x*64+32-o.x,y*64+32-o.y)<Rr)f.grid[y*f.cw+x]=1}}
 if(window.PXBAT&&PXBAT.mission){const o=PXBAT.mission;PXBAT.mission=function(team,x,y,count,spread,kind,cb,strict){
  if(S.on&&kind!=='smoke'&&OPS.some(p=>p.team===team&&hyp(p.x-x,p.y-y)<CFG.OP.art)){spread*=CFG.OP.spread;S.stats.opCorrected++}return o.call(this,team,x,y,count,spread,kind,cb,strict)}}
-/* pioneiros da IA cavam tocas à frente da própria linha quando o setor está parado */
-let foxT=40;function aiFox(dt){if((foxT-=dt)>0)return;foxT=35;for(let t=0;t<2;t++){if(!aiEnabled[t]||!PXSAP.project)continue;const f=t?-1:1,front=fieldTrenches.filter(a=>a.team===t&&a.line==='front');if(!front.length)continue;
+/* engenheiros de campo da IA cavam tocas à frente da própria linha quando o setor está parado */
+let foxT=40;function aiFox(dt){if((foxT-=dt)>0)return;foxT=35;if(window.IronFrontEngineering&&F.on)return;for(let t=0;t<2;t++){if(!aiEnabled[t]||!PXSAP.project)continue;const f=t?-1:1,front=fieldTrenches.filter(a=>a.team===t&&a.line==='front');if(!front.length)continue;
   const a=front[(Math.random()*front.length)|0],x=a.x+f*rnd(70,130),y=a.y+rnd(-20,20);if(units.some(u=>u.team!==t&&u.hp>0&&hyp(u.x-x,u.y-y)<220))continue;
   const res=Math.max(200,(window.IronFrontEngineering&&IronFrontEngineering.state&&IronFrontEngineering.state(t)?.reserve)||0);   /* só com caixa acima da reserva de obras */
   try{if(sandbox||supplies[t]>=K.foxhole.cost+res){if(PXSAP.project(t,'foxhole','ai',[[x,y]])&&!sandbox)supplies[t]-=K.foxhole.cost}}catch{}}}

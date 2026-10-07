@@ -14,25 +14,25 @@ let save=load();const store=()=>{try{localStorage.setItem(KEY,JSON.stringify(sav
 /* ================= conteúdo: campanha e história ================= */
 const OPS=[
  {id:'c1',name:'Amanhecer no arame',map:'trenches',thumb:'trenches',scale:80,diff:'easy',wx:'clear',side:0,txt:'Primeiro contato com a linha alemã. O arame farpado ainda está intacto e a artilharia inimiga é rara. Rompa as linhas e capture a bandeira na base alemã, protegendo sua retaguarda.'},
- {id:'c2',name:'Chuva de ferro',map:'trenches',thumb:'rain',scale:160,diff:'normal',wx:'rain',side:0,txt:'A chuva encharca as trincheiras e atola os reforços. Quem segurar o terreno alto mantém a logística. Cuidado com as crateras alagadas.'},
- {id:'c3',name:'Neblina na mata',map:'forest',thumb:'forest',scale:160,diff:'normal',wx:'overcast',side:0,txt:'A neblina esconde tudo além de poucas dezenas de metros. A floresta oferece cobertura, mas também emboscadas. Use metralhadoras nas clareiras.'},
- {id:'c4',name:'Noite de trovões',map:'forest',thumb:'storm',scale:160,diff:'hard',wx:'storm',side:0,txt:'Tempestade sobre a floresta. Raios atingem tanques e aviões ficam em solo. O comandante inimigo é um general: não espere piedade.'},
- {id:'c5',name:'Nevasca do norte',map:'winter',thumb:'winter',scale:160,diff:'normal',wx:'dynamic',side:0,txt:'Nevascas e neblina gelada no extremo norte da frente. O tempo muda sem aviso; acompanhe a previsão no canto da tela.'},
- {id:'c6',name:'A grande ofensiva',map:'trenches',thumb:'trenches',scale:320,diff:'hard',wx:'dynamic',side:0,txt:'A maior batalha da frente. Mais de trezentos homens de cada lado e um general do outro lado. Tudo o que você aprendeu vale agora.'}];
+ {id:'c2',name:'Chuva de ferro',map:'trenches',thumb:'rain',scale:120,diff:'normal',wx:'rain',side:0,txt:'A chuva encharca as trincheiras e atola os reforços. Quem segurar o terreno alto mantém a logística. Cuidado com as crateras alagadas.'},
+ {id:'c3',name:'Patrulha na mata',map:'forest',thumb:'forest',scale:120,diff:'normal',wx:'overcast',side:0,txt:'Árvores e barrancos cortam as linhas de tiro. A floresta oferece cobertura, mas também emboscadas. Use metralhadoras nas clareiras.'},
+ {id:'c4',name:'Noite de trovões',map:'forest',thumb:'storm',scale:120,diff:'hard',wx:'storm',side:0,txt:'Tempestade sobre a floresta. Raios atingem tanques e aviões ficam em solo. O comandante inimigo é um general: não espere piedade.'},
+ {id:'c5',name:'Nevasca do norte',map:'winter',thumb:'winter',scale:120,diff:'normal',wx:'dynamic',side:0,txt:'Nevascas e neblina gelada no extremo norte da frente. O tempo muda sem aviso; acompanhe a previsão no canto da tela.'},
+ {id:'c6',name:'A grande ofensiva',map:'trenches',thumb:'trenches',scale:160,diff:'hard',wx:'dynamic',side:0,txt:'A maior batalha da frente. Uma frente com até 160 unidades por lado e um general do outro lado. Tudo o que você aprendeu vale agora.'}];
 const CH=[
  {id:'s1',name:'Primeira noite',map:'trenches',scale:80,diff:'easy',wx:'clear',side:0,mode:'soldier',pt:'us',
-  txt:'"17 de abril. Chegamos ao anoitecer, eu e mais sete do pelotão. O sargento disse que a trincheira fica a meia hora de marcha, mas a lama tornou tudo mais longo.\n\nPrecisamos tomar as três posições antes do amanhecer. Fico na linha, fuzil na mão. Se eu cair, outro assume o meu lugar."',
+  txt:'"17 de abril. Chegamos ao anoitecer, eu e mais sete do pelotão. O sargento disse que a trincheira fica a meia hora de marcha, mas a lama tornou tudo mais longo.\n\nPrecisamos alcançar a base inimiga antes do amanhecer, sem perder nossa bandeira. Fico na linha, fuzil na mão. Se eu cair, outro assume o meu lugar."',
   goals:['Capture a bandeira na base alemã','Você começa como soldado · TAB volta ao comando'],epi:'Amanhecer. A bandeira inimiga caiu. Nossa base resistiu. Escrevi à minha mãe que estou bem.'},
  {id:'s2',name:'Cartas para casa',map:'trenches',scale:80,diff:'normal',wx:'drizzle',side:0,mode:'commander',pt:'cap',
   txt:'"O capitão me promoveu a sargento depois da última noite. Agora quem decide onde cada esquadrão cava sou eu.\n\nGaroa fina desde cedo. Dê ordens, construa defesas e compre reforços quando o caixa permitir. O inimigo já sabe onde estamos."',
   goals:['Comande o pelotão a partir do mapa','Use AVANÇAR, DEFENDER e as formações (F / C)'],epi:'Seguramos o setor. Mandei uma carta longa, dessas que não falam de medo.'},
- {id:'s3',name:'Lama',map:'trenches',scale:160,diff:'normal',wx:'rain',side:0,mode:'commander',pt:'us',
-  txt:'"Três dias de chuva. A água subiu até o joelho nas trincheiras de comunicação e os reforços chegam atolados.\n\nAgora a batalha é grande: cento e sessenta homens de cada lado. Mantenha a linha e não deixe o arame cair."',
-  goals:['Resista e capture os pontos com chuva forte','Observe o alagamento e a logística no canto'],epi:'A lama engoliu botas e ferramentas, mas ninguém recuou.'},
- {id:'s4',name:'A floresta fecha',map:'forest',scale:160,diff:'normal',wx:'overcast',side:0,mode:'soldier',pt:'us',
-  txt:'"Mandaram-nos pela floresta. A neblina cobre tudo e a gente só enxerga o que está a dez passos.\n\nFico com o fuzil novamente. Dizem que há tanques alemães perto da estrada. Se ouvir o motor, avise."',
-  goals:['Avance na floresta com visibilidade reduzida','Tanques aliados podem ser assumidos com E'],epi:'Saímos da mata com menos gente, mas com o caminho aberto.'},
- {id:'s5',name:'Do outro lado',map:'winter',scale:160,diff:'normal',wx:'dynamic',side:1,mode:'commander',pt:'de',
+ {id:'s3',name:'Lama',map:'trenches',scale:120,diff:'normal',wx:'rain',side:0,mode:'commander',pt:'us',
+  txt:'"Três dias de chuva. A água subiu até o joelho nas trincheiras de comunicação e os reforços chegam atolados.\n\nAgora a batalha é grande: até cento e vinte unidades de cada lado. Mantenha a linha e não deixe o arame cair."',
+  goals:['Proteja sua base e capture a bandeira inimiga sob chuva forte','Observe o alagamento e a logística no canto'],epi:'A lama engoliu botas e ferramentas, mas ninguém recuou.'},
+ {id:'s4',name:'A floresta fecha',map:'forest',scale:120,diff:'normal',wx:'overcast',side:0,mode:'soldier',pt:'us',
+  txt:'"Mandaram-nos pela floresta. As árvores fecham as linhas de tiro e escondem quem está atrás dos barrancos.\n\nFico com o fuzil novamente. Dizem que há tanques alemães perto da estrada. Se ouvir o motor, avise."',
+  goals:['Use cobertura e reconhecimento para avançar na floresta','Tanques aliados podem ser assumidos com E'],epi:'Saímos da mata com menos gente, mas com o caminho aberto.'},
+ {id:'s5',name:'Do outro lado',map:'winter',scale:120,diff:'normal',wx:'dynamic',side:1,mode:'commander',pt:'de',
   txt:'"Inverno. Desta vez acordei do outro lado da terra de ninguém: cabo Weber, Império Alemão, mesma lama, mesmo frio, outra bandeira.\n\nO homem do outro lado da trincheira também escreve cartas para casa. É o que a guerra nos deixa de igual."',
   goals:['Comande o Império Alemão no inverno','Capture a bandeira na base dos EUA'],epi:'Fim da campanha. Duas bandeiras, a mesma lama. Que este inverno seja o último.'}];
 
@@ -117,7 +117,7 @@ function startCh(i){const c=CH[i];run={kind:'story',idx:i,cfg:{map:c.map,type:'c
 /* ================= entrada e saída da batalha ================= */
 function setForm(cfg){
  $('mapselect').value=cfg.map;$('gametype').value=cfg.type;$('scale').value=cfg.scale;$('difficulty').value=cfg.diff;$('playerside').value=String(cfg.side);
- $('blueai').value=cfg.side===0?'off':'on';$('redai').value=cfg.side===0?'on':'off';const w=$('weathersel');if(w)w.value=cfg.wx}
+ $('blueai').value=cfg.mode==='soldier'||cfg.side===1?'on':'off';$('redai').value=cfg.mode==='soldier'||cfg.side===0?'on':'off';const w=$('weathersel');if(w)w.value=cfg.wx}
 function launch(cfg){
  setForm(cfg);enterBattle();
  if(cfg.mode==='soldier'){try{setMode('soldier',false)}catch{}}

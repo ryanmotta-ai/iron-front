@@ -1,0 +1,653 @@
+{
+ "args": {
+  "maps": [
+   "trenches"
+  ],
+  "scale": "160",
+  "maxT": 600,
+  "game": "sandbox",
+  "seed": 7,
+  "extra": "estrategia=0"
+ },
+ "matches": [
+  {
+   "map": "trenches",
+   "ended": false,
+   "time": 600.0294000000677,
+   "result": null,
+   "sup": [
+    47.4,
+    52.6
+   ],
+   "peakCluster": [
+    69,
+    108
+   ],
+   "peakDensity": [
+    49,
+    71
+   ],
+   "meanDensity": [
+    34.7,
+    31.7
+   ],
+   "samples": [
+    {
+     "t": 30,
+     "units": [
+      113,
+      118
+     ],
+     "cluster": [
+      23,
+      80
+     ],
+     "dens": [
+      14,
+      39
+     ],
+     "sup": [
+      50,
+      50
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 60,
+     "units": [
+      160,
+      151
+     ],
+     "cluster": [
+      40,
+      57
+     ],
+     "dens": [
+      28,
+      42
+     ],
+     "sup": [
+      49.6,
+      50.4
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 90,
+     "units": [
+      152,
+      158
+     ],
+     "cluster": [
+      63,
+      94
+     ],
+     "dens": [
+      38,
+      32
+     ],
+     "sup": [
+      47.7,
+      52.3
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 121,
+     "units": [
+      154,
+      154
+     ],
+     "cluster": [
+      63,
+      105
+     ],
+     "dens": [
+      48,
+      34
+     ],
+     "sup": [
+      46.2,
+      53.8
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 151,
+     "units": [
+      153,
+      159
+     ],
+     "cluster": [
+      67,
+      108
+     ],
+     "dens": [
+      49,
+      71
+     ],
+     "sup": [
+      45.9,
+      54.1
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 181,
+     "units": [
+      161,
+      159
+     ],
+     "cluster": [
+      69,
+      84
+     ],
+     "dens": [
+      49,
+      39
+     ],
+     "sup": [
+      47.3,
+      52.7
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 212,
+     "units": [
+      159,
+      158
+     ],
+     "cluster": [
+      40,
+      62
+     ],
+     "dens": [
+      34,
+      25
+     ],
+     "sup": [
+      45.8,
+      54.2
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 242,
+     "units": [
+      156,
+      158
+     ],
+     "cluster": [
+      37,
+      55
+     ],
+     "dens": [
+      31,
+      32
+     ],
+     "sup": [
+      45.5,
+      54.5
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 272,
+     "units": [
+      156,
+      152
+     ],
+     "cluster": [
+      37,
+      52
+     ],
+     "dens": [
+      31,
+      23
+     ],
+     "sup": [
+      45,
+      55
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 302,
+     "units": [
+      153,
+      156
+     ],
+     "cluster": [
+      38,
+      64
+     ],
+     "dens": [
+      37,
+      24
+     ],
+     "sup": [
+      44.6,
+      55.4
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 333,
+     "units": [
+      157,
+      158
+     ],
+     "cluster": [
+      38,
+      95
+     ],
+     "dens": [
+      34,
+      24
+     ],
+     "sup": [
+      45.2,
+      54.8
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 363,
+     "units": [
+      158,
+      158
+     ],
+     "cluster": [
+      61,
+      72
+     ],
+     "dens": [
+      38,
+      24
+     ],
+     "sup": [
+      45.4,
+      54.6
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 393,
+     "units": [
+      159,
+      158
+     ],
+     "cluster": [
+      51,
+      84
+     ],
+     "dens": [
+      40,
+      29
+     ],
+     "sup": [
+      45,
+      55
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 423,
+     "units": [
+      160,
+      157
+     ],
+     "cluster": [
+      49,
+      47
+     ],
+     "dens": [
+      36,
+      30
+     ],
+     "sup": [
+      45.4,
+      54.6
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 453,
+     "units": [
+      158,
+      156
+     ],
+     "cluster": [
+      47,
+      33
+     ],
+     "dens": [
+      35,
+      23
+     ],
+     "sup": [
+      45.7,
+      54.3
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 484,
+     "units": [
+      159,
+      156
+     ],
+     "cluster": [
+      33,
+      33
+     ],
+     "dens": [
+      32,
+      26
+     ],
+     "sup": [
+      46,
+      54
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 514,
+     "units": [
+      160,
+      154
+     ],
+     "cluster": [
+      36,
+      35
+     ],
+     "dens": [
+      32,
+      25
+     ],
+     "sup": [
+      46.2,
+      53.8
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 544,
+     "units": [
+      158,
+      158
+     ],
+     "cluster": [
+      36,
+      34
+     ],
+     "dens": [
+      28,
+      29
+     ],
+     "sup": [
+      46.2,
+      53.8
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 574,
+     "units": [
+      159,
+      159
+     ],
+     "cluster": [
+      33,
+      33
+     ],
+     "dens": [
+      29,
+      33
+     ],
+     "sup": [
+      47.2,
+      52.8
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    },
+    {
+     "t": 600,
+     "units": [
+      153,
+      157
+     ],
+     "cluster": [
+      41,
+      33
+     ],
+     "dens": [
+      31,
+      30
+     ],
+     "sup": [
+      47.4,
+      52.6
+     ],
+     "crisis": [
+      null,
+      null
+     ],
+     "bases": [
+      0,
+      1
+     ]
+    }
+   ],
+   "modules": {
+    "strategy": {
+     "raids": 0,
+     "raidsDone": 0,
+     "retargets": 0,
+     "badTargets": 0,
+     "noLosBunker": 0,
+     "stuck": [
+      0,
+      0,
+      0
+     ],
+     "idleMoves": 0,
+     "counterBattery": 0,
+     "errors": 0
+    },
+    "structs": [
+     1,
+     0
+    ],
+    "captured": 0,
+    "orders": {
+     "groups": 0,
+     "covers": 0,
+     "stalls": 0,
+     "decisions": 0,
+     "done": 0,
+     "noarms": 0,
+     "blocked": 0,
+     "errors": 0
+    },
+    "eng": {
+     "repaired": 171.16620247966566,
+     "rebuilt": 0,
+     "recovered": 0,
+     "tracks": 4,
+     "motors": 1,
+     "reinforced": 0,
+     "errors": 0
+    },
+    "clean": {
+     "corpsesAged": 156,
+     "hulks": 5,
+     "hulksGone": 0,
+     "bloodFades": 117,
+     "errors": 0
+    },
+    "bunk": {
+     "inside": 2,
+     "killed": 0,
+     "wounded": 0,
+     "survived": 0,
+     "released": 0,
+     "errors": 0
+    },
+    "air": {
+     "runwayHits": 0,
+     "hangarsLost": 0,
+     "planesLost": 0,
+     "blocked": 0,
+     "aiMissions": 7,
+     "retasks": 0,
+     "errors": 0
+    },
+    "comms": {
+     "reports": 4,
+     "proposals": 0,
+     "accepted": 0,
+     "declined": 0,
+     "delayed": 0,
+     "errors": 0
+    }
+   },
+   "realSeconds": 164,
+   "errors": []
+  }
+ ]
+}

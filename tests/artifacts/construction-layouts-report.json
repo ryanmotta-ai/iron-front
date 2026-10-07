@@ -752,12 +752,12 @@
           ]
         }
       ],
-      "projects": 28,
-      "completed": 15,
-      "south": 7,
+      "projects": 27,
+      "completed": 23,
+      "south": 4,
       "supplies": [
-        298,
-        200
+        229.03200000000038,
+        207.03200000000083
       ],
       "errors": [
         0,
@@ -1517,12 +1517,12 @@
           ]
         }
       ],
-      "projects": 26,
-      "completed": 12,
-      "south": 7,
+      "projects": 9,
+      "completed": 5,
+      "south": 1,
       "supplies": [
-        276,
-        200
+        230,
+        214
       ],
       "errors": [
         0,
@@ -2372,12 +2372,12 @@
           ]
         }
       ],
-      "projects": 16,
-      "completed": 3,
-      "south": 6,
+      "projects": 19,
+      "completed": 7,
+      "south": 4,
       "supplies": [
-        2051.896000000003,
-        1094.6254198080019
+        1602.1680000000006,
+        340.1679999999999
       ],
       "errors": [
         0,
@@ -3227,12 +3227,12 @@
           ]
         }
       ],
-      "projects": 30,
-      "completed": 16,
-      "south": 6,
+      "projects": 18,
+      "completed": 4,
+      "south": 4,
       "supplies": [
-        1818,
-        2072
+        909.368000000002,
+        1223.368000000002
       ],
       "errors": [
         0,
@@ -4010,12 +4010,12 @@
           ]
         }
       ],
-      "projects": 15,
-      "completed": 1,
-      "south": 6,
+      "projects": 21,
+      "completed": 7,
+      "south": 4,
       "supplies": [
-        2024.4320000000025,
-        1348.528000000003
+        979.5920000000009,
+        717.5920000000003
       ],
       "errors": [
         0,
@@ -4755,12 +4755,12 @@
           ]
         }
       ],
-      "projects": 19,
-      "completed": 5,
-      "south": 7,
+      "projects": 29,
+      "completed": 15,
+      "south": 4,
       "supplies": [
-        1374.992,
-        1300.992
+        584,
+        596
       ],
       "errors": [
         0,
@@ -4774,21 +4774,21 @@
       "map": "forest",
       "layouts": [
         {
-          "id": "dispersed",
-          "name": "Defesa dispersa",
-          "seed": 3094843932
-        },
-        {
           "id": "crescent",
           "name": "Flancos reforçados",
-          "seed": 3296770671
+          "seed": 3295682577
+        },
+        {
+          "id": "redoubts",
+          "name": "Redutos separados",
+          "seed": 1883942998
         }
       ],
       "spent": [
-        726,
-        538
+        438,
+        278
       ],
-      "projects": 16,
+      "projects": 13,
       "errors": [
         0,
         0,
@@ -4799,21 +4799,21 @@
       "map": "winter",
       "layouts": [
         {
-          "id": "depth",
-          "name": "Defesa em profundidade",
-          "seed": 3336126760
+          "id": "redoubts",
+          "name": "Redutos separados",
+          "seed": 3044188142
         },
         {
-          "id": "staggered",
-          "name": "Posições escalonadas",
-          "seed": 2306546105
+          "id": "crescent",
+          "name": "Flancos reforçados",
+          "seed": 314413958
         }
       ],
       "spent": [
-        602,
-        652
+        428,
+        428
       ],
-      "projects": 17,
+      "projects": 12,
       "errors": [
         0,
         0,
@@ -4824,9 +4824,9 @@
   "errors": [],
   "reset": {
     "before": {
-      "id": "depth",
-      "name": "Defesa em profundidade",
-      "seed": 3336126760
+      "id": "redoubts",
+      "name": "Redutos separados",
+      "seed": 3044188142
     },
     "cleared": true
   }

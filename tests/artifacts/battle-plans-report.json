@@ -1,0 +1,533 @@
+{
+  "errors": [],
+  "battles": [
+    {
+      "time": 179.99999999999406,
+      "cash": [
+        397.39999999999964,
+        1058
+      ],
+      "cap": 120,
+      "counts": [
+        116,
+        111
+      ],
+      "stages": [],
+      "plans": [
+        {
+          "operation": {
+            "phase": "hold",
+            "sector": 2,
+            "x": 2140,
+            "y": 1000,
+            "since": 0.1,
+            "style": "balanced",
+            "objective": {
+              "name": "ALEMANHA",
+              "x": 2140,
+              "y": 1000
+            }
+          },
+          "strategy": {
+            "note": "Manobras aguardam reconhecimento e apoio",
+            "active": null,
+            "history": []
+          },
+          "opponent": {
+            "note": "Ataques repetidos no extremo sul: reposicionar cobertura",
+            "habit": {
+              "episodes": 2,
+              "last": 179.2999999999941,
+              "ids": [
+                102,
+                169,
+                168,
+                162,
+                164
+              ],
+              "x": 1127.8021035746954,
+              "y": 1652.7932983926373,
+              "confidence": 0.6067490531986405,
+              "sector": 4
+            },
+            "lanes": [
+              {
+                "sector": 0,
+                "episodes": 1,
+                "confidence": 0.24,
+                "x": 1139.1331174578852,
+                "y": 295.5746982722076
+              },
+              {
+                "sector": 1,
+                "episodes": 1,
+                "confidence": 0.19,
+                "x": 962.2423360126099,
+                "y": 619.2832421638851
+              },
+              {
+                "sector": 2,
+                "episodes": 1,
+                "confidence": 0.18,
+                "x": 1129.9506859116937,
+                "y": 1046.1722638855342
+              },
+              {
+                "sector": 3,
+                "episodes": 2,
+                "confidence": 0.6,
+                "x": 1152.2378468030001,
+                "y": 1398.5531734821786
+              },
+              {
+                "sector": 4,
+                "episodes": 2,
+                "confidence": 0.61,
+                "x": 1127.8021035746954,
+                "y": 1652.7932983926373
+              }
+            ]
+          }
+        },
+        {
+          "operation": {
+            "phase": "advance",
+            "sector": 4,
+            "x": 260,
+            "y": 1800,
+            "since": 145.999999999996,
+            "style": "balanced",
+            "objective": {
+              "name": "EUA",
+              "x": 260,
+              "y": 1000
+            }
+          },
+          "strategy": {
+            "note": "Manobras aguardam reconhecimento e apoio",
+            "active": null,
+            "history": []
+          },
+          "opponent": {
+            "note": "Aguardando movimentos observados",
+            "habit": null,
+            "lanes": [
+              {
+                "sector": 0,
+                "episodes": 1,
+                "confidence": 0.41,
+                "x": 1346.4025121933832,
+                "y": 289.5386526272195
+              },
+              {
+                "sector": 1,
+                "episodes": 1,
+                "confidence": 0.41,
+                "x": 1238.9855159567294,
+                "y": 421.22400632207774
+              },
+              {
+                "sector": 2,
+                "episodes": 1,
+                "confidence": 0.38,
+                "x": 958.1739093486735,
+                "y": 912.4002099930767
+              },
+              {
+                "sector": 3,
+                "episodes": 0,
+                "confidence": 0,
+                "x": 0,
+                "y": 0
+              },
+              {
+                "sector": 4,
+                "episodes": 0,
+                "confidence": 0,
+                "x": 0,
+                "y": 0
+              }
+            ]
+          }
+        }
+      ],
+      "airErrors": 0,
+      "constructionErrors": 0,
+      "ended": false,
+      "map": "trenches"
+    },
+    {
+      "time": 179.99999999999406,
+      "cash": [
+        188,
+        221.2000000000001
+      ],
+      "cap": 120,
+      "counts": [
+        114,
+        105
+      ],
+      "stages": [],
+      "plans": [
+        {
+          "operation": {
+            "phase": "muster",
+            "sector": 4,
+            "x": 2140,
+            "y": 1800,
+            "since": 178.89999999999412,
+            "style": "balanced",
+            "objective": {
+              "name": "ALEMANHA",
+              "x": 2140,
+              "y": 1000
+            }
+          },
+          "strategy": {
+            "note": "Manobras aguardam reconhecimento e apoio",
+            "active": null,
+            "history": []
+          },
+          "opponent": {
+            "note": "Aguardando movimentos observados",
+            "habit": null,
+            "lanes": [
+              {
+                "sector": 0,
+                "episodes": 0,
+                "confidence": 0,
+                "x": 0,
+                "y": 0
+              },
+              {
+                "sector": 1,
+                "episodes": 0,
+                "confidence": 0,
+                "x": 0,
+                "y": 0
+              },
+              {
+                "sector": 2,
+                "episodes": 1,
+                "confidence": 0.39,
+                "x": 1000.9864385152345,
+                "y": 1144.573354768584
+              },
+              {
+                "sector": 3,
+                "episodes": 1,
+                "confidence": 0.21,
+                "x": 1688.0388572390855,
+                "y": 1327.7759430423778
+              },
+              {
+                "sector": 4,
+                "episodes": 0,
+                "confidence": 0,
+                "x": 0,
+                "y": 0
+              }
+            ]
+          }
+        },
+        {
+          "operation": {
+            "phase": "hold",
+            "sector": 0,
+            "x": 260,
+            "y": 200,
+            "since": 168.4999999999947,
+            "style": "balanced",
+            "objective": {
+              "name": "EUA",
+              "x": 260,
+              "y": 1000
+            }
+          },
+          "strategy": {
+            "note": "Manobras aguardam reconhecimento e apoio",
+            "active": null,
+            "history": []
+          },
+          "opponent": {
+            "note": "Ataques repetidos no centro: reposicionar cobertura",
+            "habit": {
+              "episodes": 2,
+              "last": 149.09999999999582,
+              "ids": [
+                18,
+                27,
+                158,
+                57
+              ],
+              "x": 1392.20987809792,
+              "y": 930.61435067014,
+              "confidence": 0.47326301249070346,
+              "sector": 2
+            },
+            "lanes": [
+              {
+                "sector": 0,
+                "episodes": 1,
+                "confidence": 0.34,
+                "x": 1739.6228047569355,
+                "y": 207.65381580808355
+              },
+              {
+                "sector": 1,
+                "episodes": 1,
+                "confidence": 0.3,
+                "x": 1452.5954570750862,
+                "y": 523.9928665782968
+              },
+              {
+                "sector": 2,
+                "episodes": 2,
+                "confidence": 0.47,
+                "x": 1392.20987809792,
+                "y": 930.61435067014
+              },
+              {
+                "sector": 3,
+                "episodes": 1,
+                "confidence": 0.18,
+                "x": 1505.0591330919788,
+                "y": 1494.060357469596
+              },
+              {
+                "sector": 4,
+                "episodes": 1,
+                "confidence": 0.18,
+                "x": 1527.203320250018,
+                "y": 1814.4812612429803
+              }
+            ]
+          }
+        }
+      ],
+      "airErrors": 0,
+      "constructionErrors": 0,
+      "ended": false,
+      "map": "forest"
+    },
+    {
+      "time": 179.99999999999406,
+      "cash": [
+        226,
+        139
+      ],
+      "cap": 120,
+      "counts": [
+        104,
+        106
+      ],
+      "stages": [],
+      "plans": [
+        {
+          "operation": {
+            "phase": "withdraw",
+            "sector": 0,
+            "x": 2140,
+            "y": 200,
+            "since": 169.79999999999464,
+            "style": "balanced",
+            "objective": {
+              "name": "ALEMANHA",
+              "x": 2140,
+              "y": 1000
+            }
+          },
+          "strategy": {
+            "note": "Manobras aguardam reconhecimento e apoio",
+            "active": null,
+            "history": []
+          },
+          "opponent": {
+            "note": "Aguardando movimentos observados",
+            "habit": null,
+            "lanes": [
+              {
+                "sector": 0,
+                "episodes": 0,
+                "confidence": 0,
+                "x": 0,
+                "y": 0
+              },
+              {
+                "sector": 1,
+                "episodes": 0,
+                "confidence": 0,
+                "x": 0,
+                "y": 0
+              },
+              {
+                "sector": 2,
+                "episodes": 1,
+                "confidence": 0.42,
+                "x": 1102.9052542126415,
+                "y": 1167.2871588117396
+              },
+              {
+                "sector": 3,
+                "episodes": 1,
+                "confidence": 0.38,
+                "x": 1144.6625209034578,
+                "y": 1372.19185838047
+              },
+              {
+                "sector": 4,
+                "episodes": 1,
+                "confidence": 0.39,
+                "x": 984.3095165258824,
+                "y": 1756.1677646964781
+              }
+            ]
+          }
+        },
+        {
+          "operation": {
+            "phase": "hold",
+            "sector": 0,
+            "x": 260,
+            "y": 200,
+            "since": 168.4999999999947,
+            "style": "balanced",
+            "objective": {
+              "name": "EUA",
+              "x": 260,
+              "y": 1000
+            }
+          },
+          "strategy": {
+            "note": "Manobras aguardam reconhecimento e apoio",
+            "active": null,
+            "history": []
+          },
+          "opponent": {
+            "note": "Ataques repetidos no sul: reposicionar cobertura",
+            "habit": {
+              "episodes": 2,
+              "last": 147.5999999999959,
+              "ids": [
+                16,
+                247
+              ],
+              "x": 1304.629200936678,
+              "y": 1227.3363378848812,
+              "confidence": 0.514752191604671,
+              "sector": 3
+            },
+            "lanes": [
+              {
+                "sector": 0,
+                "episodes": 1,
+                "confidence": 0.3,
+                "x": 1571.0302441259114,
+                "y": 259.7873973629589
+              },
+              {
+                "sector": 1,
+                "episodes": 1,
+                "confidence": 0.27,
+                "x": 1819.8305810724908,
+                "y": 429.97720977076574
+              },
+              {
+                "sector": 2,
+                "episodes": 2,
+                "confidence": 0.46,
+                "x": 1354.777675704283,
+                "y": 1081.626736102263
+              },
+              {
+                "sector": 3,
+                "episodes": 2,
+                "confidence": 0.51,
+                "x": 1304.629200936678,
+                "y": 1227.3363378848812
+              },
+              {
+                "sector": 4,
+                "episodes": 1,
+                "confidence": 0.17,
+                "x": 1258.8632753744548,
+                "y": 1614.4723929202107
+              }
+            ]
+          }
+        }
+      ],
+      "airErrors": 0,
+      "constructionErrors": 0,
+      "ended": false,
+      "map": "winter"
+    }
+  ],
+  "probe": {
+    "phases": [
+      "recon",
+      "fix",
+      "flank",
+      "commit"
+    ],
+    "roles": [
+      "assalto-coordenado",
+      "reserva-movel",
+      "guarda-objetivo",
+      "fixar-posicao",
+      "fixar-flanquear"
+    ],
+    "strategy": {
+      "note": "Avançar sob cobertura",
+      "active": {
+        "id": 1,
+        "kind": "flank",
+        "stage": "commit",
+        "label": "Avançar sob cobertura",
+        "since": 13,
+        "participants": [
+          1,
+          5,
+          4
+        ],
+        "target": {
+          "x": 1100,
+          "y": 1000
+        },
+        "flank": {
+          "x": 1025,
+          "y": 810
+        }
+      },
+      "history": []
+    },
+    "dialogue": [
+      {
+        "id": 1,
+        "time": 6,
+        "expires": 13,
+        "team": 0,
+        "squad": 1,
+        "speaker": 131,
+        "name": "James Baker",
+        "kind": "relato-tatico",
+        "text": "MG bloqueando a passagem. Vou reconhecer o lado.",
+        "task": "sondar-flanco"
+      },
+      {
+        "id": 2,
+        "time": 8,
+        "expires": 15,
+        "team": 0,
+        "squad": 4,
+        "speaker": 171,
+        "name": "George Baker",
+        "kind": "resposta",
+        "text": "Recebido. Nossa equipe vai estabelecer cobertura.",
+        "task": "fixar-posicao"
+      }
+    ],
+    "summary": "Avançando por cobertura · centro · Avanço combinado · Avançar sob cobertura",
+    "panel": "Aprendizado da sua facção: Reconhecimento em andamento. Operações avaliadas: 0. Manobra: Avançar sob cobertura. Aguardando movimentos observados."
+  }
+}

@@ -1,0 +1,328 @@
+{
+ "hospital": {
+  "log": [
+   [
+    16.5,
+    "117:bed,118:bed",
+    "bed,bed,down",
+    ""
+   ],
+   [
+    20.5,
+    "",
+    "surgery,surgery,down",
+    ""
+   ],
+   [
+    22.5,
+    "",
+    "surgery,surgery,down",
+    ""
+   ],
+   [
+    25,
+    "",
+    "surgery,surgery,down",
+    ""
+   ],
+   [
+    28,
+    "",
+    "surgery,surgery,down",
+    ""
+   ],
+   [
+    34,
+    "119:bed",
+    "surgery,surgery,bed",
+    ""
+   ],
+   [
+    38,
+    "119:bed",
+    "recover,surgery,bed",
+    ""
+   ],
+   [
+    41,
+    "",
+    "recover,surgery,surgery",
+    ""
+   ],
+   [
+    44,
+    "",
+    "recover,surgery,surgery",
+    ""
+   ],
+   [
+    47,
+    "",
+    "recover,surgery,surgery",
+    ""
+   ],
+   [
+    50,
+    "",
+    ",surgery,surgery",
+    ""
+   ],
+   [
+    54,
+    "",
+    ",surgery,surgery",
+    ""
+   ]
+  ],
+  "errs": [
+   0,
+   0
+  ],
+  "stats": {
+   "patients": 3,
+   "carries": 5,
+   "rises": 0,
+   "errors": 0
+  },
+  "pageErrors": []
+ },
+ "hospital-de": {
+  "log": [
+   [
+    16.5,
+    "119:bed,118:bed",
+    "down,bed,bed",
+    ""
+   ],
+   [
+    20.5,
+    "",
+    "down,surgery,surgery",
+    ""
+   ],
+   [
+    22.5,
+    "",
+    "down,surgery,surgery",
+    ""
+   ],
+   [
+    25,
+    "",
+    "down,surgery,surgery",
+    ""
+   ],
+   [
+    28,
+    "",
+    "down,surgery,surgery",
+    ""
+   ],
+   [
+    34,
+    "117:bed",
+    "bed,recover,recover",
+    ""
+   ],
+   [
+    38,
+    "",
+    "surgery,recover,recover",
+    ""
+   ],
+   [
+    41,
+    "",
+    "surgery,recover,recover",
+    ""
+   ],
+   [
+    44,
+    "",
+    "surgery,recover,",
+    ""
+   ],
+   [
+    47,
+    "",
+    "surgery,,",
+    ""
+   ],
+   [
+    50,
+    "",
+    "recover,,",
+    ""
+   ],
+   [
+    54,
+    "",
+    "recover,,",
+    ""
+   ]
+  ],
+  "errs": [
+   0,
+   0
+  ],
+  "stats": {
+   "patients": 3,
+   "carries": 6,
+   "rises": 0,
+   "errors": 0
+  },
+  "pageErrors": []
+ },
+ "rise": {
+  "n": 25,
+  "errs": [
+   0,
+   0
+  ],
+  "st": null,
+  "down": false,
+  "pageErrors": []
+ },
+ "posto": {
+  "n": 21,
+  "errs": [
+   0,
+   0
+  ],
+  "st": "recover",
+  "down": true,
+  "pageErrors": []
+ },
+ "crew": {
+  "n": [
+   12,
+   10
+  ],
+  "errs": [
+   0,
+   0
+  ],
+  "pageErrors": []
+ },
+ "drag": {
+  "n": [
+   9,
+   8
+  ],
+  "errs": [
+   0,
+   0
+  ],
+  "pageErrors": []
+ },
+ "jogador": {
+  "seq": [
+   "grab",
+   "drag"
+  ],
+  "pd0": "grab",
+  "n": 10,
+  "errs": [
+   0,
+   0
+  ],
+  "pageErrors": []
+ },
+ "pedido": {
+  "errs": [
+   0,
+   0
+  ],
+  "pageErrors": []
+ },
+ "field": {
+  "n": 23,
+  "log": [
+   [
+    0.1,
+    "go",
+    "down"
+   ],
+   [
+    0.4,
+    "grab",
+    "down"
+   ],
+   [
+    0.9,
+    "grab",
+    "down"
+   ],
+   [
+    1.3,
+    "grab",
+    "down"
+   ],
+   [
+    1.7,
+    "aid",
+    "down"
+   ],
+   [
+    2.1,
+    "aid",
+    "down"
+   ],
+   [
+    2.4,
+    "aid",
+    "down"
+   ],
+   [
+    2.8,
+    "aid",
+    "down"
+   ],
+   [
+    3.2,
+    "aid",
+    "down"
+   ],
+   [
+    3.6,
+    "aid",
+    "down"
+   ],
+   [
+    4,
+    "aid",
+    "down"
+   ],
+   [
+    4.4,
+    "aid",
+    "down"
+   ],
+   [
+    4.8,
+    "aid",
+    "down"
+   ],
+   [
+    5.2,
+    "aid",
+    "down"
+   ],
+   [
+    5.6,
+    "aid",
+    "down"
+   ]
+  ],
+  "errs": [
+   0,
+   0
+  ],
+  "up": true,
+  "fin": [
+   813.9385248681175,
+   1002.9795082898177
+  ],
+  "pageErrors": []
+ }
+}

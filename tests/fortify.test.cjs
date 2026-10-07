@@ -85,7 +85,7 @@ assert.ok(sb.buildings.some(b => b.type === 'bunker' && b.team === 0), 'bunker c
 // 5. antiaérea derruba avião inimigo depois da trégua
 F.endPrep();
 assert.ok(!F.phase.on && !SAP.hold, 'fim da trégua');
-assert.ok(sb.units.filter(u => u.sapTmp).length === 0 && sb.units.filter(u => u.type === 'rifle' && u.sap).length === 12, 'infantaria volta a ser infantaria (ficam os 6 pioneiros de cada lado)');
+assert.ok(sb.units.filter(u => u.sapTmp).length === 0 && sb.units.filter(u => u.type === 'rifle' && u.sap).length === 12, 'infantaria volta a ser infantaria (ficam os 6 engenheiros de campo de cada lado)');
 assert.equal(sb.aiDecisionTimer.join(), '0,0', 'comando da IA assume na hora');
 const plane = { kind: 'fighter', team: 1, x: 430, y: 380, delay: 0 }; sb.planes.push(plane);
 for (let i = 0; i < 400 && !plane.downed; i++) { plane.x = 430; sb.update(.05); }

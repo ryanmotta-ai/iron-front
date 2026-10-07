@@ -1,14 +1,14 @@
 'use strict';
 /* Iron Front 1.9.2 — obras defensivas contra ataque (works-defense.js). Carrega DEPOIS de works.js. Usa o catálogo do
-   sappers/fortify (PXSAP.cfg.KIND + PXFORT.KINDS/SHORT/SUB + planExtra): as obras aparecem na aba DEFESAS e os pioneiros as
+   sappers/fortify (PXSAP.cfg.KIND + PXFORT.KINDS/SHORT/SUB + planExtra): as obras aparecem na aba DEFESAS e os engenheiros de campo as
    constroem em estágios como as outras. Só atinge o INIMIGO (a regra do arame no game.js): as tropas do dono passam sem efeito.
    Campo minado ..... (◈18/trecho, 6 s por trecho de 30 px, 3 minas por trecho) minas escondidas: só o dono as vê. Pisou (infantaria
                       e cavalaria: raio 9–12 px, varredura do passo; tanque: 19 px) → explode() real (r30, potência 115); contra
                       tanque, esteira rompida: imobilizado ~10 s + dano. Obus/granada/projétil de tanque a até 75% do raio
-                      detona as minas (fila, no quadro seguinte). Quem detona um campo o revela ao lado atingido; pioneiros inimigos a
+                      detona as minas (fila, no quadro seguinte). Quem detona um campo o revela ao lado atingido; engenheiros de campo inimigos a
                       menos de 48 px e postos de observação a menos de 240 px também revelam. Minas reveladas ganham bandeirola.
                       O dono recebe "Mina detonada no setor …".
-   Desminar .......... (grátis, ◈0) pioneiros varrem um raio de 36 px em 7 s (3 homens): cada mina tem 10% de explodir no rosto
+   Desminar .......... (grátis, ◈0) engenheiros de campo varrem um raio de 36 px em 7 s (3 homens): cada mina tem 10% de explodir no rosto
                       deles. A IA desmina campos já revelados perto de suas tropas.
    Valo anticarro .... (◈14/trecho de 36 px, 2 estágios: 8 s + 18 s) tanque inimigo que entra fica atolado: ×0,15 por 7–9 s e 35% de
                       chance de encalhar (×0). Depois ganha 7 s de folga para sair. Infantaria atravessa a ×0,7 (cavalo ×0,55).
@@ -17,7 +17,7 @@
    IA: na trégua põe 3 campos nas passagens do arame, 2 valos nas estradas laterais e 2 filas de ouriços (≈ ◈ 340 por lado, pri
    54–57 do plano). Na guerra: tanques inimigos a menos de 800 px → valo à frente da linha; grupo de 6+ a pé → campo minado; com
    2+ tanques → ouriços; desmina; e pede 3 tiros de artilharia (◈70) contra tanque imobilizado/encalhado à vista. Só gasta com a caixa
-   acima da reserva de obras (IronFrontEngineering), com 3+ pioneiros livres, no máximo 1 obra de reação por vez (cooldown de 25 s) e
+   acima da reserva de obras (IronFrontEngineering), com 3+ engenheiros de campo livres, no máximo 1 obra de reação por vez (cooldown de 25 s) e
    respeita tetos por facção, independentes do sandbox. Obra de reação sem equipe em 30 s é cancelada e devolvida.
    Os tanques desviam dos ouriços por um caminho planejado (pv.path da física) que evita ruínas/bunkers e troca de lado se travar.
    ?defesas=0 desliga · IronFront.worksDefense.state(). */
@@ -121,12 +121,12 @@ function layMines(s){const t=s.team,C=CFG.MINE;if(minesOf(t)+C.per>C.max){done(s
  dirtyM=true;S.stats.laid+=C.per;done(s)}
 function addDitch(s){DIT.push({k:'d',s,team:s.team,x:s.x,y:s.y,ax:s.ax??1,ay:s.ay??0,len:s.len||36,hw:CFG.DITCH.hw});dirtyG=true;S.stats.ditches++;done(s)}
 function addHedge(s){HDG.push({k:'h',s,team:s.team,x:s.x,y:s.y,hp:CFG.HEDGE.hp,max:CFG.HEDGE.hp,half:CFG.HEDGE.half});dirtyG=true;S.stats.hedges++;done(s)}
-/* desminar: varre o raio, cada mina inimiga tem chance de explodir no rosto dos pioneiros */
+/* desminar: varre o raio, cada mina inimiga tem chance de explodir no rosto dos engenheiros de campo */
 function sweep(s){const t=s.team,C=CFG.MINE;let n=0,acc=0;
  for(const m of MINES.slice()){if(m.team===t||hyp(m.x-s.x,m.y-s.y)>C.sweep)continue;n++;
   if(Math.random()<C.accident){acc++;S.stats.accidents++;detonate(m,null,'acidente')}else{m.dead=true;MINES.splice(MINES.indexOf(m),1);S.stats.demined++}}
  if(n)dirtyM=true;done(s);
- if(t===playerTeam)note('sw'+t,n?(acc?`Desminagem: ${n-acc} desarmada${n-acc===1?'':'s'}, ${acc} explodiu${acc===1?'':'ram'} nos pioneiros!`:`Desminagem concluída: ${n} mina${n===1?'':'s'} desarmada${n===1?'':'s'}.`):'Desminagem concluída: nenhuma mina na área.',1)}
+ if(t===playerTeam)note('sw'+t,n?(acc?`Desminagem: ${n-acc} desarmada${n-acc===1?'':'s'}, ${acc} explodiu${acc===1?'':'ram'} nos engenheiros de campo!`:`Desminagem concluída: ${n} mina${n===1?'':'s'} desarmada${n===1?'':'s'}.`):'Desminagem concluída: nenhuma mina na área.',1)}
 Object.assign(K,{
  mines:{need:[6],target:1,cost:18,line:1,noAnchor:1,label:'Campo minado (escondido do inimigo): arraste uma linha',sprite:minesSpr,onStage:(s,st)=>{if(st===1)layMines(s)}},
  demine:{need:[7],target:1,cost:0,label:'Desminar (varre 36 px; risco de explosão): clique',box:{hw:14,hh:14},sprite:demineSpr,onStage:(s,st)=>{if(st===1)sweep(s)}},
@@ -135,7 +135,7 @@ Object.assign(K,{
 const MY=['mines','ditch','hedgehog','demine'];
 for(const k of MY)if(!F.KINDS.includes(k))F.KINDS.push(k);
 Object.assign(F.SHORT,{mines:'Minas',ditch:'Valo',hedgehog:'Ouriços',demine:'Desminar'});
-Object.assign(F.SUB,{mines:'Escondidas · ◈/trecho',ditch:'Atola tanques · ◈/trecho',hedgehog:'Param tanques · ◈/peça',demine:'Pioneiros varrem a área'});
+Object.assign(F.SUB,{mines:'Escondidas · ◈/trecho',ditch:'Atola tanques · ◈/trecho',hedgehog:'Param tanques · ◈/peça',demine:'Engenheiros de Campo varrem a área'});
 /* plano da IA na trégua: minas nas passagens do arame (x = FX+115), valos nas estradas laterais e ouriços na estrada central e entre elas */
 if(Array.isArray(F.planExtra))F.planExtra.push((t,FX,fc)=>{const it=[];if(!S.on)return it;
  for(const[a,b]of[[396,444],[776,824],[1166,1214]])it.push({kind:'mines',pts:[[FX+fc*115,a],[FX+fc*115,b]],pri:57});
@@ -222,7 +222,7 @@ function mineCheck(u,tank){if(!MINES.length)return;const C=CFG.MINE,r=tank?C.tri
   const l=MG.get(cx*1000+cy);if(!l)continue;
   for(const m of l){if(m.dead||m.team===u.team)continue;const f=L2>1e-6?clamp(((m.x-x0)*ex+(m.y-y0)*ey)/L2,0,1):0,dx=m.x-(x0+ex*f),dy=m.y-(y0+ey*f);if(dx*dx+dy*dy<r*r){detonate(m,u,'pisou');return true}}}
  return false}
-/* revela: pioneiros inimigos a 48 px e postos de observação a 240 px */
+/* revela: engenheiros de campo inimigos a 48 px e postos de observação a 240 px */
 function detect(){if(!MINES.length)return;if(dirtyM)rebuildM();const C=CFG.MINE,c=C.cell;
  for(const u of units){if(!u.sap||u.hp<=0||u.down)continue;const r=C.detect;
   for(let cx=mf((u.x-r)/c);cx<=mf((u.x+r)/c);cx++)for(let cy=mf((u.y-r)/c);cy<=mf((u.y+r)/c);cy++){const l=MG.get(cx*1000+cy);if(!l)continue;
@@ -269,8 +269,15 @@ function aiOrder(t,kind,pts,key){const n=segCount(pts,kind),cost=n*K[kind].cost;
  let p=null;try{p=SAP.project(t,kind,'ai',pts)}catch(e){fail(e)}if(!p)return false;pay(t,cost);S.stats[key]++;nextReact[t]=time+CFG.AI.react;return true}
 /* reação na guerra: valo na frente de acesso de tanques, minas contra massa de infantaria, ouriços com 2+ tanques */
 const freePioneers=t=>{let n=0;for(const u of units)if(u.team===t&&u.sap&&u.hp>0&&!u.down&&!u.sapJob)n++;return n};
-function aiReact(t){if(time<nextReact[t]||time<60||aiMyProjects(t)>=1||freePioneers(t)<3)return;const fc=t?-1:1,A=CFG.AI.cap;   // sem 3 pioneiros livres a obra ficaria parada ocupando uma vaga da engenharia
- const tanks=units.filter(u=>u.team!==t&&u.type==='tank'&&u.hp>0);
+const observedEnemies=t=>{const contacts=window.IronFrontBrain?.operations?.contacts;
+ if(!contacts)return units.filter(u=>u.team!==t&&u.hp>0);
+ const ids=new Set(contacts(t).map(u=>u.id));return units.filter(u=>u.team!==t&&u.hp>0&&ids.has(u.id));
+};
+function needsService(t){if(!S.on||time<60||time<nextReact[t]||aiMyProjects(t)||!cashOk(t,60,120))return false;
+ const observed=observedEnemies(t);return observed.some(e=>{const a=trenchNear(t,e.y);return a&&hyp(e.x-a.x,e.y-a.y)<700&&(e.type==='tank'||observed.filter(o=>o.type!=='tank'&&hyp(o.x-e.x,o.y-e.y)<160).length>=5)});
+}
+function aiReact(t){if(time<nextReact[t]||time<60||aiMyProjects(t)>=1||freePioneers(t)<3)return;const fc=t?-1:1,A=CFG.AI.cap;   // sem 3 engenheiros de campo livres a obra ficaria parada ocupando uma vaga da engenharia
+ const tanks=observedEnemies(t).filter(u=>u.type==='tank');
  for(const e of tanks){const a=trenchNear(t,e.y),fx=a?a.x:(t?W-720:720),dx=(e.x-fx)*fc;if(dx<-40||dx>800)continue;
   const sx=fx+fc*rnd(60,95),sy=clamp(e.y,150,H-150);if(Math.abs(e.x-sx)<160)continue;
   if(ditOf(t)+3<=A.ditch&&!nearObj(DIT.filter(d=>d.team===t),sx,sy,110)&&!SAP.projects.some(p=>!p.done&&p.team===t&&p.kind==='ditch'&&p.segs.some(s=>Math.abs(s.x-sx)<110&&Math.abs(s.y-sy)<110))){
@@ -279,7 +286,7 @@ function aiReact(t){if(time<nextReact[t]||time<60||aiMyProjects(t)>=1||freePione
    if(aiOrder(t,'hedgehog',[[sx-fc*30,sy-42],[sx-fc*30,sy+42]],'aiHedge'))return}
   break}
  if(minesOf(t)+6>A.mines)return;
- const foot=units.filter(u=>u.team!==t&&u.hp>0&&u.type!=='tank'&&u.type!=='cavalry'&&!u.sap);
+ const foot=observedEnemies(t).filter(u=>u.type!=='tank'&&u.type!=='cavalry'&&!u.sap);
  for(const e of foot){const a=trenchNear(t,e.y),fx=a?a.x:(t?W-720:720),dx=(e.x-fx)*fc;if(dx<130||dx>700)continue;
   let n=0,cy=0;for(const o of foot)if(Math.abs(o.y-e.y)<150&&Math.abs(o.x-e.x)<160){n++;cy+=o.y}if(n<5)continue;cy/=n;
   const sx=fx+fc*rnd(70,105),sy=clamp(cy,150,H-150);if(enemiesAt(t,sx,sy,200)>=3||nearObj(MINES.filter(m=>m.team===t),sx,sy,90))continue;   // ≥4 inimigos a 200 px fariam o sappers.js abandonar a obra
@@ -300,7 +307,7 @@ function aiHunt(t){if(time<nextArt[t]||(typeof supportCooldown!=='undefined'&&su
   try{if(window.PXBAT&&typeof PXBAT.mission==='function')ok=PXBAT.mission(t,e.x,e.y,3,45,'he')}catch(e2){fail(e2)}
   if(!ok)for(let i=0;i<3;i++)shells.push({x:e.x+rnd(-45,45),y:e.y+rnd(-45,45),t:2.4+i*.4,r:55,team:t});
   nextArt[t]=time+CFG.AI.art;if(typeof supportCooldown!=='undefined')supportCooldown[t]=Math.max(supportCooldown[t],12);S.stats.aiArt++;return}}
-/* obra da IA que ninguém pegou em 30 s (pioneiros mortos ou ocupados) é cancelada e devolvida, liberando a próxima reação */
+/* obra da IA que ninguém pegou em 30 s (engenheiros de campo mortos ou ocupados) é cancelada e devolvida, liberando a próxima reação */
 function aiGC(){for(const p of SAP.projects){if(p.done||p.src!=='ai'||!MY.includes(p.kind)||p.crew.length||time-p.t0<30||!p.segs.every(s=>s.stage===0&&s.work<=0))continue;
   SAP.cancel(p);if(!sandbox)supplies[p.team]+=p.segs.length*K[p.kind].cost;S.stats.aiCancel++}}
 function aiTick(){if(F.isPrep&&F.isPrep())return;aiGC();for(let t=0;t<2;t++){if(!aiEnabled[t])continue;aiDemine(t);aiReact(t);aiHunt(t)}}
@@ -358,7 +365,7 @@ wrap('icon',(orig,type,c)=>{if(!MY.includes(type))return orig(type,c);try{drawIc
 S.state=()=>({on:S.on,mines:[minesOf(0),minesOf(1)],revealed:[MINES.filter(m=>m.rev[0]&&m.team!==0).length,MINES.filter(m=>m.rev[1]&&m.team!==1).length],ditch:[ditOf(0),ditOf(1)],hedgehogs:[hdgOf(0),hdgOf(1)],
  pending:PEND.length,stuckTanks:units.filter(u=>u.type==='tank'&&u.wdf&&(u.wdf.imm>time||u.wdf.bog>time)).length,projects:SAP.projects.filter(p=>!p.done&&MY.includes(p.kind)).map(p=>({team:p.team,kind:p.kind,src:p.src,crew:p.crew.length})),stats:{...S.stats}});
 Object.defineProperties(S,{minesList:{get:()=>MINES},ditches:{get:()=>DIT},hedges:{get:()=>HDG}});
-S.detonate=detonate;S.post=post;S.aiTick=aiTick;S.aiReact=aiReact;S.aiDemine=aiDemine;S.aiHunt=aiHunt;S.lay=layMines;S.addDitch=addDitch;S.addHedge=addHedge;S.sweep=sweep;S.detect=detect;S.demClock=demClock;S.rebuild=()=>{rebuild();rebuildM()};
+S.needsService=needsService;S.detonate=detonate;S.post=post;S.aiTick=aiTick;S.aiReact=aiReact;S.aiDemine=aiDemine;S.aiHunt=aiHunt;S.lay=layMines;S.addDitch=addDitch;S.addHedge=addHedge;S.sweep=sweep;S.detect=detect;S.demClock=demClock;S.rebuild=()=>{rebuild();rebuildM()};
 S.draw={mines:drawMines,over:drawOver,icon:drawIcon};
 if(window.IronFront)window.IronFront.worksDefense=S;
 })();

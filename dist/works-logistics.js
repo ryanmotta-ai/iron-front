@@ -1,6 +1,6 @@
 'use strict';
 /* Iron Front 1.9.3 — obras de logística e comunicação (works-logistics.js). Carrega DEPOIS de works.js. Usa o catálogo do
-   sappers/fortify (PXSAP.cfg.KIND + PXFORT.KINDS/SHORT/SUB + planExtra): as obras aparecem na aba DEFESAS e os pioneiros as
+   sappers/fortify (PXSAP.cfg.KIND + PXFORT.KINDS/SHORT/SUB + planExtra): as obras aparecem na aba DEFESAS e os engenheiros de campo as
    constroem em estágios como as outras. Não edita nenhum outro arquivo: tudo entra por wrap de window.* e por PXSAP/PXFORT.
    Passadiço de tábuas .. (linha, ◈8 por trecho de 32 px) quem pisa nele ignora a lama (a célula de lama sob o passadiço vale 0
                           durante o update, então o clima E a física de inércia enxergam chão firme) e perde só metade da lentidão
@@ -9,7 +9,7 @@
                           observação (works.js) a uma bateria (battery.js). Pedido de fogo originado em posto de observação,
                           observador ou avião só chega na hora se a fonte estiver ligada a uma bateria; sem linha a ordem é
                           adiada 12 s (corredor a pé) e cai com dispersão ×1,2. Pedido do comando (carta do jogador, IA geral) não
-                          muda. Explosão corta trechos (lâmpada vermelha + toast); pioneiros reparam (◈2) — a IA e o jogador.
+                          muda. Explosão corta trechos (lâmpada vermelha + toast); engenheiros de campo reparam (◈2) — a IA e o jogador.
                           O posto de observação da IA passa a pedir fogo sozinho (3 tiros, a cada 40 s) e depende da linha.
    Cozinha de campanha .. (◈70, 2 estágios, fumaça de chaminé) a até 130 px: coesão +0,02/s, supressão −0,12/s extra, fôlego do
                           jogador +4/s (PXGEAR.st, escrita em runtime pelo objeto exportado) e ferido leve sangra à metade e volta à
@@ -145,7 +145,7 @@ defKind('phone',{need:CFG.PHONE.need,target:1,cost:CFG.PHONE.cost,line:1,step:CF
  onStage:(s,st)=>{s.stage=2;const r=lineRec(s,{cut:false,st:'orphan',last:s.p.segs[s.p.segs.length-1]===s});s.lg=r;PH.push(r);S.stats.phones++;netT=0;unseg(s);if(r.last)doneItem(s)}});
 defKind('phonefix',{hidden:1,need:[CFG.PHONE.fixNeed],target:1,cost:CFG.PHONE.fixCost,box:{hw:10,hh:8},sprite:fixSpr,
  onStage:(s,st)=>{s.stage=2;unseg(s);const r=s.p.fixRec;if(r&&!r.dead&&r.cut){r.cut=false;r.cutT=0;r.st='orphan';r.spr=null;netT=0;S.stats.repairs++;
-   if(r.team===playerTeam)note('fix','Linha telefônica emendada pelos pioneiros.',4)}}});
+   if(r.team===playerTeam)note('fix','Linha telefônica emendada pelos engenheiros de campo.',4)}}});
 defKind('kitchen',{need:CFG.KITCHEN.need,target:2,cost:CFG.KITCHEN.cost,label:'Cozinha de campanha (longe da frente): clique',box:{hw:15,hh:12},sprite:kitchenSpr,
  onStage:(s,st)=>{if(st===2){KIT.push({s,team:s.team,x:s.x,y:s.y,hp:CFG.KITCHEN.hp,fed:0,t0:time});S.stats.kitchens++;doneItem(s)}}});
 defKind('sniper',{need:CFG.SNIPER.need,target:2,cost:CFG.SNIPER.cost,label:'Posto de franco-atirador (aço com fresta): clique',box:{hw:11,hh:9},sprite:sniperSpr,
@@ -213,7 +213,7 @@ function nearLinked(t,x,y,Rr){const N=NET[t];if(!N)return false;
  for(const q of N.T)if(q.k!=='bat'&&termLinked(t,q)&&hyp(q.x-x,q.y-y)<=Rr)return true;return false}
 function cutRec(r,quiet){if(r.cut||r.dead)return;r.cut=true;r.st='cut';r.cutT=time;r.spr=null;S.stats.cuts++;netT=0;
  for(let i=0;i<8;i++)particles.push({x:r.x+rnd(-8,8),y:r.y+rnd(-6,2),vx:rnd(-40,40),vy:rnd(-60,-10),t:rnd(.2,.5),max:.5,color:i&1?'#ffd27a':'#fffbe0',size:2});
- if(!quiet){if(r.team===playerTeam)note('cut','Linha telefônica cortada! Pedidos de fogo corrigidos vão atrasar até os pioneiros repararem.',4)}}
+ if(!quiet){if(r.team===playerTeam)note('cut','Linha telefônica cortada! Pedidos de fogo corrigidos vão atrasar até os engenheiros de campo repararem.',4)}}
 function cutAt(x,y,r,power){if(power<CFG.PHONE.cutPow)return;for(const rec of PH){if(rec.cut||rec.dead)continue;if(segDist(x,y,endsOf(rec))<r*CFG.PHONE.cutK)cutRec(rec)}}
 
 /* ---------- pedidos de fogo: quem corrige precisa de linha até uma bateria ---------- */
@@ -336,8 +336,8 @@ function planks(t){const w=wx();if(time<plankCd[t]||!w||w.snow||!(w.I>CFG.PLANK.
  const ok=!!startProject(t,'plank',[[xs,L.y],[(xe-L.x1)*L.fc>0?L.x1:xe,L.y]]);if(ok)plankCd[t]=time+25;return ok}   // folga entre trechos: a cozinha e os postos também entram na fila
 function kitchen(t){const alive=KIT.filter(k=>k.team===t&&k.hp>0).length+liveOf(t,m=>m.kind==='kitchen').length;if(alive>=(supplies[t]>700||sandbox?2:1)||time<CFG.AI.kitchenMin)return false;
  let stress=0;for(const u of units)if(u.team===t&&u.hp>0&&(u.down||(u.cohesion??1)<.55||(u.suppression||0)>.9))stress++;if(stress<5&&!(alive===0&&time>150))return false;
- let fy=800;try{const op=IronFrontBrain.lastPlans[t].operation;if(op)fy=op.y}catch{}
- let x=Xt(t,430),y=clamp(fy+rnd(-150,150),420,1180);if(!dryOK(x,y)){y=clamp(y+(y>800?-200:200),420,1180)}if(enemiesNear(t,x,y,400)>0)return false;
+ let fy=H/2;try{const op=IronFrontBrain.lastPlans[t].operation;if(op)fy=op.y}catch{}
+ let x=Xt(t,430),y=clamp(fy+rnd(-150,150),180,H-180);if(!dryOK(x,y)){y=clamp(y+(y>H/2?-200:200),180,H-180)}if(enemiesNear(t,x,y,400)>0)return false;
  return !!startProject(t,'kitchen',[[x,y]])}
 function sniper(t){const mk=units.filter(u=>u.team===t&&u.cls==='marksman'&&u.hp>0&&!u.sap).length,have=SNP.filter(p=>p.team===t&&p.hp>0).length+liveOf(t,m=>m.kind==='sniper').length;
  if(!mk||have>=Math.min(2,mk)||time<50)return false;const fc=face(t),fr=fieldTrenches.filter(a=>a.team===t&&a.line==='front');if(!fr.length)return false;
@@ -345,12 +345,21 @@ function sniper(t){const mk=units.filter(u=>u.team===t&&u.cls==='marksman'&&u.hp
   if(SNP.some(p=>p.team===t&&p.hp>0&&hyp(p.x-x,p.y-y)<150)||liveOf(t,m=>m.kind==='sniper').some(m=>hyp(m.p.segs[0].x-x,m.p.segs[0].y-y)<150))continue;
   if(enemiesNear(t,x,y,170)>0||!dryOK(x,y))continue;return !!startProject(t,'sniper',[[x,y]])}
  return false}
-/* mesmo teto da engenharia da IA (engineering.js: min(4, pioneiros/3) obras vivas): não ocupa a vaga de quem constrói a trincheira */
-const freeSlots=t=>Math.min(4,Math.max(1,Math.floor(sappersOf(t)/3)))-SAP.projects.filter(p=>!p.done&&p.team===t&&p.kind!=='phonefix').length;
+/* mesmo teto da engenharia da IA (engineering.js: min(4, engenheiros de campo/3) obras vivas): não ocupa a vaga de quem constrói a trincheira */
+const freeSlots=t=>Math.min(4,Math.max(1,Math.floor(sappersOf(t)/3)))-SAP.projects.filter(p=>!p.done&&!p.aiDeferred&&p.team===t&&p.kind!=='phonefix').length;
+let serviceNext=[0,0];
+function needsService(t){if(!S.on)return false;
+ const w=wx(),mud=w&&!w.snow&&(w.I>CFG.PLANK.rainMin||(w.mud||0)>CFG.PLANK.mudMin)&&PL.filter(p=>p.team===t&&!p.dead).length<CFG.PLANK.maxSegs;
+ return PH.some(r=>r.team===t&&r.cut&&!r.dead)||phoneSegs(t)<CFG.PHONE.maxSegs&&anyBat(t)&&(!hqLinked(t)||NET[t]?.T.some(q=>q.k==='op'&&!termLinked(t,q)))||!!mud;
+}
 function aiPlan(t){const sap=sappersOf(t);if(!sap)return;
  for(const m of MINE)if(m.team===t&&!m.p.done&&m.kind!=='phonefix'&&!m.p.crew.length&&time-m.t0>150&&m.p.segs.every(s=>s.stage===0)){SAP.cancel(m.p);if(!sandbox)supplies[t]+=m.cost;m.dropped=1}   // obra que nunca teve equipe: devolve o dinheiro
  if(repairs(t))return;if(liveOf(t,m=>m.kind!=='phonefix').length>=1||freeSlots(t)<=0)return;
- phoneLink(t)||planks(t)||kitchen(t)||sniper(t)}
+ const managed=window.IronFrontEngineering&&F.on;
+ const choices=managed?[phoneLink,planks]:[phoneLink,planks,kitchen,sniper];
+ // A long telephone network must not keep wet access routes waiting forever.
+ for(let i=0;i<choices.length;i++){const index=(serviceNext[t]+i)%choices.length;if(choices[index](t)){serviceNext[t]=(index+1)%choices.length;break}}
+}
 function aiTick(dt){if((aiT-=dt)>0)return;aiT=CFG.AI.every;if(isPrep())return;
  for(let t=0;t<2;t++){if(!aiEnabled[t]&&!(t===playerTeam&&CFG.AI.autoRepairHuman))continue;try{if(aiEnabled[t])aiPlan(t);else{if(sappersOf(t)&&!liveOf(t,m=>m.kind==='phonefix').length)repairs(t)}}catch(e){fail(e)}}}
 
@@ -369,7 +378,7 @@ function tick(dt){
   MINE=MINE.filter(m=>!(m.p.done&&time-m.t0>60)&&!m.dropped);
   KIT=KIT.filter(k=>{if(k.hp>0)return true;return false});SNP=SNP.filter(p=>{if(p.hp>0)return true;if(p.occ)p.occ._lgIn=null;return false});
   for(const m of MINE)if(m.kind==='phonefix'&&!m.p.done&&!m.p.crew.length&&time-m.t0>90){SAP.cancel(m.p);m.dropped=1;if(!sandbox)supplies[m.team]+=CFG.PHONE.fixCost}}}
-wrap('setup',(orig,...a)=>{for(const k in S.stats)S.stats[k]=0;S.perf.n=0;S.perf.sum=0;S.perf.max=0;PL=[];PH=[];KIT=[];SNP=[];MINE=[];PEND=[];NET=[null,null];PGRID=new Map();DEB=[];PRE.length=0;plankCd=[0,0];netT=0;kitA=0;snipT=0;garT=0;opT=1;aiT=20;cleanT=1;HQ=0;ORIG=null;EXT=null;opTeamCd=[0,0];IDX=new Map();
+wrap('setup',(orig,...a)=>{for(const k in S.stats)S.stats[k]=0;S.perf.n=0;S.perf.sum=0;S.perf.max=0;PL=[];PH=[];KIT=[];SNP=[];MINE=[];PEND=[];NET=[null,null];PGRID=new Map();DEB=[];PRE.length=0;plankCd=[0,0];serviceNext=[0,0];netT=0;kitA=0;snipT=0;garT=0;opT=1;aiT=20;cleanT=1;HQ=0;ORIG=null;EXT=null;opTeamCd=[0,0];IDX=new Map();
  for(const k in sayAt)delete sayAt[k];for(const u of units)u._lgIn=null;return orig(...a)});
 wrap('update',(orig,dt)=>{if(!S.on||typeof started==='undefined'||!started||ended||!(dt>0))return orig(dt);
  let t0=perf(),g=null;try{g=plankPre()}catch(e){fail(e)}
@@ -403,6 +412,6 @@ S.state=()=>{recompute();return{on:S.on,planks:PL.filter(p=>!p.dead).length,
  pending:PEND.length,projects:MINE.filter(m=>!m.p.done).map(m=>({team:m.team,kind:m.kind})),stats:{...S.stats},perf:{n:S.perf.n,avgMs:S.perf.n?+(S.perf.sum/S.perf.n).toFixed(4):0,maxMs:+S.perf.max.toFixed(3)}}};
 S.planks=()=>PL;S.phones=()=>PH;S.kitchens=()=>KIT;S.snipers=()=>SNP;S.mine=()=>MINE;S.pending=()=>PEND;S.net=t=>{recompute();return NET[t]};
 S.cutRec=cutRec;S.cutAt=cutAt;S.recompute=recompute;S.plankAt=plankAt;S.rebuildPlanks=rebuildPlanks;S.tick=tick;S.kitchenTick=kitchenTick;S.sniperTick=sniperTick;S.garrison=garrison;S.occupants=occupants;
-S.aiPlan=aiPlan;S.opFire=opFire;S.spotters=spotters;S.isLinked=isLinked;S.repairs=repairs;S.phoneLink=phoneLink;S.planksAI=planks;S.kitchenAI=kitchen;S.sniperAI=sniper;S.startProject=startProject;S.sprites={plankSpr,phoneSpr,kitchenSpr,sniperSpr};
+S.needsService=needsService;S.aiPlan=aiPlan;S.opFire=opFire;S.spotters=spotters;S.isLinked=isLinked;S.repairs=repairs;S.phoneLink=phoneLink;S.planksAI=planks;S.kitchenAI=kitchen;S.sniperAI=sniper;S.startProject=startProject;S.sprites={plankSpr,phoneSpr,kitchenSpr,sniperSpr};
 if(window.IronFront)window.IronFront.worksLogistics=S;
 })();

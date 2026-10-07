@@ -1,8 +1,8 @@
 'use strict';
-/* Iron Front 1.2 — sapadores / pioneiros e fortificação de campo em tempo real.
+/* Iron Front 1.2 — sapadores / engenheiros de campo e fortificação de campo em tempo real.
    Carrega DEPOIS de physics.js (e antes do ui-art.js). Não altera game.js: envolve setup / update / newUnit / protectedBy /
    explode / makeCards / icon e desenha dentro de WW1A.under/over e PHYS.draw, como battery.js e physics.js já fazem.
-   Pioneiros são fuzileiros (type 'rifle') com u.sap=1: pás e marretas nas costas, agacham para cavar e deitam quando alvejados.
+   Engenheiros de Campo são fuzileiros (type 'rifle') com u.sap=1: pás e marretas nas costas, agacham para cavar e deitam quando alvejados.
    Toda obra é um PROJETO (cadeia de segmentos de ~30 px) com 3 estágios por segmento:
      1  vala rasa / toca de raposa ... quem está dentro recebe 30% de redução de dano
      2  trincheira funcional ......... entra em fieldTrenches + trenchGrid (proteção e parapeito do motor, slots da IA)
@@ -38,7 +38,7 @@ const CFG={
  AI_DT:5,
  SAP_LEGS:7,
  MORTAR:{range:620,min:160,cd:6.5,r:44,power:95},
- SQUAD_START:2                              // esquadrões de 3 pioneiros por facção no início
+ SQUAD_START:2                              // esquadrões de 3 engenheiros de campo por facção no início
 };
 const S=window.PXSAP={on:!/[?&]sapadores=0/.test(location.search),version:'1.2',cfg:CFG,stats:{errors:0},cAt:[-99,-99],boughtAt:[-99,-99]};
 let P=[],SEGS=[],POSTS=[],FXD=[],TRK=new Map(),BR=[],FRONT=[724,1676],aiT=[1.5,4],hk=0,sec=0,pid=0,toastAt=0,errs=0;
@@ -97,6 +97,8 @@ function finish(p){p.done=true;for(const id of p.crew)release(byId(id));p.crew=[
  if(p.src==='player')say(p.team,p.kind==='trench'?'Trincheira de ligação concluída.':p.kind==='nest'?'Ninho de metralhadora pronto.':p.kind==='mortar'?'Posto de morteiro pronto.':'Obra concluída.')}
 function cancel(p){p.done=true;for(const id of p.crew)release(byId(id));p.crew=[];
  SEGS=SEGS.filter(s=>s.p!==p||s.stage>0)}
+function defer(p){if(!p||p.done)return false;p.aiDeferred=true;for(const id of p.crew)release(byId(id));p.crew=[];return true}
+function resume(p){if(!p||p.done)return false;p.aiDeferred=false;p.pauseUntil=0;p.idle=0;return true}
 let IDX=new Map();const byId=id=>IDX.get(id);
 
 /* ---------- estágios ---------- */
@@ -130,10 +132,11 @@ const overridden=u=>u.manualUntil>time&&u.manualUntil!==u.sapStamp;             
 function freeSapper(u){return u.hp>u.maxhp*.35&&!u.down&&!u.rs&&u.cls!=='medic'&&!u.pinned&&!u.sapJob&&(u.sapFree||0)<=time&&!overridden(u)&&!(u===player&&mode==='soldier')}
 function assign(){
  IDX=new Map();for(const u of units)IDX.set(u.id,u);
- /* obras do jogador primeiro; obras da IA de um lado sem IA ficam paradas (e devolvem os pioneiros) até a IA voltar */
+ /* obras do jogador primeiro; obras da IA de um lado sem IA ficam paradas (e devolvem os engenheiros de campo) até a IA voltar */
  const contexts=[supportContext(0),supportContext(1)];
  const priority=p=>{const s=p.segs[p.cur]||p.segs[0];return Policy?Policy.workScore(contexts[p.team],p,s):p.src==='player'?80:0};
  for(const p of [...P].sort((a,b)=>priority(b)-priority(a)||a.t0-b.t0||a.id-b.id)){if(p.done)continue;
+  if(p.aiDeferred)continue;
   if(p.src!=='player'&&!p.keep&&!aiEnabled[p.team]){if(p.crew.length){for(const id of p.crew)release(byId(id));p.crew=[]}continue}
   p.crew=p.crew.filter(id=>{const u=byId(id);if(!u||u.hp<=0||u.down||u.rs||u.cls==='medic'){release(u);return false}
    if(overridden(u)){u.sapJob=null;u.sapState='';u.sapFree=time+25;return false}
@@ -143,7 +146,8 @@ function assign(){
   if(Policy){const ctx=contexts[p.team],local=sappers(p.team).find(u=>hyp(u.x-s.x,u.y-s.y)<350),observed=local?supportContext(p.team,local):ctx;
    if(Policy.risk(observed,s)>=7){p.pauseUntil=time+6;p.reason='Obra sob fogo: recolher equipe';for(const id of p.crew)release(byId(id));p.crew=[];continue}
    if(time<(p.pauseUntil||0))continue;
-   if(p.src!=='player'&&time-p.t0>90&&!p.crew.length&&!units.some(u=>u.team===p.team&&u.hp>0&&!u.down&&!u.sap&&hyp(u.x-s.x,u.y-s.y)<500)){p.reason='Frente mudou: suspender obra distante';cancel(p);continue}
+   if(p.src!=='player'&&time-p.t0>90&&!p.crew.length&&!units.some(u=>u.team===p.team&&u.hp>0&&!u.down&&!u.sap&&hyp(u.x-s.x,u.y-s.y)<500)){p.reason='Frente mudou: suspender obra distante';
+    if(p.src==='fort'&&window.IronFrontEngineering&&window.PXFORT?.on)defer(p);else cancel(p);continue}
   }
   if(p.src!=='player'&&!p.keep){p.idle=p.crew.length?0:(p.idle||0)+.5;p.hot=enemiesNear(p.team,s.x,s.y,200)>=4?(p.hot||0)+.5:0;
    if(p.idle>45||p.hot>20){cancel(p);continue}}
@@ -156,7 +160,7 @@ function assign(){
   }
   const pool=sappers(p.team).filter(u=>freeSapper(u)&&!(u.sapAvoid?.id===p.id&&u.sapAvoid.until>time)).sort((a,b)=>hyp(a.x-s.x,a.y-s.y)-hyp(b.x-s.x,b.y-s.y));
   for(const u of pool){if(p.crew.length>=want)break;if(hyp(u.x-s.x,u.y-s.y)>1500)break;u.sapJob=p.id;u.sapHp=u.hp;u.sapWalk={id:s.id,distance:hyp(u.x-s.x,u.y-s.y),progress:time};p.crew.push(u.id)}}
- /* IA: pioneiros ociosos esperam atrás da primeira linha em vez de irem para o assalto */
+ /* IA: engenheiros de campo ociosos esperam atrás da primeira linha em vez de irem para o assalto */
  for(let t=0;t<2;t++){if(!aiEnabled[t])continue;const fx=FRONT[t],fc=face(t);
   for(const u of sappers(t)){if(!freeSapper(u))continue;
    if((u.x-(fx-fc*60))*fc>0){if(Policy){if(!u.sapWait||Math.abs(u.sapWait.front-fx)>60)u.sapWait={front:fx,x:fx-fc*(105+u.id%3*18),y:clamp(u.y+(u.id%3-1)*18,120,H-120)};const safe=Policy.route(supportContext(t,u),u,u.sapWait);u.tx=safe.x;u.ty=safe.y}else{u.tx=fx-fc*rnd(90,140);u.ty=clamp(u.y,120,H-120)}u.order='move'}
@@ -219,7 +223,7 @@ function trackBreaches(){const seen=new Set();
  BR=BR.filter(r=>time-r.t<180&&!buildings.some(b=>b.type===r.type&&Math.abs(b.x-r.x)<25&&Math.abs(b.y-r.y)<25)).slice(-24)}
 
 /* ======================================================================================
-   IA DOS PIONEIROS
+   IA DOS ENGENHEIROS DE CAMPO
    ====================================================================================== */
 function enemiesNear(team,x,y,r){let n=0;for(const u of units)if(u.team!==team&&u.hp>0&&(u.x-x)**2+(u.y-y)**2<r*r)n++;return n}
 function covered(x,y,r){for(const t of fieldTrenches)if(Math.abs(t.x-x)<r&&Math.abs(t.y-y)<r)return true;
@@ -275,9 +279,10 @@ function aiTick(team){
  const managed=window.IronFrontEngineering&&window.PXFORT?.on;
  if(!managed)planCounter(team);
  const crew=sappers(team);
+ if(managed)return; // The army planner now replaces and sizes engineer teams alongside combat reinforcements.
  if(!crew.length){if(time>25&&(S.boughtAt?.[team]??-99)+75<time&&(sandbox||supplies[team]>=cost('sapper')+30)&&units.filter(u=>u.team===team).length+3<=maxUnits&&pay(team,cost('sapper'))){
   (S.boughtAt||(S.boughtAt=[-99,-99]))[team]=time;const rx=window.PX&&PX.WW1&&map==='trenches'?PX.WW1.reinforceX(team):(team?W-350:350);squad('sapper',team,rx,clamp(800+rnd(-200,200),180,H-180))}return}
- if(managed||live(team).length>=CFG.MAXPROJ.ai)return;
+ if(live(team).length>=CFG.MAXPROJ.ai)return;
  planRepair(team)||planCreep(team)||(crew.length>=2&&planSap(team))}
 
 /* ======================================================================================
@@ -296,7 +301,7 @@ function reset(){
  P=[];SEGS=[];POSTS=[];FXD=[];TRK=new Map();BR=[];aiT=[1.5,4];hk=0;sec=0;UI.mode=null;UI.drag=null;IDX=new Map();S.boughtAt=[-99,-99];S.cAt=[-99,-99];
  for(let t=0;t<2;t++){const f=fieldTrenches.filter(a=>a.team===t&&(!a.line||a.line==='front'));
   FRONT[t]=f.length?f.reduce((n,a)=>n+a.x,0)/f.length:(t?1700:720)}
- /* pioneiros iniciais: os fuzileiros mais recuados de cada lado recebem pá, marreta e rolos de arame */
+ /* engenheiros de campo iniciais: os fuzileiros mais recuados de cada lado recebem pá, marreta e rolos de arame */
  for(let t=0;t<2;t++){const fc=face(t),pool=units.filter(u=>u.team===t&&u.type==='rifle').sort((a,b)=>(a.x-b.x)*fc);
   for(const u of pool.slice(0,CFG.SQUAD_START*3))u.sap=1}
  trackBreaches()}
@@ -403,12 +408,12 @@ function clampLine(a,b){const dx=b.x-a.x,dy=b.y-a.y,L=hyp(dx,dy),k=L>360?360/L:1
 function friendlyGround(x,y){if(sandbox)return true;if(playerTeam?x>W-850:x<850)return true;
  if(points.some(p=>p.owner===playerTeam&&hyp(p.x-x,p.y-y)<240))return true;return units.some(u=>u.team===playerTeam&&u.hp>0&&hyp(u.x-x,u.y-y)<260)}
 function playerOrder(kind,pts){
- const team=playerTeam;if(!sappers(team).length){toast('Sem pioneiros. Compre um esquadrão de Pioneiros na aba Unidades (5).');return null}
- if(live(team).filter(p=>p.src==='player').length>=CFG.MAXPROJ.player){toast(`Pioneiros ocupados: até ${CFG.MAXPROJ.player} obras ao mesmo tempo.`);return null}
+ const team=playerTeam;if(!sappers(team).length){toast('Sem engenheiros de campo. Compre um esquadrão de Engenheiros de Campo na aba Unidades (5).');return null}
+ if(live(team).filter(p=>p.src==='player').length>=CFG.MAXPROJ.player){toast(`Engenheiros de Campo ocupados: até ${CFG.MAXPROJ.player} obras ao mesmo tempo.`);return null}
  if(!pts.every(q=>friendlyGround(q[0],q[1])&&(!S.canBuild||S.canBuild(team,q[0],q[1])))){toast(S.buildMsg||'Obra precisa de tropas aliadas por perto ou território aliado.');return null}
  const K=CFG.KIND[kind],n=K.line?segment(pts,K.step||CFG.SEG).length:1;if(K.line&&!K.noAnchor&&segsOf(team)+n>CFG.MAXSEGS){toast('Limite de trincheiras de campo atingido.');return null}
  if(!pay(team,n*CFG.KIND[kind].cost)){toast('Suprimentos insuficientes para a obra.');return null}
- const p=project(team,kind,'player',pts,{line:K.anchorLine});if(p){hk=0;sound('click');toast(K.label&&!MNAME[kind]?`Pioneiros a caminho: ${K.label.split(':')[0].toLowerCase()}.`:kind==='trench'?`Pioneiros a caminho: ${n} trecho${n>1?'s':''} de trincheira.`:kind==='nest'?'Pioneiros a caminho do ninho de metralhadora.':'Pioneiros a caminho do posto de morteiro.')}
+ const p=project(team,kind,'player',pts,{line:K.anchorLine});if(p){hk=0;sound('click');toast(K.label&&!MNAME[kind]?`Engenheiros de Campo a caminho: ${K.label.split(':')[0].toLowerCase()}.`:kind==='trench'?`Engenheiros de Campo a caminho: ${n} trecho${n>1?'s':''} de trincheira.`:kind==='nest'?'Engenheiros de Campo a caminho do ninho de metralhadora.':'Engenheiros de Campo a caminho do posto de morteiro.')}
  return p}
 function evPos(e){const r=canvas.getBoundingClientRect();mouse.x=(e.clientX-r.left)*vw/r.width;mouse.y=(e.clientY-r.top)*vh/r.height;worldMouse();return{x:clamp(mouse.wx,20,W-20),y:clamp(mouse.wy,20,H-20)}}
 window.addEventListener('pointerdown',e=>{if(!S.on||!UI.mode||e.target!==canvas||!started||ended||mode!=='commander')return;
@@ -429,7 +434,7 @@ window.addEventListener('keydown',e=>{if(!S.on||e.repeat||document.querySelector
 /* ======================================================================================
    LIGAÇÕES COM O JOGO
    ====================================================================================== */
-defs.sapper={name:'Pioneiros',sub:'Esquadrão · 3 sapadores · obras (B)',cost:90,count:3,hp:100,speed:47,range:220,rate:1.8,damage:26};
+defs.sapper={name:'Engenheiros de Campo',sub:'Esquadrão · 3 sapadores · obras (B)',cost:90,count:3,hp:100,speed:47,range:220,rate:1.8,damage:26};
 wrap('newUnit',(orig,type,team,x,y)=>{if(type!=='sapper')return orig(type,team,x,y);const u=orig('rifle',team,x,y);u.sap=1;u.gren=1;return u});
 wrap('setup',(orig,...a)=>{const r=orig(...a);try{reset()}catch(e){fail(e)}return r});
 wrap('update',(orig,dt)=>{orig(dt);try{tick(dt)}catch(e){fail(e)}});
@@ -440,7 +445,7 @@ wrap('protectedBy',(orig,u)=>{let f=orig(u);if(!S.on||u.type==='tank')return f;
 wrap('explode',(orig,x,y,r,power=100,team=0)=>{orig(x,y,r,power,team);if(!S.on)return;try{
  for(const s of SEGS){if(s.stage>=s.p.target)continue;const d=hyp(s.x-x,s.y-y);if(d>=r)continue;const floor=s.stage?s.need[s.stage-1]:0;s.work=Math.max(floor,s.work-7*(1-d/r)*power/150)}
  for(const m of POSTS){const d=hyp(m.x-x,m.y-y);if(d<r+10)m.hp-=power*(1-d/(r+10))*1.4}}catch(e){fail(e)}});
-wrap('makeCards',orig=>{orig();try{if(tab!=='units')return;const d=defs.sapper,b=document.createElement('button');b.className='card'+(placement==='sapper'?' active':'');
+wrap('makeCards',orig=>{orig();try{if(tab!=='units')return;const d=defs.sapper,b=document.createElement('button');b.className='card'+(placement==='sapper'?' active':'');b.dataset.kind='sapper';
  b.innerHTML=`<canvas width="48" height="48"></canvas><b>${d.name}</b><small>${d.sub}</small><span class="cost">◈ ${sandbox?'∞':d.cost}</span><kbd>5</kbd>`;b.onclick=()=>choose('sapper');
  document.getElementById('cards').append(b);icon('sapper',b.querySelector('canvas').getContext('2d'))}catch(e){fail(e)}});
 wrap('icon',(orig,type,c)=>{if(type!=='sapper')return orig(type,c);orig('rifle',c);const cv=c.canvas,k=cv.width/56;
@@ -456,7 +461,7 @@ if(!window.PHYS)window.PHYS={on:false,draw:()=>false};
 S.state=()=>({on:S.on,projects:P.filter(p=>!p.done).map(p=>({id:p.id,team:p.team,kind:p.kind,src:p.src,segs:p.segs.length,cur:p.cur,crew:p.crew.length,stage:p.segs[p.cur]?.stage??p.target})),
  segs:SEGS.length,anchors:[segsOf(0),segsOf(1)],bags:[bagsOf(0),bagsOf(1)],posts:POSTS.length,breaches:BR.length,sappers:[sappers(0).length,sappers(1).length],errors:S.stats.errors,front:[...FRONT],mode:UI.mode});
 S.order=(kind,pts,team=playerTeam)=>team===playerTeam?playerOrder(kind,pts):project(team,kind,'ai',pts);
-S.bag=bag;S.lineB=lineB;S.cancel=cancel;S.addAnchor=addAnchor;S.project=project;S.refreshFront=()=>{for(let t=0;t<2;t++){const f=fieldTrenches.filter(a=>a.team===t&&a.line==='front');if(f.length)FRONT[t]=f.reduce((n,a)=>n+a.x,0)/f.length}};S.tick=tick;S.reset=reset;S.aiTick=aiTick;
+S.bag=bag;S.lineB=lineB;S.cancel=cancel;S.defer=defer;S.resume=resume;S.addAnchor=addAnchor;S.project=project;S.refreshFront=()=>{for(let t=0;t<2;t++){const f=fieldTrenches.filter(a=>a.team===t&&a.line==='front');if(f.length)FRONT[t]=f.reduce((n,a)=>n+a.x,0)/f.length}};S.tick=tick;S.reset=reset;S.aiTick=aiTick;
 Object.defineProperties(S,{projects:{get:()=>P},segs:{get:()=>SEGS},posts:{get:()=>POSTS},breaches:{get:()=>BR},ui:{get:()=>UI}});
 S._={segment,zigzag,bbox,gkey,rate,enemyNormal};S._stage=stageUp;
 if(window.IronFront)window.IronFront.sappers=S;

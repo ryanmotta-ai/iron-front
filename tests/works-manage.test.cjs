@@ -70,7 +70,7 @@ assert.equal(M.nextUpg(b).name, 'Trincheira revestida');
 near(b.x, b.y); assert.ok(M.startUpg(b, 'run'), 'ordem de melhoria da linha aceita');
 const cost1 = s0 - sb.supplies[0], upSegs = M.runsOf(b).reduce((n, r) => n + r.length, 0);
 const job1 = SAP.projects.find(p => p.mgr && !p.done);
-assert.ok(job1 && job1.kind === 'mgupl', 'melhoria é um projeto de pioneiros em linha');
+assert.ok(job1 && job1.kind === 'mgupl', 'melhoria é um projeto de engenheiros de campo em linha');
 assert.ok(fieldTrenches().some(t => Math.abs(t.x - b.x) < 5 && Math.abs(t.y - b.y) < 5), 'âncora de cobertura continua ativa durante a melhoria');
 const tUp1 = runUntil(() => job1.done, 300);
 function fieldTrenches() { return sb.fieldTrenches; }
@@ -182,7 +182,7 @@ run(20); const frac = M.progress(pCan), paid = M.paid(pCan); const got = M.cance
 assert.equal(refunded, Math.round(paid * (1 - frac))); assert.ok(refunded > 0 && refunded < paid && got === refunded, JSON.stringify({ refunded, paid, frac, got, crew: pCan.crew.length }));
 out.cancel = { pago: paid, progresso: +(frac * 100).toFixed(0) + '%', devolvido: refunded };
 
-// ---------- 7. prioridade: 2 projetos, 3 pioneiros ----------
+// ---------- 7. prioridade: 2 projetos, 3 engenheiros de campo ----------
 for (const u of sb.units.filter(u => u.sap)) { u.sapJob = null; }
 near(400, 200); const pA = SAP.project(0, 'trench', 'player', [[400, 200], [400, 290]], { keep: true }), pB = SAP.project(0, 'trench', 'player', [[400, 1300], [400, 1390]], { keep: true });
 run(8); const crewA = pA.crew.length, crewB0 = pB.crew.length;
@@ -201,12 +201,12 @@ assert.match(M.reason('bunker', [[-100, 800]]).block, /Fora da área/);
 sb.supplies[0] = 50; assert.match(fence(500).block, /Sem caixa: faltam ◈ 150/); sb.supplies[0] = 1500;
 const e1 = sb.newUnit('rifle', 1, 560, 800), e2 = sb.newUnit('rifle', 1, 570, 805); assert.match(fence(500).block, /Sob fogo/); e1.hp = 0; e2.hp = 0; sb.units = sb.units.filter(u => u.hp > 0);
 sb.shells.push({ x: 500, y: 800, t: 1.5, r: 70, team: 1, power: 150 }); assert.match(fence(500).block, /bombardeio/); assert.equal(SAP.canBuild(0, 500, 800), false, 'a ordem é recusada pelo mesmo motivo'); assert.match(SAP.buildMsg, /bombardeio/); sb.shells.length = 0;
-const noP = sb.units.filter(u => u.sap); for (const u of noP) u.sap = 0; assert.match(fence(500).block, /Sem pioneiros/); for (const u of noP) u.sap = 1;
+const noP = sb.units.filter(u => u.sap); for (const u of noP) u.sap = 0; assert.match(fence(500).block, /Sem engenheiros de campo/); for (const u of noP) u.sap = 1;
 assert.equal(M.reason('trench', [[500, 800], [500, 890]]).cost, 30, 'linha: 3 trechos × 10');
 sb.sandbox = true; assert.equal(M.reason('bunker', [[500, 800]]).cost, 0); sb.sandbox = false;
 
 // ---------- 9. IA: repara e melhora dentro da reserva de obras ----------
-sb.aiEnabled = [false, true]; SAP.hold = true; F.on = false; for (const p of SAP.projects.slice()) if (p.team === 1 && !p.mgr) SAP.cancel(p); /* a IA de sapas e o plano do fortify.js não disputam os pioneiros neste teste */ sb.time = 400; pioneers(1900, 800, 3, 1);
+sb.aiEnabled = [false, true]; SAP.hold = true; F.on = false; for (const p of SAP.projects.slice()) if (p.team === 1 && !p.mgr) SAP.cancel(p); /* a IA de sapas e o plano do fortify.js não disputam os engenheiros de campo neste teste */ sb.time = 400; pioneers(1900, 800, 3, 1);
 const bkAi = sb.newBuilding('bunker', 1, 1800, 400); bkAi.kind = 'wood'; bkAi.hp = 300; const occ = sb.newUnit('rifle', 1, 1800, 400); sb.units.push(...[1, 2, 3].map(i => sb.newUnit('rifle', 0, 1400, 400 + i * 30)));
 M.scan(); sb.supplies[1] = 150; M.ai(1); assert.equal(SAP.projects.filter(p => p.mgr && !p.done).length, 0, 'sem caixa acima da reserva (200): não gasta');
 sb.supplies[1] = 600; const s1 = sb.supplies[1]; M.ai(1); const jobAi = SAP.projects.find(p => p.mgr && !p.done && p.team === 1);
@@ -214,8 +214,8 @@ assert.ok(jobAi && jobAi.mgr.type === 'fix' && jobAi.mgr.ai, 'IA repara o bunker
 runUntil(() => jobAi.done, 200); assert.equal(bkAi.hp, 1000);
 // inimigos a 800 px: com 3+ por perto e guarnição, melhora para casamata, mas só com caixa ≥ custo + reserva + folga
 for (let i = 0; i < 3; i++) sb.newUnit('rifle', 0, 1500 + i * 10, 420);
-M.scan(); sb.supplies[1] = 140 + 200 + 150; M.ai(1); assert.equal(SAP.projects.filter(p => p.mgr && !p.done).length, 0, 'abaixo de custo+reserva+folga: não melhora');
-sb.supplies[1] = 140 + 200 + 200 + 10; const s2 = sb.supplies[1]; M.ai(1); const jobUp = SAP.projects.find(p => p.mgr && !p.done && p.team === 1);
+M.scan(); sb.supplies[1] = 140 + 200 + M.cfg.AI.spare - 1; M.ai(1); assert.equal(SAP.projects.filter(p => p.mgr && !p.done).length, 0, 'abaixo de custo+reserva+folga: não melhora');
+sb.supplies[1] = 140 + 200 + M.cfg.AI.spare + 10; const s2 = sb.supplies[1]; M.ai(1); const jobUp = SAP.projects.find(p => p.mgr && !p.done && p.team === 1);
 assert.ok(jobUp && jobUp.mgr.type === 'upg', 'IA melhora o bunker'); assert.equal(s2 - sb.supplies[1], 140); runUntil(() => jobUp.done, 300); M.scan();
 assert.equal(bkAi.kind, 'concrete'); M.ai(1); assert.equal(SAP.projects.filter(p => p.mgr && !p.done).length, 0, 'cooldown de 30 s entre melhorias');
 // orçamento: 20 min de IA com caixa baixa (e danos contínuos) nunca fica abaixo da reserva nem estoura

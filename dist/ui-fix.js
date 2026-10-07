@@ -15,7 +15,7 @@ if(orders){const info=document.createElement('div');info.id='selinfo';info.class
   const sel=units.filter(u=>selected.has(u.id)&&u.hp>0),n=sel.length;info.classList.toggle('empty',!n);
   if(!n){info.innerHTML='<span class="idle">Sem seleção: as ordens valem para toda a tropa. Arraste no campo para selecionar.</span>';return}
   const cnt={};let hp=0,mh=0,sup=0,mv=0;for(const u of sel){const k=u.sap?'sapper':u.type;cnt[k]=(cnt[k]||0)+1;hp+=u.hp;mh+=u.maxhp;sup+=u.suppression||0;if(u.moving)mv++}
-  const chips=Object.entries(cnt).map(([k,v])=>`<span class="chip"><em>${v}</em>${k==='sapper'?'Pioneiros':NAMES[k]||k}</span>`).join('');
+  const chips=Object.entries(cnt).map(([k,v])=>`<span class="chip"><em>${v}</em>${k==='sapper'?'Engenheiros de Campo':NAMES[k]||k}</span>`).join('');
   const f=Math.max(0,Math.min(1,hp/mh)),col=f>.5?'#b8d68b':f>.25?'#e3c463':'#e0705a',sp=sup/n;
   info.innerHTML=`<div class="big"><b>${n}</b><span>${n>1?'SELECIONADAS':'SELECIONADA'}</span></div><div class="chips">${chips}</div><div class="row"><span>VIDA</span><span>${Math.round(f*100)}%</span></div><div class="bar"><i style="width:${f*100}%;background:${col}"></i></div><div class="row"><span>${mv?'EM MARCHA '+mv:'PARADAS'}</span><span>${sp>.8?'SOB FOGO PESADO':sp>.3?'SOB FOGO':'FIRMES'}</span></div>`;
  }catch(e){}},250);
@@ -138,7 +138,7 @@ IFX.guideHTML=[
  L(K('WASD'),'câmera (as bordas da tela também). <kbd>RODA</kbd> ou <kbd>+</kbd> <kbd>-</kbd> dão zoom.'),
  L(K('F','C'),'formar linha ou coluna. Sem seleção, vale para todo o exército (como Avançar, Defender e Recuar).'),
  L(K('V'),'ataque geral: pistola Very e apitos, os pelotões saem da trincheira. <kbd>SHIFT+V</kbd> acrescenta cortina de fumaça. Recarga de 90 s; não vale durante a preparação.'),
- L(K('B'),'ordem de campo para os pioneiros: trincheira de ligação (arraste), ninho de MG ou posto de morteiro (clique). B troca, ESC cancela.'),
+ L(K('B'),'ordem de campo para os engenheiros de campo: trincheira de ligação (arraste), ninho de MG ou posto de morteiro (clique). B troca, ESC cancela.'),
  L(K('T'),'troca a munição das baterias: alto-explosivo, shrapnel ou fumaça.'),
  L(K('P'),'pronto: encerra a preparação em 3 s.'),
  L(K('H'),'painel do quartel-general (ordem de batalha e suprimento inimigo).'),
@@ -166,8 +166,8 @@ IFX.guideHTML=[
 '</section>',
 '<section><h3>Construção &amp; apoio</h3>',
 '<p>Cartões da barra inferior: as teclas <kbd>1</kbd> a <kbd>0</kbd> escolhem os dez primeiros; cartões sem tecla mostram <kbd>⇧1</kbd>, <kbd>⇧2</kbd>… (Shift mais o número). Tropas nascem no seu território. Defesas só perto das suas tropas. <kbd>ESC</kbd> cancela.</p>',
-'<p>'+SUB('Tropas')+'Fuzileiros, metralhadoras, tanque, cavalaria, pioneiros (obras, <kbd>5</kbd>), tropas de assalto (<kbd>7</kbd>) e seção de especialistas (<kbd>8</kbd>: médico, granadeiro, atirador designado e observador de artilharia).</p>',
-'<p>'+SUB('Defesas')+'Cada cartão é uma obra: os pioneiros constroem. Trincheira, ligação, arame e sacos de areia se arrastam em linha; ninho de MG, bunker, casamata, abrigo, posto de socorro e peças de artilharia se clicam no lugar.</p>',
+'<p>'+SUB('Tropas')+'Fuzileiros, metralhadoras, tanque, cavalaria, engenheiros de campo (obras, <kbd>5</kbd>), tropas de assalto (<kbd>7</kbd>) e seção de especialistas (<kbd>8</kbd>: médico, granadeiro, atirador designado e observador de artilharia).</p>',
+'<p>'+SUB('Defesas')+'Cada cartão é uma obra: os engenheiros de campo constroem. Trincheira, ligação, arame e sacos de areia se arrastam em linha; ninho de MG, bunker, casamata, abrigo, posto de socorro e peças de artilharia se clicam no lugar.</p>',
 '<p>'+SUB('Preparação')+'As operações começam com 300 s de trégua e uma barreira no centro. Construa à vontade, use PLANO AUTOMÁTICO ou <kbd>P</kbd>. Cerca de 40 s antes do apito a tropa larga as pás e ocupa as posições.</p>',
 '<p>'+SUB('Artilharia e ar')+'As baterias da retaguarda disparam de verdade (o projétil leva 2 a 4 s); o morteiro mostra o obus em voo. <kbd>T</kbd> troca a munição; soldado perto da peça aliada assume o canhão com <kbd>E</kbd>: WASD move o retículo, clique dispara, 1/2/3 escolhem HE, shrapnel ou fumaça. Bombardeios e caças atingem a área marcada depois de alguns segundos; há fogo amigo. Observador e avião de reconhecimento reduzem a dispersão.</p>',
 '</section>',

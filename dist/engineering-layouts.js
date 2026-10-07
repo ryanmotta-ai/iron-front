@@ -12,7 +12,7 @@ const layouts=[
 ];
 function random(seed,key){let h=(seed^Math.imul(key+1,374761393))>>>0;h=Math.imul(h^(h>>>13),1274126177);return ((h^(h>>>16))>>>0)/4294967296}
 function select(seed=Math.floor(Math.random()*4294967296),id){seed=seed>>>0;const p=layouts.find(p=>p.id===id)||layouts[Math.floor(random(seed,0)*layouts.length)];return {...p,seed,weights:{...p.weights}}}
-function samples(pts,step=24){const out=[];for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],n=Math.max(1,Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/step));for(let k=0;k<n;k++)out.push([a[0]+(b[0]-a[0])*k/n,a[1]+(b[1]-a[1])*k/n])}out.push(pts.at(-1));return out}
+function samples(pts,step=24){const out=[];if(!pts.length)return out;for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],n=Math.max(1,Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/step));for(let k=0;k<n;k++)out.push([a[0]+(b[0]-a[0])*k/n,a[1]+(b[1]-a[1])*k/n])}out.push(pts.at(-1));return out}
 function safe(pts,c){return samples(pts).every(([x,y])=>c.dry(x,y)&&!(c.enemies||[]).some(e=>Math.hypot(x-e.x,y-e.y)<240)&&
  !(c.shells||[]).some(e=>e.t>0&&e.t<8&&e.kind!=='smoke'&&Math.hypot(x-e.x,y-e.y)<(e.r||65)+60)&&
  !(c.obstacles||[]).some(o=>o.hp!==0&&o.type!=='trench'&&o.type!=='wire'&&Math.abs(x-o.x)<(o.bw||o.size*.5||22)+8&&Math.abs(y-o.y)<(o.bh||o.size*.5||22)+8))}
@@ -63,6 +63,7 @@ function sites(p,kind,s,front,back,c){
   const jitter=(random(p.seed,s.id*17+index+80)-.5)*18;
   const x=clamp(fx+d*(Math.min(25,frontOffset(p,s.id))*.4+side*12),80,W-80),y=clamp(baseY+side*45+jitter,80,H-80);
   let pts=[[x,y]];
+  if(kind==='wire')pts=[[x,y+55],[x,y+95]]; // Short belt beside the squad corridor, never across its exit.
   if(kind==='trench'){
    if(p.shape==='redoubts')pts=[[x-d*20,y-35],[x,y-35],[x+d*16,y],[x,y+35],[x-d*20,y+35]];
    else if(p.shape==='staggered'||p.shape==='dispersed')pts=[[x-d*10,y-40],[x+d*18,y],[x-d*10,y+40]];

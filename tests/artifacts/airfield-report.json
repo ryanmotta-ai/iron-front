@@ -1,0 +1,61 @@
+{
+  "flags": {
+    "life": true,
+    "art": true,
+    "air": true,
+    "view": true,
+    "anim": true
+  },
+  "boarding": {
+    "acts": [
+      "idle",
+      "walk",
+      "inspect",
+      "climb",
+      "seat"
+    ],
+    "phases": [
+      "start/crew",
+      "start/prime",
+      "start/swing",
+      "start/warm"
+    ]
+  },
+  "staticProp": true,
+  "takeoff": {
+    "maxOnStrip": 1,
+    "dustPuffs": 82,
+    "tracksChanged": true
+  },
+  "soak": {
+    "renders": 1200,
+    "maxMs": 26.9,
+    "air": [
+      16,
+      14
+    ],
+    "errors": [
+      0,
+      0,
+      0
+    ],
+    "landings": 5,
+    "starts": 30
+  },
+  "crash": {
+    "crashes": 2,
+    "wrecks": 12,
+    "troopsBefore": 225,
+    "troopsAfter": 235,
+    "errors": [
+      0,
+      0,
+      0
+    ]
+  },
+  "off": {
+    "life": false,
+    "art": true
+  },
+  "errors": []
+}

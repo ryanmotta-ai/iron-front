@@ -1,4 +1,4 @@
-/* Conversations describe actual orders and remembered events; they never issue orders. */
+/* Conversations relay reports consumed by battle plans and confirm actual orders. */
 (function(root){
 'use strict';
 const names=[['Reyes','Miller','Lewis','Baker','Turner','Harris','Morgan','Brooks'],['Weber','Keller','Otto','Fischer','Kraus','Vogel','Becker','Hoffmann']];
@@ -20,12 +20,17 @@ const lines={
  'explorar-brecha':['A reserva vai avançar. Protejam nosso flanco.'],
  'consolidação':['Segurem a posição. Ainda podem voltar.']
 };
-function create(){return {serial:0,nextAt:0,groups:{},history:[],owned:null}}
+function create(){return {serial:0,nextAt:0,groups:{},history:[],owned:null,reported:[]}}
 function identity(team,id){return firstNames[team?1:0][Math.floor(Math.abs(id)/8)%8]+' '+names[team?1:0][Math.abs(id)%8]}
-function update(mem,state,groups,orders){
+function update(mem,state,groups,orders,reports=[]){
  const time=state.time,byId=new Map(state.units.filter(u=>u.team===state.team&&u.hp>0&&!u.down).map(u=>[u.id,u]));
  const active=new Set(groups.map(g=>g.id));for(const id of Object.keys(mem.groups))if(!active.has(+id))delete mem.groups[id];
  const candidates=[];
+ for(const report of reports){
+  if(time-report.at>12||report.at>time||mem.reported.includes(report.id))continue;
+  const g=groups.find(g=>g.id===report.squad),speaker=g?.members.find(u=>u.id===g.source.mind?.leader&&byId.has(u.id)&&u.id!==state.controlledId&&!(u.manualUntil>time)&&orders.some(o=>o.id===u.id&&o.role===report.task));
+  if(speaker)candidates.push({g,speaker,kind:'relato-tatico',text:report.text,priority:4,report});
+ }
  const owned=new Set((state.points||[]).filter(p=>p.owner===state.team).map(p=>p.name));
  const gained=mem.owned?new Set([...owned].filter(n=>!mem.owned.has(n))):new Set();mem.owned=owned;
  for(const g of groups){
@@ -50,8 +55,13 @@ function update(mem,state,groups,orders){
  if(time<mem.nextAt||!candidates.length)return mem.history.filter(e=>time-e.time<16).map(e=>({...e}));
  candidates.sort((a,b)=>b.priority-a.priority||a.g.id-b.g.id);
  const c=candidates[0];c.g.source.mind.lastStoryAt=time;
- function emit(u,text,kind,at){mem.history.push({id:++mem.serial,time:at,expires:at+7,team:state.team,squad:c.g.id,speaker:u.id,name:identity(state.team,u.id),kind,text,task:c.g.source.task})}
+ function emit(u,text,kind,at,g=c.g,task=g.source.task){mem.history.push({id:++mem.serial,time:at,expires:at+7,team:state.team,squad:g.id,speaker:u.id,name:identity(state.team,u.id),kind,text,task})}
  emit(c.speaker,c.text,c.kind,time);
+ if(c.report){
+  mem.reported.push(c.report.id);mem.reported=mem.reported.slice(-24);
+  const other=groups.find(g=>g.id===c.report.answerSquad),reply=other?.members.find(u=>u.id===other.source.mind?.leader&&byId.has(u.id)&&u.id!==state.controlledId&&!(u.manualUntil>time)&&orders.some(o=>o.id===u.id&&o.role===c.report.answerTask));
+  if(reply&&c.report.answer)emit(reply,c.report.answer,'resposta',time+2,other,c.report.answerTask);
+ }
  // A reply only comes from a second participant executing the same real task nearby.
  if(['flanco-apoiado','assalto-brecha','retirada-coberta','ocupar-trincheira'].includes(c.kind)){
   const reply=c.g.members.find(u=>u.id!==c.speaker.id&&byId.has(u.id)&&u.id!==state.controlledId&&!(u.manualUntil>time)&&Math.hypot(u.x-c.speaker.x,u.y-c.speaker.y)<120&&orders.some(o=>o.id===u.id&&o.role===c.kind));

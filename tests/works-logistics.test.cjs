@@ -244,7 +244,7 @@ const approx = (a, b, tol, msg) => assert.ok(Math.abs(a - b) <= tol, `${msg}: ${
   assert.equal(S.stats.errors, 0);
 }
 
-/* ---------- 6b. reparo barato não espera a reserva; jogador também tem pioneiros que emendam; sem bateria não há o que cobrar ---------- */
+/* ---------- 6b. reparo barato não espera a reserva; jogador também tem engenheiros de campo que emendam; sem bateria não há o que cobrar ---------- */
 {
   const sb = engine('', { sandbox: false }), S = sb.PXLOGI; sb.supplies[0] = 100; sb.time = 100;
   sb.PXBAT.batteries.push({ team: 0, cx: 172, cy: 472, crew: [{ alive: true }] });
@@ -252,10 +252,10 @@ const approx = (a, b, tol, msg) => assert.ok(Math.abs(a - b) <= tol, `${msg}: ${
   S.cutRec(S.phones()[2], true); sb.projectCalls.length = 0;
   sb.aiEnabled[0] = false; sb.run(22);
   const fix = sb.projectCalls.find(c => c.kind === 'phonefix'); assert.ok(fix, 'time do jogador (IA desligada) manda emendar o fio cortado'); assert.equal(sb.supplies[0], 98, '◈2 mesmo com caixa (100) abaixo da reserva (200)');
-  {/* teto de obras vivas da engenharia (min(4, pioneiros/3)): a logística não toma a vaga de quem constrói trincheira */
+  {/* teto de obras vivas da engenharia (min(4, engenheiros de campo/3)): a logística não toma a vaga de quem constrói trincheira */
    const sb3 = engine('', { sandbox: false }), S3 = sb3.PXLOGI; sb3.aiEnabled[0] = true; sb3.supplies[0] = 900; sb3.time = 100; sb3.PXBAT.batteries.push({ team: 0, cx: 172, cy: 472, crew: [{ alive: true }] });
    for (let i = 0; i < 4; i++) sb3.u(0, 300 + i * 10, 800, 'rifle', { sap: 1 }); const foreign = { team: 0, kind: 'trench', src: 'fort', segs: [], crew: [], done: false }; sb3.PXSAP.projects.push(foreign);
-   S3.aiPlan(0); assert.equal(sb3.projectCalls.length, 0, '1 vaga (4 pioneiros) ocupada por uma trincheira: a IA não abre obra de linha'); foreign.done = true; S3.aiPlan(0); assert.equal(sb3.projectCalls[0].kind, 'phone', 'vaga livre: abre a linha');}
+   S3.aiPlan(0); assert.equal(sb3.projectCalls.length, 0, '1 vaga (4 engenheiros de campo) ocupada por uma trincheira: a IA não abre obra de linha'); foreign.done = true; S3.aiPlan(0); assert.equal(sb3.projectCalls[0].kind, 'phone', 'vaga livre: abre a linha');}
   const sb2 = engine(); sb2.u(0, 1000, 840, 'rifle', { cls: 'observer' });                  // nenhum canhão do lado: o battery.js decide, nada de adiar
   sb2.PXBAT.mission(0, 1000, 800, 4, 70, 'he'); assert.equal(sb2.missions.length, 1, 'sem bateria operacional: passa direto'); assert.equal(sb2.PXLOGI.pending().length, 0);
   assert.equal(S.stats.errors + sb2.PXLOGI.stats.errors, 0);
