@@ -4,7 +4,7 @@
    a campanha, o modo história, o sandbox, as opções e o menu de pausa. */
 (function(){
 const $=id=>document.getElementById(id),A=UIArt,root=document.documentElement,body=document.body;
-const DIFF={easy:'Recruta',normal:'Veterano',hard:'General'},WX={overcast:'Nublado',dynamic:'Variável',clear:'Limpo',drizzle:'Garoa',rain:'Chuva',storm:'Tempestade',fog:'Neblina'},MAPN={trenches:'A última trincheira',forest:'Floresta de ferro',winter:'Inverno sem fim'};
+const DIFF={easy:'Recruta',normal:'Veterano',hard:'General'},WX={overcast:'Nublado',dynamic:'Variável',clear:'Limpo',drizzle:'Garoa',rain:'Chuva',storm:'Tempestade',fog:'Neblina'},MAPN={trenches:'A última trincheira'};
 
 /* ================= progresso e opções ================= */
 const KEY='ironfront.save.v1',DEF={campaign:{done:{}},story:{done:0},opts:{sound:0,ui:1,hints:1,mini:1,shake:1}};
@@ -15,9 +15,9 @@ let save=load();const store=()=>{try{localStorage.setItem(KEY,JSON.stringify(sav
 const OPS=[
  {id:'c1',name:'Amanhecer no arame',map:'trenches',thumb:'trenches',scale:80,diff:'easy',wx:'clear',side:0,txt:'Primeiro contato com a linha alemã. O arame farpado ainda está intacto e a artilharia inimiga é rara. Rompa as linhas e capture a bandeira na base alemã, protegendo sua retaguarda.'},
  {id:'c2',name:'Chuva de ferro',map:'trenches',thumb:'rain',scale:120,diff:'normal',wx:'rain',side:0,txt:'A chuva encharca as trincheiras e atola os reforços. Quem segurar o terreno alto mantém a logística. Cuidado com as crateras alagadas.'},
- {id:'c3',name:'Patrulha na mata',map:'forest',thumb:'forest',scale:120,diff:'normal',wx:'overcast',side:0,txt:'Árvores e barrancos cortam as linhas de tiro. A floresta oferece cobertura, mas também emboscadas. Use metralhadoras nas clareiras.'},
- {id:'c4',name:'Noite de trovões',map:'forest',thumb:'storm',scale:120,diff:'hard',wx:'storm',side:0,txt:'Tempestade sobre a floresta. Raios atingem tanques e aviões ficam em solo. O comandante inimigo é um general: não espere piedade.'},
- {id:'c5',name:'Nevasca do norte',map:'winter',thumb:'winter',scale:120,diff:'normal',wx:'dynamic',side:0,txt:'Nevascas e neblina gelada no extremo norte da frente. O tempo muda sem aviso; acompanhe a previsão no canto da tela.'},
+ {id:'c3',name:'Patrulha das pontes',map:'trenches',thumb:'trenches',scale:120,diff:'normal',wx:'overcast',side:0,txt:'Três pontes cruzam o rio e as ruínas cortam as linhas de tiro. Quem controla as pontes controla o ritmo da batalha. Use metralhadoras junto às margens e proteja seu aeródromo.'},
+ {id:'c4',name:'Noite de trovões',map:'trenches',thumb:'storm',scale:120,diff:'hard',wx:'storm',side:0,txt:'Tempestade sobre o rio. Raios atingem tanques e os aviões ficam em solo. O comandante inimigo é um general: não espere piedade.'},
+ {id:'c5',name:'Frente em mutação',map:'trenches',thumb:'rain',scale:120,diff:'normal',wx:'dynamic',side:0,txt:'Névoa, chuva e tempestade se alternam sem aviso. A aviação decola e pousa conforme o tempo permite; acompanhe a previsão no canto da tela.'},
  {id:'c6',name:'A grande ofensiva',map:'trenches',thumb:'trenches',scale:160,diff:'hard',wx:'dynamic',side:0,txt:'A maior batalha da frente. Uma frente com até 160 unidades por lado e um general do outro lado. Tudo o que você aprendeu vale agora.'}];
 const CH=[
  {id:'s1',name:'Primeira noite',map:'trenches',scale:80,diff:'easy',wx:'clear',side:0,mode:'soldier',pt:'us',
@@ -29,12 +29,12 @@ const CH=[
  {id:'s3',name:'Lama',map:'trenches',scale:120,diff:'normal',wx:'rain',side:0,mode:'commander',pt:'us',
   txt:'"Três dias de chuva. A água subiu até o joelho nas trincheiras de comunicação e os reforços chegam atolados.\n\nAgora a batalha é grande: até cento e vinte unidades de cada lado. Mantenha a linha e não deixe o arame cair."',
   goals:['Proteja sua base e capture a bandeira inimiga sob chuva forte','Observe o alagamento e a logística no canto'],epi:'A lama engoliu botas e ferramentas, mas ninguém recuou.'},
- {id:'s4',name:'A floresta fecha',map:'forest',scale:120,diff:'normal',wx:'overcast',side:0,mode:'soldier',pt:'us',
-  txt:'"Mandaram-nos pela floresta. As árvores fecham as linhas de tiro e escondem quem está atrás dos barrancos.\n\nFico com o fuzil novamente. Dizem que há tanques alemães perto da estrada. Se ouvir o motor, avise."',
-  goals:['Use cobertura e reconhecimento para avançar na floresta','Tanques aliados podem ser assumidos com E'],epi:'Saímos da mata com menos gente, mas com o caminho aberto.'},
- {id:'s5',name:'Do outro lado',map:'winter',scale:120,diff:'normal',wx:'dynamic',side:1,mode:'commander',pt:'de',
-  txt:'"Inverno. Desta vez acordei do outro lado da terra de ninguém: cabo Weber, Império Alemão, mesma lama, mesmo frio, outra bandeira.\n\nO homem do outro lado da trincheira também escreve cartas para casa. É o que a guerra nos deixa de igual."',
-  goals:['Comande o Império Alemão no inverno','Capture a bandeira na base dos EUA'],epi:'Fim da campanha. Duas bandeiras, a mesma lama. Que este inverno seja o último.'}];
+ {id:'s4',name:'As pontes',map:'trenches',scale:120,diff:'normal',wx:'overcast',side:0,mode:'soldier',pt:'us',
+  txt:'"Mandaram-nos para as pontes. As ruínas fecham as linhas de tiro e escondem quem está atrás dos barrancos do rio.\n\nFico com o fuzil novamente. Dizem que há tanques alemães perto da estrada. Se ouvir o motor, avise."',
+  goals:['Use cobertura e reconhecimento para avançar até as pontes','Tanques aliados podem ser assumidos com E'],epi:'Atravessamos o rio com menos gente, mas com o caminho aberto.'},
+ {id:'s5',name:'Do outro lado',map:'trenches',scale:120,diff:'normal',wx:'dynamic',side:1,mode:'commander',pt:'de',
+  txt:'"Neblina. Desta vez acordei do outro lado da terra de ninguém: cabo Weber, Império Alemão, mesma lama, mesmo frio, outra bandeira.\n\nO homem do outro lado da trincheira também escreve cartas para casa. É o que a guerra nos deixa de igual."',
+  goals:['Comande o Império Alemão sob tempo instável','Capture a bandeira na base dos EUA'],epi:'Fim da campanha. Duas bandeiras, a mesma lama. Que esta guerra seja a última.'}];
 
 /* ================= estado da execução ================= */
 let run=null,wasRunning=false,hintTimer=0,mmLast='';

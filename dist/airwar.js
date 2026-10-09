@@ -43,6 +43,7 @@
 (function(){
 if(!window.PX)return;
 const TAU=Math.PI*2,hyp=Math.hypot,rnd=(a,b)=>a+Math.random()*(b-a),clamp=(v,a,b)=>v<a?a:v>b?b:v,lerp=(a,b,t)=>a+(b-a)*t;
+const GH=(window.IronFrontWorld&&window.IronFrontWorld.ground)||H;   // altura da frente terrestre; abaixo dela (até H) fica a faixa dos aeródromos
 const adiff=(a,b)=>{let d=(a-b)%TAU;if(d>Math.PI)d-=TAU;else if(d<-Math.PI)d+=TAU;return d};
 const pick=a=>a[(Math.random()*a.length)|0];
 const wrap=(name,fn)=>{const orig=window[name];if(typeof orig!=='function'){console.warn('airwar.js: função ausente: '+name);return}window[name]=function(...a){return fn(orig,...a)}};
@@ -57,15 +58,16 @@ const ZUP=[0,0,1];
    ====================================================================================== */
 const CFG={
  G:90,                       // gravidade do teatro (u/s²): fixa o raio de curva e a troca altura ↔ velocidade
- AIRX:2500,                  // espaço aéreo além de cada borda do mapa (u): o teatro tem ~3,1× a largura do mapa
- AFX:1100,                   // aeródromo a esta distância da borda (no espaço aéreo de trás)
+ AIRX:1500,                  // espaço aéreo além de cada borda do mapa (u): o campo de batalha é um só, o resto é folga para o voo e a câmera
+ AFX:600,                    // centro de cada aeródromo, a esta distância da borda lateral — DENTRO do mapa, na faixa aérea ao sul (y > IronFrontWorld.ground)
  ALTV:900,                   // altitude → "altura visual" do anim-air (sombra e ordem de desenho)
  MV:950,BLIFE:.42,           // projétil de metralhadora: velocidade de boca, vida (alcance ~400 u)
  JAM:1/700,JAMT:[2,6],        // engasgo por tiro e tempo para desengasgar
  SPOT:[900,500],              // alcance de avistamento: base + perícia
  FORGET:7,                    // esquece inimigo não visto há N s
  MAXAIR:14,                   // aviões no ar por lado (teto)
- TAXI:36,ROLLA:26,HALF:480,   // taxiamento (u/s), aceleração na corrida (u/s²: ~5 s até a rotação), meia pista (u)
+ FINAL:800,               // comprimento da perna final (u antes do ponto de toque); a entrada pode ficar além da borda do mapa
+ TAXI:36,ROLLA:26,HALF:330,   // taxiamento (u/s), aceleração na corrida (u/s²: ~5 s até a rotação), meia pista (u)
  GP:{walk:30,run:48,climb:2.4,prime:[1.8,2.7],kick:.9,swing:1.7,warm:[2.6,4.2],chocks:1.5,runup:1.8,debrief:[9,16]},   // solo: passo e corrida do piloto, embarque, partida (puxões, giro, aquecimento), calços, prova do motor (s)
  REARM:[20,34],REPAIR:3.2,    // rearmar/reabastecer (s); s por ponto de dano
  REPLACE:100,PILOT_REPLACE:90,// avião e piloto novos depois de uma perda (s)
@@ -107,13 +109,13 @@ const DIM={spad:[96,74],fokker:[100,74],camel:[98,68],halb:[124,80],salmson:[136
 const SEAT={spad:[-6],fokker:[-6],camel:[-5],halb:[5,-10],salmson:[-4,-16],breguet:[-4,-15],rumpler:[5,-13],dfw:[4,-14],dh4:[1,-11],gotha:[42,21,-18]};
 for(const k in TYPES){const T=TYPES[k];T.span=DIM[k][0];T.len=DIM[k][1];T.seat=SEAT[k];T.ps=k==='gotha'?1:0}
 const ROSTER=[
- [{sq:'94th Aero',  types:['spad','spad','spad','spad','spad','spad','spad','spad','spad','spad'],role:'f'},
-  {sq:'148th Aero', types:['camel','camel','camel','camel'],role:'a'},
-  {sq:'1st Aero',   types:['salmson','salmson','salmson','breguet','breguet'],role:'r'},
-  {sq:'11th Aero',  types:['dh4','dh4','dh4'],role:'b'}],
- [{sq:'Jasta 12',   types:['fokker','fokker','fokker','fokker','fokker','fokker','fokker','fokker'],role:'f'},
-  {sq:'Schlasta 2', types:['halb','halb','halb','halb'],role:'a'},
-  {sq:'FA(A) 240',  types:['rumpler','rumpler','rumpler','dfw','dfw'],role:'r'},
+ [{sq:'94th Aero',  types:['spad','spad','spad','spad'],role:'f'},
+  {sq:'148th Aero', types:['camel','camel'],role:'a'},
+  {sq:'1st Aero',   types:['salmson','breguet'],role:'r'},
+  {sq:'11th Aero',  types:['dh4','dh4'],role:'b'}],
+ [{sq:'Jasta 12',   types:['fokker','fokker','fokker','fokker'],role:'f'},
+  {sq:'Schlasta 2', types:['halb','halb'],role:'a'},
+  {sq:'FA(A) 240',  types:['rumpler','dfw'],role:'r'},
   {sq:'Bogohl 3',   types:['gotha','gotha'],role:'b'}]];
 const NAMES=[
  {rank:['Lt.','1st Lt.','Capt.'],first:['James','Frank','Harold','Walter','Elliott','Reed','Lloyd','Douglas','Eddie','Hamilton','Field','Jacques','Sumner','Wilbert','Murray','Thomas','Howard','George','Clayton','Jesse'],
@@ -151,22 +153,22 @@ function newAircraft(team,tk,sq,slot){const T=TYPES[tk];
    corredor central de terra batida, faixas de táxi entre as fileiras e uma pista de táxi paralela (TY) a norte da faixa. Coordenadas relativas ao
    centro (x,y): faixa em y=0, fileiras de aviões voltados para o sul, hangares em y≈-870. O avião sai para a faixa à frente (ou para o corredor), desce
    até a TY e segue até a cabeceira (ponto de espera); volta pelo flanco norte da faixa, sobe o corredor e entra na vaga de frente para o campo. */
-const AISLE=135,BAYMAX=800;
-function makeAirfield(team){const x=team?W+CFG.AFX:-CFG.AFX,y=H*.5,wv=window.PXW&&PXW.windVec?PXW.windVec():{x:-1,y:0};
- const dir=Math.abs(wv.x)>4?(wv.x>0?-1:1):(team?-1:1);          // decola contra o vento (sem vento: rumo à frente)
- const f={team,x,y,dir,half:CFG.HALF,w:150,slots:[],busyRw:0,landing:null,queue:[],hangars:[],tents:[],flag:team,
-  TY:-112,rows:[-262,-440,-640],lanes:[-345,-536,-745],aisle:AISLE,bayMax:BAYMAX,hy:-905};
+const AISLE=130,BAYMAX=480;
+function makeAirfield(team){const x=team?W-CFG.AFX:CFG.AFX,y=H-80,wv=window.PXW&&PXW.windVec?PXW.windVec():{x:-1,y:0};
+ const dir=(team?-1:1);                          // campo dentro do mapa: sempre rumo à frente (a perna final entra pela borda e nunca sobrevoa o aeródromo inimigo); o vento só mexe na biruta          // decola contra o vento (sem vento: rumo à frente)
+ const f={team,x,y,dir,half:CFG.HALF,w:120,slots:[],busyRw:0,landing:null,queue:[],hangars:[],tents:[],flag:team,
+  TY:-80,rows:[-175,-300,-425],lanes:[-238,-363,-490],aisle:AISLE,bayMax:BAYMAX,hy:-610,compact:true};
  const bays=[];for(const r of[0,1,2])for(const s of[-1,1])bays.push({r,s,cur:AISLE});let bi=0;
- for(const g of ROSTER[team])for(const tk of g.types){const T=TYPES[tk],need=T.span+34;
+ for(const g of ROSTER[team])for(const tk of g.types){const T=TYPES[tk],need=Math.round(T.span*1.05+30);   /* asas do desenho passam um pouco da envergadura: folga proporcional */
   while(bi<bays.length-1&&bays[bi].cur+need>BAYMAX)bi++;const b=bays[bi],cx=b.s*(b.cur+T.span/2);b.cur+=need;
   f.slots.push({x:x+cx,y:y+f.rows[b.r],row:b.r,side:b.s,tk,sq:g.sq,role:g.role,ac:null})}
- for(let i=0;i<4;i++)f.hangars.push({x:x+(i<2?-1:1)*(i%2?200:600),y:y+f.hy});
- f.ops={x:x+(team?-1:1)*(BAYMAX+60),y:y-185};f.res={x:f.ops.x+(team?1:-1)*10,y:f.ops.y+70};     // barraca de operações e pilotos de reserva
- f.hq={x:f.ops.x,y:f.ops.y};f.dump={x:x-(team?-1:1)*(BAYMAX+40),y:y-700};f.truck={x:x-(team?-1:1)*(BAYMAX+40),y:y-300};
- f.box={x0:x-BAYMAX-130,x1:x+BAYMAX+130,y0:y-960,y1:y+280};
+ for(let i=0;i<4;i++)f.hangars.push({x:x+(i<2?-1:1)*(i%2?130:345),y:y+f.hy});
+ f.ops={x:x+(team?-1:1)*(BAYMAX+55),y:y-150};f.res={x:f.ops.x+(team?1:-1)*10,y:f.ops.y+70};     // barraca de operações e pilotos de reserva
+ f.hq={x:f.ops.x,y:f.ops.y};f.dump={x:x-(team?-1:1)*(BAYMAX+35),y:y-470};f.truck={x:x-(team?-1:1)*(BAYMAX+35),y:y-250};
+ f.box={x0:x-BAYMAX-95,x1:x+BAYMAX+95,y0:y-745,y1:y+75};
  return f}
 function rwStart(f){return f.x-f.dir*f.half}                         // cabeceira de decolagem
-function rwTouch(f){return f.x-f.dir*(f.half-90)}                     // ponto de toque do pouso
+function rwTouch(f){return f.x-f.dir*(f.half-(f.compact?150:90))}                     // ponto de toque do pouso
 function slotPose(a){const s=a.slot;a.x=s.x;a.y=s.y;a.h=0;a.hd=Math.PI/2;a.V=[0,0,0];a.air=false;a.pose={hd:Math.PI/2,bank:0,pitch:11}}
 
 /* ---- pessoas no solo: pilotos e observadores (posição, passo e roteiro; o airwar-view/airfield-crew só desenha) ---- */
@@ -195,7 +197,7 @@ function inspectPts(a){const s=a.slot,T=a.T;return[[s.x+T.span*.34,s.y+3],[s.x+1
 /* caminhos de táxi (curvas por arcos: o avião não gira no lugar) */
 function roundPath(P,r){if(P.length<3)return P.map(q=>q.slice());const out=[P[0].slice()];
  for(let i=1;i<P.length-1;i++){const a=P[i-1],b=P[i],c=P[i+1],d1=hyp(b[0]-a[0],b[1]-a[1]),d2=hyp(c[0]-b[0],c[1]-b[1]);if(d1<1||d2<1){out.push(b.slice());continue}
-  const k=Math.min(r,d1*.5,d2*.5),p1=[b[0]+(a[0]-b[0])/d1*k,b[1]+(a[1]-b[1])/d1*k],p2=[b[0]+(c[0]-b[0])/d2*k,b[1]+(c[1]-b[1])/d2*k],n=Math.max(2,Math.ceil(k/8));
+  const k=Math.min(r,d1*.5,d2*.5),p1=[b[0]+(a[0]-b[0])/d1*k,b[1]+(a[1]-b[1])/d1*k],p2=[b[0]+(c[0]-b[0])/d2*k,b[1]+(c[1]-b[1])/d2*k],n=Math.max(4,Math.ceil(k/4));
   for(let j=0;j<=n;j++){const t=j/n,u=1-t;out.push([u*u*p1[0]+2*u*t*b[0]+t*t*p2[0],u*u*p1[1]+2*u*t*b[1]+t*t*p2[1]])}}
  out.push(P[P.length-1].slice());return out}
 const holdPt=f=>[rwStart(f)-f.dir*56,f.y+f.TY];
@@ -203,7 +205,7 @@ function outPath(a){const af=AF[a.team],s=a.slot,ty=af.y+af.TY,P=[[a.x,a.y]];
  if(s.row>0){const ly=af.y+af.lanes[s.row-1];P.push([s.x,ly],[af.x,ly],[af.x,ty])}else P.push([s.x,ty]);
  P.push(holdPt(af));return roundPath(P,46)}
 function lineupPath(a){const af=AF[a.team],h=holdPt(af),xs=rwStart(af);return roundPath([[a.x,a.y],[h[0],af.y],[xs+af.dir*46,af.y]],50)}
-function inPath(a){const af=AF[a.team],s=a.slot,d=af.dir,ty=af.y+af.TY,ny=af.y-64,ahead=(af.x-a.x)*d>30,P=[[a.x,a.y]];
+function inPath(a){const af=AF[a.team],s=a.slot,d=af.dir,ty=af.y+af.TY,ny=af.y+(af.compact?-30:-64),ahead=(af.x-a.x)*d>30,P=[[a.x,a.y]];
  if(ahead)P.push([a.x+d*40,ny],[af.x,ny]);else P.push([a.x+d*60,ny],[a.x+d*60,ny-34],[af.x,ny-34]);
  P.push([af.x,ty],[af.x,af.y+af.lanes[s.row]],[s.x,af.y+af.lanes[s.row]],[s.x,s.y]);return roundPath(P,46)}
 
@@ -299,6 +301,7 @@ function decide(a){const P=a.pilot,sk=P?P.skill:.4;a.think=time+lerp(.65,.22,sk)
  a.threat=threatOn(a);if(a.threat)a.threat.threatTo=a;
  if((a.mode==='rtb'||a.mode==='circuit')&&a.threat&&guns&&hyp(a.threat.x-a.x,a.threat.y-a.y)<330&&a.power>0){a.mode='evade';a.tgt=null;return}
  if(a.mode==='rtb'||a.mode==='circuit'||a.mode==='final'||a.mode==='glide'||a.mode==='climbout'||a.mode==='recover')return;
+ if(fl&&(fl.phase==='start'||fl.phase==='assemble')&&a.liftT&&time-a.liftT<60&&!(a.threat&&hyp(a.threat.x-a.x,a.threat.y-a.y,a.threat.h-a.h)<200)){a.tgt=null;if(a.mode==='fight'||a.mode==='evade'||a.mode==='zoom'||a.mode==='extend')a.mode='form';return}   // recém-decolado: reúne e sobe rumo à missão, sem sair caçando (só reage se já estiver sendo atacado de perto)
  if(wantDisengage(a)){a.mode=a.threat&&hyp(a.threat.x-a.x,a.threat.y-a.y)<300?'evade':'extend';a.tgt=null;if(a.mode==='extend')a.extendT=time+8;return}
  if(a.threat&&guns&&hyp(a.threat.x-a.x,a.threat.y-a.y,a.threat.h-a.h)<380){a.mode='evade';a.tgt=null;const r=Math.random(),e=(1-sk)*.32;if(r<e*.45)a.panicT=time+rnd(.6,1.3);else if(r<e)a.flipT=time+rnd(.8,1.6);return}
  if(fighter&&guns&&role!=='atk'&&role!=='rec'){const t=chooseTarget(a,true);if(t){if(a.tgt!==t){a.tgt=t;a.engT=time;if(!fl||!fl.engaged){if(fl)fl.engaged=time;S.stats.engagements++}}a.mode=a.mode==='zoom'&&a.zoomT>time?'zoom':'fight';return}}
@@ -335,7 +338,7 @@ function steer(a,dt){const T=a.T,P=a.pilot,sk=P?P.skill:.4,v=len3(a.V),f=nrm(a.V
   const dw=w&&!w.dead?hyp(w.x-a.x,w.y-a.y):999;D=nrm([hd[0],hd[1],dw<650&&a.h>260?-.4:v>T.VB*1.2&&a.h<1300?.16:a.h>160?-.1:.02]);nl=T.nSus;if(a.extendT<time){a.away=null;a.mode=wantDisengage(a)?'rtb':a.flight?'form':'';}break}
  case 'rtb':case 'circuit':case 'final':case 'glide':{const r=landing(a,dt);D=r.D;nl=r.nl;a.thr=r.thr;break}
  case 'spin':D=f;break;
- case 'climbout':{/* subida reta na direção da pista até ter altura e velocidade para virar */const af=AF[a.team];D=nrm([af.dir,0,v>T.VB*.85?.22:.08]);nl=1.25;a.thr=1;if(a.h>140&&v>T.VB*.8)a.mode='form';break}
+ case 'climbout':{/* subida reta na direção da pista até ter altura e velocidade para virar */const af=AF[a.team],bk=af.compact?clamp((a.h-18)/45,0,1):0;D=nrm([af.dir*(1-.8*bk),-.95*bk,v>T.VB*.85?.22:.08]);nl=1.25;   /* campo no mapa: curva para o lado do campo de batalha logo após a pista, sem sobrevoar o aeródromo inimigo */a.thr=1;if(a.h>140&&v>T.VB*.8)a.mode='form';break}
  case 'recover':{/* saiu do parafuso: mergulho reto até ganhar velocidade, depois volta */D=nrm([f[0],f[1],a.h>90?-.5:.15]);nl=1.6;a.thr=1;if(v>T.VB*.95||a.h<60&&v>T.vst*1.3)a.mode='';break}
  default:{/* em formação ou guiando a missão */const r=missionSteer(a,dt);D=r.D;nl=r.nl;a.thr=r.thr;if(r.fire)aimFire(a,r.fire,hyp(r.fire.x-a.x,r.fire.y-a.y,r.fire.h-a.h))}}
  /* fora do combate: nunca perto do estol (o ala que passou da posição não corta o motor abaixo de 1,3 vst) */
@@ -485,12 +488,13 @@ function ready(team,cls,role){const r=[];for(const a of AC){if(a.team!==team||!l
 const nAir=team=>AC.filter(a=>a.team===team&&live(a)&&a.st!=='park').length;
 function launch(team,kind,x,y,o={}){if(nAir(team)>=CFG.MAXAIR)return null;if(window.PXAIRB&&PXAIRB.on&&!PXAIRB.canLaunch(team,kind,o))return null;
  let pool,n;
- if(kind==='cap'||kind==='int'||kind==='esc'){n=o.n||(kind==='int'?2:3);pool=ready(team,['f'],'f');if(pool.length<n)pool=pool.concat(ready(team,['f'],'a'))}   /* Camels americanos (17º/148º Aero) também caçavam */
+ if(o.pick&&o.pick.length){pool=o.pick.filter(a=>a.team===team&&live(a)&&a.st==='park'&&a.ready<=time&&a.pilot&&!a.pilot.busy&&a.pilot.alive);n=pool.length}   /* aviões escolhidos pelo jogador (airsel.js) */
+ else if(kind==='cap'||kind==='int'||kind==='esc'){n=o.n||(kind==='int'?2:3);pool=ready(team,['f'],'f');if(pool.length<n)pool=pool.concat(ready(team,['f'],'a'))}   /* Camels americanos (17º/148º Aero) também caçavam */
  else if(kind==='atk'){pool=ready(team,null,'a');n=o.n||3}
  else if(kind==='rec'){pool=ready(team,null,'r').filter(a=>a.T.recon);n=1}
  else if(kind==='bmb'){pool=ready(team,null,'b');if(!pool.length)pool=ready(team,null,'r').filter(a=>a.T.bombs);n=o.n||pool.length}
  if(!pool||!pool.length)return null;pool.sort((a,b)=>(b.pilot.skill+b.pilot.kills*.05)-(a.pilot.skill+a.pilot.kills*.05));
- const m=pool.slice(0,Math.max(1,Math.min(n,pool.length,CFG.MAXAIR-nAir(team))));if(m.length<(kind==='cap'?2:1))return null;
+ const m=pool.slice(0,Math.max(1,Math.min(n,pool.length,CFG.MAXAIR-nAir(team))));if(m.length<(kind==='cap'&&!o.pick?2:1))return null;
  const alt=o.alt||(kind==='atk'?380:kind==='rec'?(m[0].T.key==='rumpler'?1250:950):kind==='bmb'?(m[0].T.cls==='B'?1050:950):kind==='int'?850:rnd(850,1150));
  const f=newFlight(team,kind,m,{x,y,alt,dur:kind==='cap'?rnd(55,80):kind==='int'?45:kind==='rec'?999:999},o.extra);
  if(o.target)f.target=o.target;if(window.PXAIRB&&PXAIRB.on)PXAIRB.onLaunch(f);return f}
@@ -512,7 +516,7 @@ function missionSteer(a,dt){const f=a.flight,T=a.T,v=len3(a.V),fw=nrm(a.V),pos=[
  /* líder */
  const wp=f.wp,goTo=(x,y,h)=>{const r=[x-a.x,y-a.y,0],d=hyp(r[0],r[1]),dz=clamp((h-a.h)/300,-.45,.55);return{D:nrm([r[0]/(d||1),r[1]/(d||1),dz]),d}};
  switch(f.phase){
- case 'assemble':{const af=AF[a.team],ang=time*.35,{D:dd}=goTo(af.x+Math.cos(ang)*420,af.y+Math.sin(ang)*300,Math.max(260,f.alt*.45));D=dd;thr=.82;break}
+ case 'assemble':{const af=AF[a.team],ang=time*.35,{D:dd}=goTo(af.x+Math.cos(ang)*420,af.y-380+Math.sin(ang)*210,Math.max(260,f.alt*.45));D=dd;thr=.82;break}
  case 'out':{const t=f.target&&live(f.target)?f.target:null,X=t?t.x:f.area.x,Y=t?t.y:f.area.y;const r=goTo(X,Y,f.alt);D=r.D;thr=f.kind==='bmb'||f.kind==='rec'?.92:.95;
   if(f.escortOf){const E=f.escortOf.lead();if(E){const r2=goTo(E.x-Math.cos(E.hd)*60,E.y-Math.sin(E.hd)*60,E.h+130);D=r2.D;thr=clamp(.7+(r2.d-120)/400,.5,1)}}
   break}
@@ -558,12 +562,12 @@ function reveal(a){S.stats.recon+=1/30;const fw=window.PXW&&PXW.fow;if(!fw||!fw.
    ====================================================================================== */
 const dd0=(a,tx,ty)=>hyp(tx-a.x,ty-a.y);
 function landing(a,dt){const af=AF[a.team],T=a.T,dir=af.dir,td=rwTouch(af),v=len3(a.V);let D=nrm(a.V),nl=T.nSus*1.3,thr=.7;
- const FL=800,iaf=[td-dir*FL,af.y];                                   // ponto de entrada da final: 800 u antes do toque, alinhado com a pista (chega pela perna de vento, do lado em que o avião está)
+ const FL=CFG.FINAL||800,iaf=[td-dir*FL,af.y];                                   // ponto de entrada da final: 800 u antes do toque, alinhado com a pista (chega pela perna de vento, do lado em que o avião está)
  if(a.mode==='rtb'||a.mode==='glide'){const gl=a.mode==='glide'||a.power<=0;
   const r=[iaf[0]-a.x,iaf[1]-a.y],d=hyp(r[0],r[1]),rf=[td-a.x,af.y-a.y],dfd=hyp(rf[0],rf[1]);
   if(gl){/* sem motor: planeia direto para o campo; não chega → pouso forçado onde der */D=nrm([rf[0]/dfd,rf[1]/dfd,-.11]);thr=0;
    if(dfd<500&&a.h<140){a.mode='final'}else if(a.h<10)return forced(a);return{D,nl,thr}}
-  if(!a.lp||time-a.lp.t>90)a.lp={side:a.y>af.y?1:-1,t:time,st:0};const L=a.lp;let tx,ty;
+  if(!a.lp||time-a.lp.t>90)a.lp={side:-1,t:time,st:0};const L=a.lp;let tx,ty;
   if(L.st===0){tx=iaf[0]-dir*30;ty=af.y+L.side*440;if(hyp(tx-a.x,ty-a.y)<240)L.st=1}                 // 1ª perna: ao lado da entrada da final; 2ª: curva para a final
   if(L.st===1){tx=iaf[0]+dir*220;ty=af.y}
   const al1=(a.x-td)*dir,hh=L.st===1?clamp(-al1*.09+30,70,260):dd0(a,tx,ty)>1400?Math.max(380,Math.min(a.h,700)):220,rr=[tx-a.x,ty-a.y],dd=hyp(rr[0],rr[1]);D=nrm([rr[0]/(dd||1),rr[1]/(dd||1),clamp((hh-a.h)/300,-.35,.3)]);thr=L.st===1&&v>T.vst*1.5?0:.8;       // na perna final já desce pela rampa e tira potência: chega ao toque devagar
@@ -576,7 +580,7 @@ function landing(a,dt){const af=AF[a.team],T=a.T,dir=af.dir,td=rwTouch(af),v=len
  /* final: alinha com a pista, rampa de 5°, velocidade 1,3 vst, arredonda perto do chão */
  const along=(a.x-td)*dir,lat=a.y-af.y,hT=Math.max(0,-along)*.09,flare=a.h<14;
  D=nrm([dir*220,-lat*1.1,flare?-4:Math.max(-70,-20+(hT-a.h)*.9)]);thr=a.power<=0?0:clamp(.35+(T.vst*1.3-v)/50,0,.85);nl=T.nSus*1.3;
- if(a.h<6&&Math.abs(lat)<50&&along>-200&&along<300&&v<T.vst*1.8)return touchdown(a);
+ if(a.h<6&&Math.abs(lat)<50&&along>(af.compact?-90:-200)&&along<300&&v<T.vst*1.8)return touchdown(a);
  if(a.power>0&&(along>320||Math.abs(lat)>150&&along>-500)){S.stats.goArounds++;a.mode='circuit';a.circT=time;a.landTry++}
  return{D,nl,thr}}
 function touchdown(a){const af=AF[a.team],v=len3(a.V),hard=-a.V[2]>38||v>a.T.vst*1.6;a.air=false;a.h=0;a.st='rollout';a.gv=hyp(a.V[0],a.V[1]);a.mode='';
@@ -597,6 +601,7 @@ function rwBusy(af,self){for(const b of AC){if(b===self||b.team!==af.team||!live
 /* avião logo à frente no caminho (mesma faixa de táxi ou cruzamento): espera, sem passar por cima */
 function inFront(a){const c=Math.cos(a.hd),s=Math.sin(a.hd);
  for(const b of AC){if(b===a||b.team!==a.team||!live(b)||b.air)continue;if(b.st==='park'||b.st==='start')continue;
+  if((a.st==='taxi'&&(b.st==='lineup'||b.st==='roll')||a.st==='lineup'&&b.st==='taxi')&&Math.abs(b.y-a.y)>45)continue;   // faixa de táxi × cabeceira: só se cruzam de verdade (evita um esperar o outro 14 s)
   const rx=b.x-a.x,ry=b.y-a.y,fw=rx*c+ry*s,lt=Math.abs(-rx*s+ry*c);
   if(fw>0&&fw<(a.T.len+b.T.len)/2+34&&lt<(a.T.span+b.T.span)*.28||fw>-10&&hyp(rx,ry)<(a.T.span/2+b.T.len/2+14))return b}   // na mesma faixa de táxi, ou cruzando à frente
  return null}
@@ -650,8 +655,8 @@ function ground(a,dt){const af=AF[a.team],T=a.T,GP=CFG.GP;
   if(!a.pilot){const p=PILOTS[a.team].find(p=>p.alive&&!p.busy&&!p.assigned&&p.restUntil<time);if(p){a.pilot=p;p.assigned=true;p.q.length=0;p.plane=null;pgo(p,[spotFor(a,0)],GP.walk,'walk')}}
   break;
  case 'start':slotPose(a);startSeq(a,dt);break;
- case 'taxi':if(taxiStep(a,dt,a.flight&&a.flight.hurry?CFG.TAXI*1.2:CFG.TAXI)){a.st='hold';a.gv=0}break;
- case 'hold':{a.gv=0;a.pose={hd:a.hd,bank:0,pitch:11};if(!rwBusy(af,a)){a.st='lineup';a.gp='';a.path=lineupPath(a);a.pi=1}break}   // um de cada vez: só entra na faixa com ela livre
+ case 'taxi':if(taxiStep(a,dt,a.flight&&a.flight.hurry?CFG.TAXI*1.2:CFG.TAXI)){a.st='hold';a.gv=0;a.holdT=time}break;
+ case 'hold':{a.gv=0;a.pose={hd:a.hd,bank:0,pitch:11};if(!rwBusy(af,a)&&!AC.some(b=>b!==a&&b.team===a.team&&live(b)&&b.st==='hold'&&(b.holdT<a.holdT||b.holdT===a.holdT&&b.id<a.id))){   /* fila: o primeiro a chegar ao ponto de espera é o primeiro a entrar */a.st='lineup';a.gp='';a.path=lineupPath(a);a.pi=1}break}   // um de cada vez: só entra na faixa com ela livre
  case 'lineup':{if(a.gp!=='runup'){if(taxiStep(a,dt,CFG.TAXI)){a.gp='runup';a.gt=time;a.gv=0}}
   else{a.hd+=adiff(af.dir>0?0:Math.PI,a.hd)*Math.min(1,dt*4);a.gv=0;a.y+=(af.y-a.y)*Math.min(1,dt*3);a.pose={hd:a.hd,bank:0,pitch:11};if(time-a.gt>=GP.runup){a.st='roll';a.gp='';a.rollT=time}}break}   // prova de motor
  case 'roll':{const vr=T.vst*1.2,k=T.cls==='B'?.62:T.cls==='b'?.82:1;a.gv+=CFG.ROLLA*k*a.power*(1-.3*Math.min(1,a.gv/vr)**2)*dt;
@@ -693,9 +698,9 @@ function hqTick(dt){for(let t=0;t<2;t++){const Q=HQ[t];if(!Q)continue;Q.t-=dt;if
   launch(t,'int',e.x,e.y,{target:e});break}
  /* patrulha permanente sobre a frente */
  const caps=FL.filter(f=>f.team===t&&f.kind==='cap'&&f.phase!=='home').length;
- if(caps<2&&time>Q.next.cap){const y=lerp(H*.2,H*.8,Math.random()),x=FRONT+(t?1:-1)*rnd(-150,250);if(launch(t,'cap',x,y))Q.next.cap=time+rnd(...CFG.CAP_EVERY)}
+ if(caps<2&&time>Q.next.cap){const y=lerp(GH*.2,GH*.8,Math.random()),x=FRONT+(t?1:-1)*rnd(-150,250);if(launch(t,'cap',x,y))Q.next.cap=time+rnd(...CFG.CAP_EVERY)}
  /* reconhecimento (com escolta se sobrar caça) */
- if(time>Q.next.rec){Q.next.rec=time+rnd(...CFG.REC_EVERY);const x=FRONT+(t?-1:1)*rnd(350,700),y=lerp(H*.25,H*.75,Math.random());const f=launch(t,'rec',x,y);if(f&&ready(t,['f'],'f').length>=4)launchEscort(t,f,2)}
+ if(time>Q.next.rec){Q.next.rec=time+rnd(...CFG.REC_EVERY);const x=FRONT+(t?-1:1)*rnd(350,700),y=lerp(GH*.25,GH*.75,Math.random());const f=launch(t,'rec',x,y);if(f&&ready(t,['f'],'f').length>=4)launchEscort(t,f,2)}
  if(tr)continue;
  /* ataque ao solo e bombardeio */
  if(time>Q.next.atk){Q.next.atk=time+rnd(...CFG.ATK_EVERY);const g=groundTarget(t,0);if(g)launch(t,'atk',g.x,g.y)}
@@ -790,6 +795,6 @@ S.state=()=>{const air=AC.filter(airborne),st=S.stats;return{on:S.on,version:S.v
  hitRate:st.rounds?+(st.hits/st.rounds).toFixed(3):0,stats:JSON.parse(JSON.stringify(st))}};
 /* testes: avião solto no ar, sem aeródromo */
 S._spawn=(team,tk,x,y,h,hd,v,skill)=>{const a=newAircraft(team,tk,'teste',{x,y,role:'f'});a.eng='run';a.rpm=.85;a.pilot=newPilot(team,skill);a.pilot.busy=true;a.x=x;a.y=y;a.h=h;a.hd=hd;a.V=[Math.cos(hd)*v,Math.sin(hd)*v,0];a.U=[0,0,1];a.air=true;a.st='air';a.mode='form';a.engOn=true;return a};
-S._internals={fly,steer,decide,spot,Ps,leadPoint,stepBullets,hit,down,step,reset,landing,ground,poseOf,TYPES,flightTick,launch,rwBusy,seatPt,boardPt,outPath,inPath,lineupPath,AC:()=>AC,setFront:x=>{FRONT=x},nrm,len3};
+S._internals={inFront,fly,steer,decide,spot,Ps,leadPoint,stepBullets,hit,down,step,reset,landing,ground,poseOf,TYPES,flightTick,launch,rwBusy,seatPt,boardPt,outPath,inPath,lineupPath,AC:()=>AC,setFront:x=>{FRONT=x},nrm,len3};
 if(window.IronFront)window.IronFront.airwar=S;
 })();

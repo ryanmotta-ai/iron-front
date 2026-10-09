@@ -15,7 +15,7 @@
           ],
           "cash": [
             290,
-            230
+            270
           ],
           "points": [
             {
@@ -38,15 +38,15 @@
           "time": 60,
           "alive": [
             92,
-            107
+            120
           ],
           "kills": [
             0,
-            9
+            10
           ],
           "cash": [
-            310,
-            280
+            160,
+            320
           ],
           "points": [
             {
@@ -68,15 +68,15 @@
         {
           "time": 90,
           "alive": [
-            92,
-            99
+            73,
+            112
           ],
           "kills": [
-            15,
-            24
+            8,
+            29
           ],
           "cash": [
-            270,
+            252,
             260
           ],
           "points": [
@@ -92,23 +92,23 @@
             }
           ],
           "phase": [
-            "hold",
+            "counter",
             "withdraw"
           ]
         },
         {
           "time": 120,
           "alive": [
-            103,
-            113
+            74,
+            117
           ],
           "kills": [
-            17,
-            30
+            13,
+            35
           ],
           "cash": [
-            215,
-            300
+            207,
+            180
           ],
           "points": [
             {
@@ -124,22 +124,22 @@
           ],
           "phase": [
             "hold",
-            "advance"
+            "prepare"
           ]
         },
         {
           "time": 150,
           "alive": [
-            100,
-            115
+            84,
+            118
           ],
           "kills": [
-            18,
-            44
+            14,
+            49
           ],
           "cash": [
-            343,
-            590
+            169,
+            580
           ],
           "points": [
             {
@@ -162,15 +162,15 @@
           "time": 180,
           "alive": [
             89,
-            105
+            111
           ],
           "kills": [
-            29,
-            71
+            35,
+            58
           ],
           "cash": [
-            233,
-            620
+            184,
+            310
           ],
           "points": [
             {
@@ -185,29 +185,29 @@
             }
           ],
           "phase": [
-            "hold",
-            "advance"
+            "counter",
+            "withdraw"
           ]
         }
       ],
-      "updateMedian": 7.599999964237213,
-      "updateP95": 19.100000023841858,
+      "updateMedian": 7.699999988079071,
+      "updateP95": 17.599999964237213,
       "invalid": 0,
       "airErrors": 0,
       "constructionErrors": 0,
       "plans": [
         {
           "operation": {
-            "phase": "hold",
-            "sector": 2,
+            "phase": "counter",
+            "sector": 4,
             "x": 2140,
-            "y": 1000,
-            "since": 0.05,
+            "y": 1440,
+            "since": 162.0500000000026,
             "style": "balanced",
             "objective": {
               "name": "ALEMANHA",
               "x": 2140,
-              "y": 1000
+              "y": 800
             }
           },
           "strategy": {
@@ -218,535 +218,27 @@
         },
         {
           "operation": {
-            "phase": "advance",
-            "sector": 1,
+            "phase": "withdraw",
+            "sector": 4,
             "x": 260,
-            "y": 600,
-            "since": 116.64999999999552,
+            "y": 1440,
+            "since": 168.30000000000402,
             "style": "balanced",
             "objective": {
               "name": "EUA",
               "x": 260,
-              "y": 1000
+              "y": 800
             }
           },
           "strategy": {
-            "note": "Reconhecer acesso lateral",
-            "active": {
-              "id": 1,
-              "kind": "flank",
-              "stage": "recon",
-              "label": "Reconhecer acesso lateral",
-              "since": 177.4500000000061,
-              "participants": [
-                22,
-                23,
-                24
-              ],
-              "target": {
-                "x": 584.7044324163231,
-                "y": 638.4898130552191
-              },
-              "flank": {
-                "x": 659.7044324163231,
-                "y": 448.4898130552191
-              }
-            },
+            "note": "Manobras aguardam reconhecimento e apoio",
+            "active": null,
             "history": []
           }
         }
       ],
       "ended": false,
       "map": "trenches"
-    },
-    {
-      "samples": [
-        {
-          "time": 30,
-          "alive": [
-            103,
-            85
-          ],
-          "kills": [
-            0,
-            0
-          ],
-          "cash": [
-            234,
-            222
-          ],
-          "points": [
-            {
-              "name": "EUA",
-              "owner": 0,
-              "progress": -100
-            },
-            {
-              "name": "ALEMANHA",
-              "owner": 1,
-              "progress": 100
-            }
-          ],
-          "phase": [
-            "advance",
-            "hold"
-          ]
-        },
-        {
-          "time": 60,
-          "alive": [
-            114,
-            91
-          ],
-          "kills": [
-            2,
-            0
-          ],
-          "cash": [
-            236,
-            194
-          ],
-          "points": [
-            {
-              "name": "EUA",
-              "owner": 0,
-              "progress": -100
-            },
-            {
-              "name": "ALEMANHA",
-              "owner": 1,
-              "progress": 100
-            }
-          ],
-          "phase": [
-            "advance",
-            "hold"
-          ]
-        },
-        {
-          "time": 90,
-          "alive": [
-            108,
-            85
-          ],
-          "kills": [
-            14,
-            17
-          ],
-          "cash": [
-            246,
-            144
-          ],
-          "points": [
-            {
-              "name": "EUA",
-              "owner": 0,
-              "progress": -100
-            },
-            {
-              "name": "ALEMANHA",
-              "owner": 1,
-              "progress": 100
-            }
-          ],
-          "phase": [
-            "withdraw",
-            "hold"
-          ]
-        },
-        {
-          "time": 120,
-          "alive": [
-            110,
-            86
-          ],
-          "kills": [
-            18,
-            20
-          ],
-          "cash": [
-            288,
-            174
-          ],
-          "points": [
-            {
-              "name": "EUA",
-              "owner": 0,
-              "progress": -100
-            },
-            {
-              "name": "ALEMANHA",
-              "owner": 1,
-              "progress": 100
-            }
-          ],
-          "phase": [
-            "advance",
-            "hold"
-          ]
-        },
-        {
-          "time": 150,
-          "alive": [
-            107,
-            106
-          ],
-          "kills": [
-            18,
-            22
-          ],
-          "cash": [
-            268,
-            248
-          ],
-          "points": [
-            {
-              "name": "EUA",
-              "owner": 0,
-              "progress": -100
-            },
-            {
-              "name": "ALEMANHA",
-              "owner": 1,
-              "progress": 100
-            }
-          ],
-          "phase": [
-            "advance",
-            "hold"
-          ]
-        },
-        {
-          "time": 180,
-          "alive": [
-            90,
-            109
-          ],
-          "kills": [
-            29,
-            35
-          ],
-          "cash": [
-            247,
-            148
-          ],
-          "points": [
-            {
-              "name": "EUA",
-              "owner": 0,
-              "progress": -100
-            },
-            {
-              "name": "ALEMANHA",
-              "owner": 1,
-              "progress": 100
-            }
-          ],
-          "phase": [
-            "withdraw",
-            "hold"
-          ]
-        }
-      ],
-      "updateMedian": 7.900000035762787,
-      "updateP95": 17.69999998807907,
-      "invalid": 0,
-      "airErrors": 0,
-      "constructionErrors": 0,
-      "plans": [
-        {
-          "operation": {
-            "phase": "withdraw",
-            "sector": 4,
-            "x": 2140,
-            "y": 1800,
-            "since": 177.000000000006,
-            "style": "balanced",
-            "objective": {
-              "name": "ALEMANHA",
-              "x": 2140,
-              "y": 1000
-            }
-          },
-          "strategy": {
-            "note": "Manobras aguardam reconhecimento e apoio",
-            "active": null,
-            "history": []
-          }
-        },
-        {
-          "operation": {
-            "phase": "hold",
-            "sector": 4,
-            "x": 260,
-            "y": 1800,
-            "since": 88.99999999999709,
-            "style": "balanced",
-            "objective": {
-              "name": "EUA",
-              "x": 260,
-              "y": 1000
-            }
-          },
-          "strategy": {
-            "note": "Manobra liberada para a prioridade local",
-            "active": null,
-            "history": [
-              {
-                "id": 1,
-                "kind": "ambush",
-                "stage": "setup",
-                "time": 157.90000000000165,
-                "success": false,
-                "cancelled": true,
-                "reason": "Manobra liberada para a prioridade local",
-                "retained": 1
-              }
-            ]
-          }
-        }
-      ],
-      "ended": false,
-      "map": "forest"
-    },
-    {
-      "samples": [
-        {
-          "time": 30,
-          "alive": [
-            95,
-            85
-          ],
-          "kills": [
-            0,
-            0
-          ],
-          "cash": [
-            262,
-            222
-          ],
-          "points": [
-            {
-              "name": "EUA",
-              "owner": 0,
-              "progress": -100
-            },
-            {
-              "name": "ALEMANHA",
-              "owner": 1,
-              "progress": 100
-            }
-          ],
-          "phase": [
-            "advance",
-            "hold"
-          ]
-        },
-        {
-          "time": 60,
-          "alive": [
-            102,
-            89
-          ],
-          "kills": [
-            2,
-            3
-          ],
-          "cash": [
-            284,
-            234
-          ],
-          "points": [
-            {
-              "name": "EUA",
-              "owner": 0,
-              "progress": -100
-            },
-            {
-              "name": "ALEMANHA",
-              "owner": 1,
-              "progress": 100
-            }
-          ],
-          "phase": [
-            "advance",
-            "counter"
-          ]
-        },
-        {
-          "time": 90,
-          "alive": [
-            108,
-            85
-          ],
-          "kills": [
-            5,
-            19
-          ],
-          "cash": [
-            244,
-            214
-          ],
-          "points": [
-            {
-              "name": "EUA",
-              "owner": 0,
-              "progress": -100
-            },
-            {
-              "name": "ALEMANHA",
-              "owner": 1,
-              "progress": 100
-            }
-          ],
-          "phase": [
-            "recon",
-            "hold"
-          ]
-        },
-        {
-          "time": 120,
-          "alive": [
-            116,
-            83
-          ],
-          "kills": [
-            7,
-            19
-          ],
-          "cash": [
-            266,
-            245
-          ],
-          "points": [
-            {
-              "name": "EUA",
-              "owner": 0,
-              "progress": -100
-            },
-            {
-              "name": "ALEMANHA",
-              "owner": 1,
-              "progress": 100
-            }
-          ],
-          "phase": [
-            "advance",
-            "hold"
-          ]
-        },
-        {
-          "time": 150,
-          "alive": [
-            118,
-            82
-          ],
-          "kills": [
-            15,
-            21
-          ],
-          "cash": [
-            186,
-            175
-          ],
-          "points": [
-            {
-              "name": "EUA",
-              "owner": 0,
-              "progress": -100
-            },
-            {
-              "name": "ALEMANHA",
-              "owner": 1,
-              "progress": 100
-            }
-          ],
-          "phase": [
-            "advance",
-            "hold"
-          ]
-        },
-        {
-          "time": 180,
-          "alive": [
-            107,
-            71
-          ],
-          "kills": [
-            33,
-            32
-          ],
-          "cash": [
-            186,
-            202.09999999999965
-          ],
-          "points": [
-            {
-              "name": "EUA",
-              "owner": 0,
-              "progress": -100
-            },
-            {
-              "name": "ALEMANHA",
-              "owner": 1,
-              "progress": 100
-            }
-          ],
-          "phase": [
-            "withdraw",
-            "hold"
-          ]
-        }
-      ],
-      "updateMedian": 7.100000023841858,
-      "updateP95": 16,
-      "invalid": 0,
-      "airErrors": 0,
-      "constructionErrors": 0,
-      "plans": [
-        {
-          "operation": {
-            "phase": "withdraw",
-            "sector": 4,
-            "x": 2140,
-            "y": 1800,
-            "since": 167.10000000000375,
-            "style": "balanced",
-            "objective": {
-              "name": "ALEMANHA",
-              "x": 2140,
-              "y": 1000
-            }
-          },
-          "strategy": {
-            "note": "Manobras aguardam reconhecimento e apoio",
-            "active": null,
-            "history": []
-          }
-        },
-        {
-          "operation": {
-            "phase": "hold",
-            "sector": 4,
-            "x": 260,
-            "y": 1800,
-            "since": 147.5999999999993,
-            "style": "balanced",
-            "objective": {
-              "name": "EUA",
-              "x": 260,
-              "y": 1000
-            }
-          },
-          "strategy": {
-            "note": "Manobras aguardam reconhecimento e apoio",
-            "active": null,
-            "history": []
-          }
-        }
-      ],
-      "ended": false,
-      "map": "winter"
     }
   ],
   "search": [
@@ -754,13 +246,13 @@
       "cached": false,
       "searches": 28800,
       "median": 3.300000011920929,
-      "p95": 5.5
+      "p95": 6.699999988079071
     },
     {
       "cached": true,
       "searches": 1104,
       "median": 1.300000011920929,
-      "p95": 3.5
+      "p95": 4.899999976158142
     }
   ],
   "controls": {
@@ -831,42 +323,42 @@
         {
           "time": 12.05,
           "phase": "advance",
-          "nearest": 872.1139877359095
+          "nearest": 693.5458331319911
         },
         {
           "time": 17.05000000000007,
           "phase": "advance",
-          "nearest": 718.9327584932546
+          "nearest": 546.4493536885407
         },
         {
           "time": 22.050000000000143,
           "phase": "advance",
-          "nearest": 554.4189806788772
+          "nearest": 357.5663113027173
         },
         {
           "time": 27.050000000000214,
           "phase": "advance",
-          "nearest": 407.7002949807619
+          "nearest": 223.69801859802405
         },
         {
           "time": 32.05000000000028,
           "phase": "advance",
-          "nearest": 198.30211395288106
+          "nearest": 84.84431869212857
         },
         {
           "time": 37.05,
           "phase": "advance",
-          "nearest": 69.67595987092584
+          "nearest": 32.220491007281595
         },
         {
           "time": 42.04999999999971,
-          "phase": "advance",
-          "nearest": 34.70034578277232
+          "phase": "consolidate",
+          "nearest": 21.38287092990851
         },
         {
           "time": 47.04999999999943,
           "phase": "consolidate",
-          "nearest": 21.343535844549375
+          "nearest": 32.83875256019142
         }
       ]
     },
@@ -880,42 +372,42 @@
         {
           "time": 12.05,
           "phase": "advance",
-          "nearest": 872.1347065100512
+          "nearest": 693.5314410192825
         },
         {
           "time": 17.05000000000007,
           "phase": "advance",
-          "nearest": 697.6121391427628
+          "nearest": 577.3819841063388
         },
         {
           "time": 22.050000000000143,
           "phase": "advance",
-          "nearest": 502.47302899307874
+          "nearest": 356.52425672329304
         },
         {
           "time": 27.050000000000214,
           "phase": "advance",
-          "nearest": 388.5341476046746
+          "nearest": 236.40476456698002
         },
         {
           "time": 32.05000000000028,
           "phase": "advance",
-          "nearest": 255.2413452390196
+          "nearest": 101.10146097866696
         },
         {
           "time": 37.05,
           "phase": "advance",
-          "nearest": 74.27256951406565
+          "nearest": 36.01858921550761
         },
         {
           "time": 42.04999999999971,
-          "phase": "advance",
-          "nearest": 35.690345110196176
+          "phase": "consolidate",
+          "nearest": 20.655737773269134
         },
         {
           "time": 47.04999999999943,
           "phase": "consolidate",
-          "nearest": 22.378430522640517
+          "nearest": 34.64033466357235
         }
       ]
     }

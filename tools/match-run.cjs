@@ -1,12 +1,12 @@
 /* Roda partidas completas IA×IA no navegador (Edge/Playwright) e mede: fim da partida, causa, superioridade e a maior "massa"
    de infantaria (unidades a < 110 px umas das outras). Uso:
-     node tools/match-run.cjs [--maps trenches,forest,winter] [--scale 80] [--max 900] [--game sandbox|conquest] [--seed 7] [--query "vitoria=1"] [--out arquivo.json]
+     node tools/match-run.cjs [--maps trenches] [--scale 80] [--max 900] [--game sandbox|conquest] [--seed 7] [--query "vitoria=1"] [--out arquivo.json]
    Serve só dist/. NODE_PATH aponta para o Playwright do runtime do Codex. */
 const fs=require('node:fs'),path=require('node:path'),http=require('node:http');
 process.env.NODE_PATH='C:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules';require('node:module').Module._initPaths();
 const {chromium}=require('playwright'),root=path.resolve(__dirname,'../dist');
 const arg=(k,d)=>{const i=process.argv.indexOf('--'+k);return i>0?process.argv[i+1]:d};
-const maps=arg('maps','trenches,forest,winter').split(','),scale=arg('scale','80'),maxT=+arg('max','900'),game=arg('game','sandbox'),seed=+arg('seed','7'),extra=arg('query',''),outFile=arg('out','');
+const maps=arg('maps','trenches').split(','),scale=arg('scale','80'),maxT=+arg('max','900'),game=arg('game','sandbox'),seed=+arg('seed','7'),extra=arg('query',''),outFile=arg('out','');
 const server=http.createServer((req,res)=>{const f=path.resolve(root,'.'+decodeURIComponent(req.url.split('?')[0]==='/'?'/index.html':req.url.split('?')[0]));if(!f.startsWith(root+path.sep)){res.writeHead(403);return res.end()}
  fs.readFile(f,(e,d)=>{if(e){res.writeHead(404);return res.end()}res.setHeader('Content-Type',f.endsWith('.js')?'text/javascript':f.endsWith('.css')?'text/css':'text/html');res.setHeader('Cache-Control','no-store');res.end(d)})});
 (async()=>{

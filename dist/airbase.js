@@ -18,14 +18,14 @@
 if(typeof update!=='function'||!window.PXAW||!window.PXSTRUCT)return;
 const hyp=Math.hypot,clamp=(v,a,b)=>v<a?a:v>b?b:v,rnd=(a,b)=>a+Math.random()*(b-a);
 const A=window.PXAW,T=window.PXSTRUCT;
-const S=window.PXAIRB={on:!/[?&]aerodromo=0/.test(location.search),version:'1.0',cfg:{REPAIR_AFTER:25,REPAIR:1.4,RUNWAY_REPAIR:2.6,REBUILD:120,TOWER_GAP:25,PLAN_EVERY:25,AA_AVOID:2},fac:[[],[]],craters:[],lastLaunch:[-99,-99],stats:{runwayHits:0,hangarsLost:0,planesLost:0,blocked:0,aiMissions:0,retasks:0,errors:0},sel:null,arm:null,planAt:[0,0],warn:{}};
+const S=window.PXAIRB={on:!/[?&]aerodromo=0/.test(location.search),version:'1.0',cfg:{REPAIR_AFTER:25,REPAIR:1.4,RUNWAY_REPAIR:2.6,REBUILD:120,TOWER_GAP:25,PLAN_EVERY:25,AA_AVOID:2},fac:[[],[]],craters:[],lastLaunch:[-99,-99],stats:{runwayHits:0,hangarsLost:0,planesLost:0,blocked:0,aiMissions:0,retasks:0,errors:0},sel:null,arm:null,planAt:[0,0],warn:{},alertOn:[true,true],alertAt:[0,0]};
 let errs=0;
 function fail(e){S.stats.errors++;if(++errs<=3)console.error('airbase.js:',e);if(errs>=12){S.on=false;console.error('airbase.js desligado após erros repetidos')}}
 const live=a=>a&&!a.dead&&!a.gone;
 const C=()=>window.PXCOMM;
 Object.assign(T.KIND,{
- runway:{name:'Pista do aeródromo',mat:'earth',hp:900,w:960,h:60,value:55,flam:0,f:1},
- hangar:{name:'Hangar',mat:'wood',hp:520,w:150,h:90,value:45,flam:.8},
+ runway:{name:'Pista do aeródromo',mat:'earth',hp:900,w:660,h:60,value:55,flam:0,f:1},
+ hangar:{name:'Hangar',mat:'wood',hp:520,w:210,h:170,value:45,flam:.8},
  afuel:{name:'Combustível do aeródromo',mat:'steel',hp:420,w:70,h:50,value:45,flam:1},
  amdump:{name:'Munição do aeródromo',mat:'brick',hp:380,w:84,h:60,value:40,flam:.2,f:1},
  tower:{name:'Torre de controle',mat:'canvas',hp:350,w:60,h:50,value:40,flam:.6,f:1},
@@ -36,24 +36,24 @@ function build(){
  S.fac=[[],[]];S.craters=[];
  const AF=A.airfields?.()||[];
  for(const team of [0,1]){const f=AF[team];if(!f)continue;const K=T.KIND,mk=(kind,x,y,extra={})=>{const k=K[kind];return Object.assign({kind,team,x,y,hp:k.hp,max:k.hp,dead:false,hit:-99,seed:Math.round(x+y)},extra)};
-  S.fac[team].push(mk('runway',f.x,f.y,{w:f.half*2}));
+  S.fac[team].push(mk('runway',f.x,f.y,{w:f.half*2+40}));
   (f.hangars||[]).forEach((h,i)=>S.fac[team].push(mk('hangar',h.x,h.y,{idx:i})));
   if(f.truck)S.fac[team].push(mk('afuel',f.truck.x,f.truck.y));
   if(f.dump)S.fac[team].push(mk('amdump',f.dump.x,f.dump.y));
   if(f.ops)S.fac[team].push(mk('tower',f.ops.x,f.ops.y));
-  const side=team?-1:1;
-  S.fac[team].push(mk('aaa',f.x-side*620,f.y-250,{cd:rnd(0,1)}));S.fac[team].push(mk('aaa',f.x+side*420,f.y+170,{cd:rnd(0,1)}))}
+  S.fac[team].push(mk('aaa',f.x-490,f.y+40,{cd:rnd(0,1)}));S.fac[team].push(mk('aaa',f.x+490,f.y+40,{cd:rnd(0,1)}));S.fac[team].push(mk('aaa',f.x-490,f.y-640,{cd:rnd(0,1)}))}
 }
-T.addSource(out=>{for(const team of [0,1])for(const p of S.fac[team])out.push({ref:p,kind:p.kind,team,x:p.x,y:p.y,own:1,knownAll:1,name:T.KIND[p.kind].name})});
+T.addSource(out=>{for(const team of [0,1])for(const p of S.fac[team])out.push({ref:p,kind:p.kind,team,x:p.x,y:p.y,own:1,knownAll:1,w:p.w,h:p.h,name:T.KIND[p.kind].name})});
 const effOf=(team,kind)=>{let m=0;for(const p of S.fac[team])if(p.kind===kind&&p.hp>0)m=Math.max(m,clamp(p.hp/p.max,0,1));return m};
 S.eff=effOf;
 const runway=team=>S.fac[team].find(p=>p.kind==='runway');
 const dead=(team,kind)=>S.fac[team].filter(p=>p.kind===kind&&p.hp<=0).length;
 
 /* ---------- ganchos chamados pelo airwar.js ---------- */
-S.aaPosts=()=>{const r=[];for(const team of [0,1])for(const p of S.fac[team])if(p.kind==='aaa'&&p.hp>0&&p.hp>p.max*.15)r.push(p);return r};
+S.aaPosts=()=>{const r=[];for(const team of [0,1])if(!window.PXSITE?.overrun(team))for(const p of S.fac[team])if(p.kind==='aaa'&&p.hp>0&&p.hp>p.max*.15)r.push(p);return r};
 S.canLaunch=(team,kind,o)=>{
  if(!S.on)return true;
+ if(window.PXSITE?.overrun(team)){if(team===playerTeam&&time-(S.warn.ov||-99)>20){S.warn.ov=time;toast('O aeródromo foi tomado: sem decolagens até retomá-lo.')}S.stats.blocked++;return false}
  const rw=runway(team);if(rw&&rw.hp<=rw.max*.34){if(team===playerTeam&&time-(S.warn.rw||-99)>20){S.warn.rw=time;toast('Pista do aeródromo danificada: sem decolagens até o reparo.')}S.stats.blocked++;return false}
  if(dead(team,'tower')&&time-S.lastLaunch[team]<S.cfg.TOWER_GAP&&kind!=='int'){S.stats.blocked++;return false}
  return true};
@@ -87,7 +87,7 @@ function onStruct(ev){
 }
 function crews(dt){
  for(const team of [0,1])for(const p of S.fac[team]){
-  if(time-p.hit<S.cfg.REPAIR_AFTER)continue;
+  const ent=T.list.find(e=>e.ref===p),lh=Math.max(p.hit,ent&&ent.lastHit||-99);if(time-lh<S.cfg.REPAIR_AFTER||window.PXSITE?.overrun(team))continue;
   if(p.hp>0&&p.hp<p.max){p.hp=Math.min(p.max,p.hp+(p.kind==='runway'?S.cfg.RUNWAY_REPAIR:S.cfg.REPAIR)*dt)}
   else if(p.hp<=0){p.rebuildT=(p.rebuildT||0)+dt;if(p.rebuildT>=S.cfg.REBUILD){p.rebuildT=0;p.hp=p.max*.35;const e=T.list.find(q=>q.ref===p);if(e){e.destroyed=false;e.smoke=0}}}}
  // crateras da pista fecham quando ela volta a ≥ 80 %
@@ -120,7 +120,8 @@ function ui(){
  if(box||typeof document==='undefined')return;
  const st=document.createElement('style');st.textContent=`
 #airOps{position:absolute;right:.6rem;top:6.1rem;width:min(250px,40vw);background:rgba(10,13,8,.86);color:#e7eadb;font:10px 'IBM Plex Mono',monospace;padding:.35rem .45rem;box-shadow:0 0 0 2px #000;display:none;z-index:5;pointer-events:auto}
-#airOps h4{margin:0 0 .25rem;font:700 10px 'IBM Plex Mono',monospace;color:#c5db91;letter-spacing:.08em}
+#airOps h4{margin:0 0 .25rem;font:700 10px 'IBM Plex Mono',monospace;color:#c5db91;letter-spacing:.08em;display:flex;justify-content:space-between;align-items:center;gap:.4rem}
+#airOps h4 .al{font:700 8px 'IBM Plex Mono',monospace;background:#3a3a28;color:#e7eadb;border:0;padding:.15rem .3rem;cursor:pointer;box-shadow:0 0 0 1px #000}#airOps h4 .al.on{background:#4d6a2d}#airOps .em{color:#929b87;padding:.1rem 0 .2rem}
 #airOps .fl{display:block;width:100%;text-align:left;font:10px 'IBM Plex Mono',monospace;background:#1d2418;color:#e7eadb;border:0;padding:.2rem .3rem;margin-bottom:2px;cursor:pointer;box-shadow:0 0 0 1px #000}
 #airOps .fl.sel{background:#3d4a2a}#airOps .fl small{color:#929b87;display:block}#airOps .fl.cb{border-left:3px solid #d2603e}#airOps .fl.rt{border-left:3px solid #d4b04a}
 #airOps .acts{display:flex;flex-wrap:wrap;gap:3px;margin-top:.3rem}#airOps .acts button{font:700 9px 'IBM Plex Mono',monospace;background:#2a3322;color:#e7eadb;border:0;padding:.2rem .35rem;cursor:pointer;box-shadow:0 0 0 1px #000}
@@ -143,13 +144,15 @@ S.retask=(f,kind,x,y)=>{
  for(const m of f.m){if(!live(m))continue;m.run=null;m.salvo=0;m.mode='form';m.tgt=null}
  S.stats.retasks++;if(f.team===playerTeam)toast(`${flightName(f)}: ${MISS[kind].toLowerCase()} em ${C()?.gridRef(x,y)||'alvo'}.`);return true};
 function paint(){
- ui();if(!box)return;const fl=started&&!ended&&A.on?A.flights().filter(f=>f.team===playerTeam&&!f.done&&f.m.some(live)):[];
- if(!fl.length){S.sel=null;S.arm=null;if(box.style.display!=='none'){box.style.display='none';hint.style.display='none'}return}
+ ui();if(!box)return;const on=started&&!ended&&A.on,fl=on?A.flights().filter(f=>f.team===playerTeam&&!f.done&&f.m.some(live)):[];
+ if(!on){S.sel=null;S.arm=null;if(box.style.display!=='none'){box.style.display='none';hint.style.display='none'}return}
  if(S.sel&&!fl.includes(S.sel)){S.sel=null;S.arm=null}
- let html='<h4>AIR OPERATIONS</h4>';
+ let html=`<h4>AIR OPERATIONS<button class="al${S.alertOn[playerTeam]?' on':''}" data-al="1" title="Mantém uma patrulha no ar para responder a pedidos de apoio em segundos (custa uma saída por patrulha)">PRONTIDÃO ${S.alertOn[playerTeam]?'LIGADA':'DESLIGADA'}</button></h4>`;
+ if(!fl.length)html+='<div class="em">Nenhum voo no ar.</div>';
  fl.forEach((f,i)=>{const ph=phaseLabel(f);html+=`<button class="fl${f===S.sel?' sel':''}${ph==='Em combate'?' cb':ph==='Retornando'?' rt':''}" data-i="${i}">${flightName(f)}<small>${MISS[f.kind]||f.kind} · ${ph}</small></button>`});
  if(S.sel){html+='<div class="acts">'+ACT.map(([k,l])=>`<button data-a="${k}" class="${canDo(S.sel,k)?'':'off'}${S.arm===k?' armed':''}">${l}</button>`).join('')+'</div>'}
  if(box._h!==html){box._h=html;box.innerHTML=html;
+  const ab=box.querySelector('[data-al]');if(ab)ab.onclick=()=>{S.alertOn[playerTeam]=!S.alertOn[playerTeam];toast(S.alertOn[playerTeam]?'Prontidão aérea ligada: uma patrulha fica no ar para responder aos pedidos de apoio.':'Prontidão aérea desligada: o apoio aéreo parte do aeródromo (≈ 1 min 40 s).');box._h='';paint()};
   for(const b of box.querySelectorAll('.fl'))b.onclick=()=>{S.sel=fl[+b.dataset.i];S.arm=null;box._h='';paint()};
   for(const b of box.querySelectorAll('[data-a]'))b.onclick=()=>{if(b.classList.contains('off')){toast('Esta aeronave não pode cumprir essa missão.');return}S.arm=b.dataset.a;box._h='';paint()}}
  box.style.display='block';
@@ -175,9 +178,30 @@ if(window.WW1A){const over=WW1A.over;WW1A.over=function(c,ox,oy,dt){over.call(th
 const update0=window.update;let pT=0,cT=0,aT=0;
 window.update=function(dt){const r=update0.apply(this,arguments);if(!S.on||!started||ended||!(dt>0))return r;
  try{if(!S.fac[0].length&&!S.fac[1].length&&(A.airfields?.()||[]).some(Boolean))build();
-  crews(dt);if((pT-=dt)<=0){pT=.5;paint()}if((aT-=dt)<=0){aT=3;plan(0);plan(1)}}catch(e){fail(e)}return r};
+  crews(dt);if((pT-=dt)<=0){pT=.5;paint()}if((aT-=dt)<=0){aT=3;plan(0);plan(1);alertTick()}}catch(e){fail(e)}return r};
 const setup0=window.setup;
-window.setup=function(){S.fac=[[],[]];S.craters=[];S.lastLaunch=[-99,-99];S.planAt=[0,0];S.sel=null;S.arm=null;return setup0.apply(this,arguments)};
+window.setup=function(){S.fac=[[],[]];S.craters=[];S.lastLaunch=[-99,-99];S.planAt=[0,0];S.alertAt=[0,0];S.sel=null;S.arm=null;const r=setup0.apply(this,arguments);S.alertOn=[true,true];if(!sandbox)S.alertOn[playerTeam]=false;return r};
+/* ---------- prontidão aérea e resposta rápida ao apoio pedido da terra ---------- */
+const GHn=()=>(window.IronFrontWorld&&window.IronFrontWorld.ground)||H;
+function loadOK(m){const t=m.T,ammo=(m.ammo||[]).reduce((s,v)=>s+v,0)/Math.max(1,(t.ammo||1)*(t.guns||1));return live(m)&&m.air&&(m.fuel||0)>t.fuel*.4&&(m.bombs>0||ammo>.5)}
+/* patrulha no ar que pode ser desviada para o alvo: sem combate, com combustível e munição */
+function standbyFor(team,x,y){let best=null,bd=1e9;
+ for(const f of A.flights()){if(f.team!==team||f.done||f.kind!=='cap'||!['out','work'].includes(f.phase))continue;
+  const ms=f.m.filter(live);if(!ms.length||!ms.every(m=>m.air)||ms.some(m=>m.mode==='fight'||m.mode==='evade'||m.threat)||!ms.some(loadOK))continue;
+  const L=f.lead();if(!L)continue;const d=hyp(L.x-x,L.y-y);if(d<bd){bd=d;best=f}}
+ return best}
+const dispatch0=A.dispatch;
+A.dispatch=function(team,kind,x,y,o){if(S.on&&kind==='atk'&&!(o&&o.pick)){const f=standbyFor(team,x,y);if(f&&S.retask(f,'atk',x,y)){S.stats.rapid=(S.stats.rapid||0)+1;f.rapid=time;return f}}return dispatch0.apply(this,arguments)};
+function alertTick(){
+ const AC_=window.IronFrontAirCommand;if(!AC_||!AC_.request)return;
+ for(const team of [0,1]){
+  if(!S.alertOn[team]||time<S.alertAt[team]||time<60||window.PXFORT?.isPrep?.()||AC_.grounded?.()||window.PXSITE?.overrun(team))continue;
+  if(A.flights().some(f=>f.team===team&&!f.done&&['cap','atk'].includes(f.kind)&&f.phase!=='home'&&f.m.some(live)))continue;
+  S.alertAt[team]=time+8;
+  const fx=A.front?.()??W/2,x=fx+(team?1:-1)*220,y=GHn()*(.3+.4*Math.random());
+  const f=AC_.request(team,'cap',x,y,{n:2,reason:'Patrulha de prontidão'});
+  if(f){f.alertFlight=true;f.until=time+150;S.stats.alerts=(S.stats.alerts||0)+1}}
+}
 T.listen(onStruct);
 S.state=()=>({on:S.on,fac:S.fac.map(f=>f.map(p=>({k:p.kind,hp:Math.round(p.hp),max:p.max}))),craters:S.craters.length,stats:{...S.stats}});
 window.IronFront=window.IronFront||{};window.IronFront.airbase=S;

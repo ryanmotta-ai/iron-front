@@ -158,7 +158,7 @@ function crewTick(dt){
 const AMB=[[],[]];
 function ambInit(){for(const t of[0,1]){const af=A.airfields()[t];if(!af||AMB[t].length)continue;
   for(let i=0;i<6;i++){const m=ent(t,af.x+rnd(-320,320),af.y+rnd(-250,-130));m.amb=1;AMB[t].push({m,st:'idle',t:time+rnd(0,5),path:[],tp:null})}
-  const sg=t?-1:1,gate=[af.x+sg*420,af.y+250],ops=[af.ops.x+sg*-26,af.ops.y+26];
+  const sg=t?-1:1,gate=[af.x+sg*420,af.compact?af.y+58:af.y+250],ops=[af.ops.x+sg*-26,af.ops.y+26];
   for(const q of[gate,ops]){const m=ent(t,q[0],q[1]);m.amb=1;m.sentry=1;m.fac=Math.PI/2;AMB[t].push({m,st:'guard',t:time+rnd(2,6),path:[],home:q})}}}
 function frontY(p){return p.slot.y+p.T.len/2+34}
 function ambTick(dt){if(!A.airfields()[0])return;if(!AMB[0].length)ambInit();
@@ -186,7 +186,7 @@ function peoplePass(c,ox,oy,dt){OX=ox;OY=oy;const items=[],pe=A.people();
    ====================================================================================== */
 const GR=[],LAST=new WeakMap(),ACC=new WeakMap(),MK=new WeakMap();
 const V=()=>window.PXAWV;
-function stamp(side,wx,wy,col,a,w=1,h=1){const R=V()&&V().rear&&V().rear()[side];if(!R)return;const x0=V().rearX()[side],x=Math.floor((wx-x0)*Z),y=Math.floor(wy*Z);if(x<0||y<0||x>=R.width||y>=R.height)return;const g=R.getContext('2d');g.globalAlpha=a;g.fillStyle=col;g.fillRect(x,y,w,h);g.globalAlpha=1}
+function stamp(side,wx,wy,col,a,w=1,h=1){const v=V(),F=v&&v.airfieldCanvas&&v.airfieldCanvas()[side];let R,x,y;if(F){R=F.c;x=Math.floor((wx-F.x)*Z);y=Math.floor((wy-F.y)*Z)}else{R=v&&v.rear&&v.rear()[side];if(!R)return;x=Math.floor((wx-v.rearX()[side])*Z);y=Math.floor(wy*Z)}if(x<0||y<0||x>=R.width||y>=R.height)return;const g=R.getContext('2d');g.globalAlpha=a;g.fillStyle=col;g.fillRect(x,y,w,h);g.globalAlpha=1}
 function puffDust(x,y,vx,vy,r1,a,life){if(AA.puff)AA.puff(x,y,0,vx,vy,life,1,r1,'dust',a)}
 function grass(x,y,vx,vy,vz,col){if(GR.length>360)GR.shift();GR.push({x,y,z:1,vx,vy,vz,t:0,max:rnd(.35,.8),col})}
 function fxTick(dt){

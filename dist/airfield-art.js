@@ -35,7 +35,7 @@ function fieldTile(){if(FT)return FT;const N=256,c=mk(N,N),g=c.getContext('2d'),
   if(sp<.035)col=[133,148,90];else if(sp>.972)col=[58,70,40];else if(sp>.9992)col=[238,230,176];else if(sp>.9986)col=[226,196,84];
   const o=(j*N+i)*4;d[o]=col[0];d[o+1]=col[1];d[o+2]=col[2];d[o+3]=255}
  g.putImageData(img,0,0);FT=c;return c}
-function fieldBase(K){const{c,af,X,Y}=K,gx0=Math.round(X(af.x-905)),gx1=Math.round(X(af.x+905)),gy0=Math.max(0,Math.round(Y(af.y-985))),gy1=Math.round(Y(af.y+275)),w=gx1-gx0,h=gy1-gy0,cv=mk(w,h),g=cv.getContext('2d'),F=9;
+function fieldBase(K){const{c,af,X,Y}=K,B=af.box||{x0:af.x-905,x1:af.x+905,y0:af.y-985,y1:af.y+275},gx0=Math.round(X(B.x0)),gx1=Math.round(X(B.x1)),gy0=Math.max(0,Math.round(Y(B.y0))),gy1=Math.round(Y(B.y1)),w=gx1-gx0,h=gy1-gy0,cv=mk(w,h),g=cv.getContext('2d'),F=9;
  g.fillStyle=g.createPattern(fieldTile(),'repeat');g.fillRect(0,0,w,h);
  /* borda esfumada nos quatro lados (o campo se mistura ao capim de fora) */
  g.globalCompositeOperation='destination-out';
@@ -195,7 +195,7 @@ function dumps(K){const{c,af,X,Y,team,sg}=K,fx=Math.round(X(af.truck.x)),fy=Math
 /* ninho de metralhadora antiaérea: anel de sacos de areia, tripé com o fuzil-metralhadora, caixa de munição, sentinela */
 function aaNest(c,x,y,team){x=Math.round(x);y=Math.round(y);P(c,x-6,y-5,13,11,'rgba(54,46,30,.55)');sandbags(c,x,y,6,0);P(c,x-1,y-1,3,3,'#3a3d3a');P(c,x,y-3,1,5,'#20231f');P(c,x-4,y+1,3,2,'#4a5a3a');P(c,x+3,y-1,2,2,'#7a6c48')}
 /* o acampamento da retaguarda */
-function camp(K){const{c,af,X,Y,team,sg}=K,cx=Math.round(X(af.x-sg*1135)),cy=Math.round(Y(af.y-480));
+function camp(K){const{c,af,X,Y,team,sg}=K;if(af.compact)return;const cx=Math.round(X(af.x-sg*1135)),cy=Math.round(Y(af.y-480));
  /* clareira de terra e vala de drenagem */
  for(let j=-110;j<=100;j++)for(let i=-130;i<=130;i++){const e=(i*i)/(130*130)+(j*j)/(105*105);if(e>1)continue;if(hs(cx+i,cy+j,90)<.55*(1-e)+.1){c.fillStyle=hs(cx+i,cy+j,91)<.5?'#76694b':'#6a5e43';c.globalAlpha=.7;c.fillRect(cx+i,cy+j,1,1);c.globalAlpha=1}}
  for(let k=0;k<4;k++)adrian(c,cx-100+(k&1)*0,cy-90+k*24,56,15);                              // barracões dos praças e oficiais
@@ -210,7 +210,7 @@ function camp(K){const{c,af,X,Y,team,sg}=K,cx=Math.round(X(af.x-sg*1135)),cy=Mat
  for(let j=0;j<3;j++)for(let i=0;i<8;i++)P(c,cx-20+i*3,cy+36+j*2,3,2,(i+j)&1?'#8a6238':'#6a4a2a');
  lorry(c,cx-60,cy+52,1,team);lorry(c,cx-24,cy+52,1,team);car(c,cx+14,cy+54,1,team);
  for(let k=0;k<3;k++)tree(c,cx-124+k*4,cy-60+k*34,5+k%2)}
-function perimeter(K){const{c,af,X,Y,team,sg}=K,x0=X(af.x-895),x1=X(af.x+895),y0=Math.max(2,Y(af.y-975)),y1=Y(af.y+262),gate=X(af.x+sg*420);
+function perimeter(K){const{c,af,X,Y,team,sg}=K,B=af.box||{x0:af.x-895,x1:af.x+895,y0:af.y-975,y1:af.y+262},x0=X(B.x0+10),x1=X(B.x1-10),y0=Math.max(2,Y(B.y0+10)),y1=Y(B.y1-12),gate=X(af.x+sg*420);
  /* cerca viva e arame farpado ao redor; portão e estrada de terra ao sul */
  hedge(K.c,[[x0,y1],[gate-18,y1]],1);hedge(c,[[gate+18,y1],[x1,y1]],2);hedge(c,[[x0,y0+40],[x0,y1]],3);hedge(c,[[x1,y0+40],[x1,y1]],4);
  fence(c,[[x0+6,y1-5],[gate-24,y1-5]]);fence(c,[[gate+24,y1-5],[x1-6,y1-5]]);fence(c,[[x0+6,y0+40],[x0+6,y1-5]]);fence(c,[[x1-6,y0+40],[x1-6,y1-5]]);
@@ -223,15 +223,15 @@ function perimeter(K){const{c,af,X,Y,team,sg}=K,x0=X(af.x-895),x1=X(af.x+895),y0
  const ox=X(af.ops.x);for(let k=0;k<9;k++){const px=ox+sg*28+sg*k*0,py=Y(af.ops.y)+30+k*22;post(c,ox+sg*36,py,8)}}
 function windSock(K){const{c,af,X,Y}=K,px=Math.round(X(af.x+af.dir*af.half*.82)),py=Math.round(Y(af.y+af.w/2+40));SH(c,px+2,py+1,2,2,.4);P(c,px,py-9,1,10,'#2a2620');P(c,px-1,py-10,3,1,'#6e6a5e')}
 
-S.paint=function(c,af,x0){const t0=performance.now(),team=af.team,sg=team?-1:1,K={c,af,x0,team,sg,X:v=>(v-x0)*Z,Y:v=>v*Z},st=S.stats.steps=S.stats.steps||{};
+S.paint=function(c,af,x0,y0=0){const t0=performance.now(),team=af.team,sg=team?-1:1,K={c,af,x0,y0,team,sg,X:v=>(v-x0)*Z,Y:v=>(v-y0)*Z},st=S.stats.steps=S.stats.steps||{};
  const step=(n,f)=>{const t=performance.now();f();st[n]=+((st[n]||0)+performance.now()-t).toFixed(1)};
  step('campo',()=>fieldBase(K));step('taxi',()=>taxiways(K));step('faixa',()=>strip(K));step('vagas',()=>slotWear(K));step('sinais',()=>signals(K));
  step('acampamento',()=>camp(K));step('depositos',()=>dumps(K));step('hangares',()=>{for(const g of af.hangars)hangarAt(K,g)});step('operacoes',()=>opsPost(K));
  /* ninhos antiaéreos nos cantos do campo e junto aos hangares */
- for(const[ux,uy]of[[af.x-sg*820,af.y+190],[af.x+sg*820,af.y+190],[af.x+sg*840,af.y-780],[af.x-sg*860,af.y-780]])aaNest(c,K.X(ux),K.Y(uy),team);
+ for(const[ux,uy]of af.compact?[[af.x-490,af.y+40],[af.x+490,af.y+40],[af.x-490,af.y-640],[af.x+490,af.y-640]]:[[af.x-sg*820,af.y+190],[af.x+sg*820,af.y+190],[af.x+sg*840,af.y-780],[af.x-sg*860,af.y-780]])aaNest(c,K.X(ux),K.Y(uy),team);
  step('cerca',()=>perimeter(K));windSock(K);
  /* caminhões estacionados junto aos hangares */
- lorry(c,K.X(af.x-380),K.Y(af.y-790),1,team);lorry(c,K.X(af.x+380),K.Y(af.y-790),-1,team);
+ if(!af.compact){lorry(c,K.X(af.x-380),K.Y(af.y-790),1,team);lorry(c,K.X(af.x+380),K.Y(af.y-790),-1,team)}
  S.stats.ms+=performance.now()-t0};
 if(window.IronFront)window.IronFront.airfieldArt=S;
 })();

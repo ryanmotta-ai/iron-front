@@ -62,8 +62,8 @@ async function sheet(browser, files, cols, zoom, out) {
     const t = await p2.evaluate(() => {
       window.__fl = PXAW.dispatch(0, 'cap', 1000, 900); window.__fl2 = PXAW.dispatch(0, 'atk', 1000, 900); let g = 0;
       while (!window.__fl.m.some(m => m.st === 'roll') && g++ < 20000) { ended = false; update(1 / 30) }
-      const a = window.__fl.m.find(m => m.st === 'roll'); window.__pl = a; const af = PXAW.airfields()[0], rear = PXAWV.rear()[0], x0 = PXAWV.rearX()[0];
-      const sample = () => { const g2 = rear.getContext('2d'), X = Math.floor((af.x - af.half + 140 - x0) * PX.Z), Y = Math.floor(af.y * PX.Z) - 12, d = g2.getImageData(X, Y, 120, 24).data; let s = 0; for (let i = 0; i < d.length; i += 4) s += d[i] + d[i + 1] * 3 + d[i + 2]; return s };
+      const a = window.__fl.m.find(m => m.st === 'roll'); window.__pl = a; const af = PXAW.airfields()[0], F = PXAWV.airfieldCanvas()[0], rear = F.c, x0 = F.x;
+      const sample = () => { const g2 = rear.getContext('2d'), X = Math.floor((af.x - af.half + 140 - x0) * PX.Z), Y = Math.floor((af.y - F.y) * PX.Z) - 12, d = g2.getImageData(X, Y, 120, 24).data; let s = 0; for (let i = 0; i < d.length; i += 4) s += d[i] + d[i + 1] * 3 + d[i + 2]; return s };
       window.__s0 = sample(); window.__sample = sample; return { t: time, st: a.st };
     });
     const strip = [], maxRoll = [];

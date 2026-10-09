@@ -8,7 +8,7 @@
             "started": true,
             "running": false,
             "width": 2400,
-            "height": 2000,
+            "height": 2400,
             "mode": "commander",
             "time": 30,
             "playerTeam": 0,
@@ -17,7 +17,7 @@
               true
             ],
             "aiSummary": [
-              "Avançando por cobertura · centro · Avanço combinado",
+              "Avançando por cobertura · norte · Avanço combinado",
               "Defendendo acessos · centro · Defesa adaptativa"
             ],
             "money": null,
@@ -39,427 +39,28 @@
               113
             ],
             "trenchesOccupied": [
-              2,
-              3
+              3,
+              2
             ],
             "aiRoles": [
               {
                 "base-de-fogo": 5,
-                "pressão-secundária": 18,
-                "escolta": 11,
-                "avanço-alternado": 37,
-                "cobrindo-avanco": 6,
+                "reagrupamento": 6,
+                "reserva-movel": 8,
+                "pressão-secundária": 23,
+                "cobrindo-avanco": 13,
+                "avanço-alternado": 30,
                 "apoio-medico": 6,
                 "guarda-objetivo": 8,
                 "reconhecimento": 8,
-                "reserva-movel": 8,
                 "ruptura": 2
               },
               {
                 "fogo-cruzado": 11,
-                "reserva-movel": 6,
-                "posição-defensiva": 69,
-                "apoio-medico": 6,
-                "guarda-objetivo": 8
-              }
-            ],
-            "selected": 0,
-            "points": [
-              {
-                "name": "EUA",
-                "owner": 0,
-                "x": 260,
-                "y": 1000,
-                "home": 0
-              },
-              {
-                "name": "ALEMANHA",
-                "owner": 1,
-                "x": 2140,
-                "y": 1000,
-                "home": 1
-              }
-            ],
-            "map": "trenches"
-          },
-          "phases": [
-            "advance",
-            "hold"
-          ],
-          "dialogue": [
-            0,
-            0
-          ],
-          "south": 26,
-          "invalid": 0,
-          "errors": [
-            0,
-            0,
-            0
-          ]
-        },
-        {
-          "game": {
-            "started": true,
-            "running": false,
-            "width": 2400,
-            "height": 2000,
-            "mode": "commander",
-            "time": 60,
-            "playerTeam": 0,
-            "aiEnabled": [
-              true,
-              true
-            ],
-            "aiSummary": [
-              "Avançando por cobertura · centro · Avanço combinado",
-              "Defendendo acessos · centro · Defesa adaptativa"
-            ],
-            "money": null,
-            "supplies": [
-              null,
-              null
-            ],
-            "income": [
-              12,
-              12
-            ],
-            "reinforcements": [
-              500,
-              495
-            ],
-            "units": 293,
-            "unitsByTeam": [
-              159,
-              134
-            ],
-            "trenchesOccupied": [
-              2,
-              10
-            ],
-            "aiRoles": [
-              {
-                "base-de-fogo": 8,
-                "pressão-secundária": 19,
-                "evasão": 5,
-                "avanço-alternado": 40,
-                "apoio-medico": 9,
-                "cobrindo-avanco": 27,
-                "guarda-objetivo": 8,
-                "reconhecimento": 8,
-                "deitado": 3,
-                "reserva-movel": 8,
-                "socorro": 1,
-                "ruptura": 1,
-                "escolta": 9
-              },
-              {
-                "fogo-cruzado": 8,
-                "reserva-movel": 11,
-                "posição-defensiva": 56,
-                "apoio-medico": 7,
-                "guarda-objetivo": 8,
-                "evasão": 34,
-                "deitado": 1
-              }
-            ],
-            "selected": 0,
-            "points": [
-              {
-                "name": "EUA",
-                "owner": 0,
-                "x": 260,
-                "y": 1000,
-                "home": 0
-              },
-              {
-                "name": "ALEMANHA",
-                "owner": 1,
-                "x": 2140,
-                "y": 1000,
-                "home": 1
-              }
-            ],
-            "map": "trenches"
-          },
-          "phases": [
-            "advance",
-            "hold"
-          ],
-          "dialogue": [
-            0,
-            0
-          ],
-          "south": 18,
-          "invalid": 0,
-          "errors": [
-            0,
-            0,
-            0
-          ]
-        },
-        {
-          "game": {
-            "started": true,
-            "running": false,
-            "width": 2400,
-            "height": 2000,
-            "mode": "commander",
-            "time": 89,
-            "playerTeam": 0,
-            "aiEnabled": [
-              true,
-              true
-            ],
-            "aiSummary": [
-              "Reorganizando ataque · centro · Avanço combinado",
-              "Defendendo acessos · norte · Defesa adaptativa"
-            ],
-            "money": null,
-            "supplies": [
-              null,
-              null
-            ],
-            "income": [
-              12,
-              12
-            ],
-            "reinforcements": [
-              477,
-              491
-            ],
-            "units": 320,
-            "unitsByTeam": [
-              160,
-              160
-            ],
-            "trenchesOccupied": [
-              8,
-              6
-            ],
-            "aiRoles": [
-              {
-                "base-de-fogo": 13,
-                "pressão-secundária": 25,
-                "apoio-medico": 9,
-                "retirada-coberta": 38,
-                "guarda-objetivo": 8,
-                "fixado": 1,
-                "reconhecimento": 8,
-                "cobrindo-retirada": 28,
-                "reserva-movel": 16,
-                "reorganização-local": 3,
-                "deitado": 3,
-                "socorro": 1,
-                "evasão": 1
-              },
-              {
-                "fogo-cruzado": 9,
-                "reserva-movel": 14,
-                "posição-defensiva": 95,
-                "apoio-medico": 7,
-                "guarda-objetivo": 8,
-                "evasão": 9,
-                "deitado": 8,
-                "recuo": 1
-              }
-            ],
-            "selected": 0,
-            "points": [
-              {
-                "name": "EUA",
-                "owner": 0,
-                "x": 260,
-                "y": 1000,
-                "home": 0
-              },
-              {
-                "name": "ALEMANHA",
-                "owner": 1,
-                "x": 2140,
-                "y": 1000,
-                "home": 1
-              }
-            ],
-            "map": "trenches"
-          },
-          "phases": [
-            "withdraw",
-            "hold"
-          ],
-          "dialogue": [
-            2,
-            1
-          ],
-          "south": 18,
-          "invalid": 0,
-          "errors": [
-            0,
-            0,
-            0
-          ]
-        },
-        {
-          "game": {
-            "started": true,
-            "running": false,
-            "width": 2400,
-            "height": 2000,
-            "mode": "commander",
-            "time": 119,
-            "playerTeam": 0,
-            "aiEnabled": [
-              true,
-              true
-            ],
-            "aiSummary": [
-              "Avançando por cobertura · extremo norte · Ruptura blindada",
-              "Defendendo acessos · norte · Defesa adaptativa"
-            ],
-            "money": null,
-            "supplies": [
-              null,
-              null
-            ],
-            "income": [
-              12,
-              12
-            ],
-            "reinforcements": [
-              477,
-              491
-            ],
-            "units": 319,
-            "unitsByTeam": [
-              160,
-              159
-            ],
-            "trenchesOccupied": [
-              6,
-              10
-            ],
-            "aiRoles": [
-              {
-                "base-de-fogo": 13,
-                "pressão-secundária": 25,
-                "apoio-medico": 9,
-                "escolta": 67,
-                "guarda-objetivo": 8,
-                "fixado": 1,
-                "reconhecimento": 8,
-                "reserva-movel": 16,
-                "deitado": 3,
-                "socorro": 1,
-                "evasão": 1,
-                "reunindo-esquadrao": 1,
-                "ruptura": 1
-              },
-              {
-                "fogo-cruzado": 15,
-                "reserva-movel": 14,
-                "posição-defensiva": 105,
-                "apoio-medico": 8,
-                "guarda-objetivo": 8
-              }
-            ],
-            "selected": 0,
-            "points": [
-              {
-                "name": "EUA",
-                "owner": 0,
-                "x": 260,
-                "y": 1000,
-                "home": 0
-              },
-              {
-                "name": "ALEMANHA",
-                "owner": 1,
-                "x": 2140,
-                "y": 1000,
-                "home": 1
-              }
-            ],
-            "map": "trenches"
-          },
-          "phases": [
-            "advance",
-            "hold"
-          ],
-          "dialogue": [
-            0,
-            1
-          ],
-          "south": 24,
-          "invalid": 0,
-          "errors": [
-            0,
-            0,
-            0
-          ]
-        }
-      ]
-    },
-    {
-      "map": "forest",
-      "samples": [
-        {
-          "game": {
-            "started": true,
-            "running": false,
-            "width": 2400,
-            "height": 2000,
-            "mode": "commander",
-            "time": 30,
-            "playerTeam": 0,
-            "aiEnabled": [
-              true,
-              true
-            ],
-            "aiSummary": [
-              "Avançando por cobertura · norte · Avanço combinado",
-              "Defendendo acessos · centro · Defesa adaptativa"
-            ],
-            "money": null,
-            "supplies": [
-              null,
-              null
-            ],
-            "income": [
-              12,
-              12
-            ],
-            "reinforcements": [
-              500,
-              500
-            ],
-            "units": 231,
-            "unitsByTeam": [
-              118,
-              113
-            ],
-            "trenchesOccupied": [
-              10,
-              30
-            ],
-            "aiRoles": [
-              {
-                "base-de-fogo": 5,
-                "guarda-objetivo": 6,
-                "pressão-secundária": 18,
-                "avanço-alternado": 48,
-                "apoio-medico": 6,
-                "reagrupamento": 1,
-                "reconhecimento": 8,
-                "reserva-movel": 8,
-                "escolta": 6,
-                "ruptura": 2
-              },
-              {
-                "fogo-cruzado": 10,
                 "posição-defensiva": 67,
                 "reserva-movel": 8,
-                "apoio-medico": 6,
-                "guarda-objetivo": 8
+                "guarda-objetivo": 8,
+                "apoio-medico": 6
               }
             ],
             "selected": 0,
@@ -468,28 +69,28 @@
                 "name": "EUA",
                 "owner": 0,
                 "x": 260,
-                "y": 1000,
+                "y": 800,
                 "home": 0
               },
               {
                 "name": "ALEMANHA",
                 "owner": 1,
                 "x": 2140,
-                "y": 1000,
+                "y": 800,
                 "home": 1
               }
             ],
-            "map": "forest"
+            "map": "trenches"
           },
           "phases": [
             "advance",
             "hold"
           ],
           "dialogue": [
-            1,
+            0,
             0
           ],
-          "south": 12,
+          "south": 14,
           "invalid": 0,
           "errors": [
             0,
@@ -502,7 +103,7 @@
             "started": true,
             "running": false,
             "width": 2400,
-            "height": 2000,
+            "height": 2400,
             "mode": "commander",
             "time": 60,
             "playerTeam": 0,
@@ -512,418 +113,7 @@
             ],
             "aiSummary": [
               "Avançando por cobertura · norte · Avanço combinado",
-              "Defendendo acessos · centro · Defesa adaptativa"
-            ],
-            "money": null,
-            "supplies": [
-              null,
-              null
-            ],
-            "income": [
-              12,
-              12
-            ],
-            "reinforcements": [
-              496,
-              494
-            ],
-            "units": 312,
-            "unitsByTeam": [
-              155,
-              157
-            ],
-            "trenchesOccupied": [
-              5,
-              26
-            ],
-            "aiRoles": [
-              {
-                "apoio-solicitado": 2,
-                "guarda-objetivo": 6,
-                "pressão-secundária": 19,
-                "escolta": 30,
-                "apoio-medico": 9,
-                "cobrindo-avanco": 20,
-                "avanço-alternado": 22,
-                "reagrupamento": 1,
-                "reconhecimento": 8,
-                "deitado": 2,
-                "evasão": 2,
-                "reserva-movel": 8,
-                "base-de-fogo": 6,
-                "reunindo-esquadrao": 5,
-                "ruptura": 1
-              },
-              {
-                "fogo-cruzado": 5,
-                "posição-defensiva": 54,
-                "reserva-movel": 13,
-                "evasão": 56,
-                "guarda-objetivo": 8,
-                "apoio-medico": 7,
-                "fixado": 1,
-                "deitado": 1
-              }
-            ],
-            "selected": 0,
-            "points": [
-              {
-                "name": "EUA",
-                "owner": 0,
-                "x": 260,
-                "y": 1000,
-                "home": 0
-              },
-              {
-                "name": "ALEMANHA",
-                "owner": 1,
-                "x": 2140,
-                "y": 1000,
-                "home": 1
-              }
-            ],
-            "map": "forest"
-          },
-          "phases": [
-            "advance",
-            "hold"
-          ],
-          "dialogue": [
-            2,
-            0
-          ],
-          "south": 12,
-          "invalid": 0,
-          "errors": [
-            0,
-            0,
-            0
-          ]
-        },
-        {
-          "game": {
-            "started": true,
-            "running": false,
-            "width": 2400,
-            "height": 2000,
-            "mode": "commander",
-            "time": 89,
-            "playerTeam": 0,
-            "aiEnabled": [
-              true,
-              true
-            ],
-            "aiSummary": [
-              "Reorganizando ataque · norte · Avanço combinado",
-              "Fechando brecha · norte · Contra-ataque local"
-            ],
-            "money": null,
-            "supplies": [
-              null,
-              null
-            ],
-            "income": [
-              12,
-              12
-            ],
-            "reinforcements": [
-              479,
-              484
-            ],
-            "units": 316,
-            "unitsByTeam": [
-              156,
-              160
-            ],
-            "trenchesOccupied": [
-              23,
-              34
-            ],
-            "aiRoles": [
-              {
-                "base-de-fogo": 15,
-                "guarda-objetivo": 6,
-                "evasão": 27,
-                "apoio-medico": 9,
-                "pressão-secundária": 14,
-                "cobrindo-retirada": 21,
-                "reagrupamento": 1,
-                "reconhecimento": 5,
-                "flanco-apoiado": 1,
-                "reserva-movel": 16,
-                "reorganização-local": 3,
-                "retirada-coberta": 27,
-                "escolta": 1,
-                "deitado": 2
-              },
-              {
-                "fogo-cruzado": 12,
-                "posição-defensiva": 86,
-                "reorganização-local": 2,
-                "socorro": 4,
-                "guarda-objetivo": 8,
-                "evasão": 10,
-                "apoio-medico": 4,
-                "deitado": 13,
-                "contra-ataque": 7,
-                "reunindo-esquadrao": 1,
-                "fixado": 1,
-                "retirada-trincheira": 1
-              }
-            ],
-            "selected": 0,
-            "points": [
-              {
-                "name": "EUA",
-                "owner": 0,
-                "x": 260,
-                "y": 1000,
-                "home": 0
-              },
-              {
-                "name": "ALEMANHA",
-                "owner": 1,
-                "x": 2140,
-                "y": 1000,
-                "home": 1
-              }
-            ],
-            "map": "forest"
-          },
-          "phases": [
-            "withdraw",
-            "counter"
-          ],
-          "dialogue": [
-            2,
-            1
-          ],
-          "south": 12,
-          "invalid": 0,
-          "errors": [
-            0,
-            0,
-            0
-          ]
-        },
-        {
-          "game": {
-            "started": true,
-            "running": false,
-            "width": 2400,
-            "height": 2000,
-            "mode": "commander",
-            "time": 119,
-            "playerTeam": 0,
-            "aiEnabled": [
-              true,
-              true
-            ],
-            "aiSummary": [
-              "Preparando fogo e passagem · extremo sul · Avanço combinado",
-              "Defendendo acessos · norte · Defesa adaptativa"
-            ],
-            "money": null,
-            "supplies": [
-              null,
-              null
-            ],
-            "income": [
-              12,
-              12
-            ],
-            "reinforcements": [
-              473,
-              477
-            ],
-            "units": 314,
-            "unitsByTeam": [
-              157,
-              157
-            ],
-            "trenchesOccupied": [
-              22,
-              43
-            ],
-            "aiRoles": [
-              {
-                "guarda-objetivo": 6,
-                "pressão-secundária": 18,
-                "apoio-medico": 9,
-                "base-de-assalto": 59,
-                "reagrupamento": 2,
-                "reconhecimento": 8,
-                "reserva-movel": 16,
-                "escolta": 1,
-                "base-de-fogo": 17,
-                "evasão": 7,
-                "deitado": 3,
-                "reunindo-esquadrao": 3,
-                "abrindo-passagem": 1
-              },
-              {
-                "fogo-cruzado": 13,
-                "posição-defensiva": 87,
-                "reserva-movel": 14,
-                "evasão": 5,
-                "apoio-medico": 8,
-                "guarda-objetivo": 8,
-                "deitado": 4,
-                "reorganização-local": 5
-              }
-            ],
-            "selected": 0,
-            "points": [
-              {
-                "name": "EUA",
-                "owner": 0,
-                "x": 260,
-                "y": 1000,
-                "home": 0
-              },
-              {
-                "name": "ALEMANHA",
-                "owner": 1,
-                "x": 2140,
-                "y": 1000,
-                "home": 1
-              }
-            ],
-            "map": "forest"
-          },
-          "phases": [
-            "prepare",
-            "hold"
-          ],
-          "dialogue": [
-            0,
-            2
-          ],
-          "south": 41,
-          "invalid": 0,
-          "errors": [
-            0,
-            0,
-            0
-          ]
-        }
-      ]
-    },
-    {
-      "map": "winter",
-      "samples": [
-        {
-          "game": {
-            "started": true,
-            "running": false,
-            "width": 2400,
-            "height": 2000,
-            "mode": "commander",
-            "time": 30,
-            "playerTeam": 0,
-            "aiEnabled": [
-              true,
-              true
-            ],
-            "aiSummary": [
-              "Avançando por cobertura · norte · Avanço combinado",
-              "Defendendo acessos · centro · Defesa adaptativa"
-            ],
-            "money": null,
-            "supplies": [
-              null,
-              null
-            ],
-            "income": [
-              12,
-              12
-            ],
-            "reinforcements": [
-              500,
-              495
-            ],
-            "units": 221,
-            "unitsByTeam": [
-              118,
-              103
-            ],
-            "trenchesOccupied": [
-              7,
-              26
-            ],
-            "aiRoles": [
-              {
-                "base-de-fogo": 5,
-                "pressão-secundária": 16,
-                "avanço-alternado": 58,
-                "apoio-medico": 6,
-                "reserva-movel": 8,
-                "guarda-objetivo": 6,
-                "reconhecimento": 8,
-                "ruptura": 1
-              },
-              {
-                "guarda-objetivo": 7,
-                "reserva-movel": 12,
-                "posição-defensiva": 58,
-                "socorro": 1,
-                "fogo-cruzado": 6,
-                "apoio-medico": 4,
-                "evasão": 3,
-                "deitado": 2
-              }
-            ],
-            "selected": 0,
-            "points": [
-              {
-                "name": "EUA",
-                "owner": 0,
-                "x": 260,
-                "y": 1000,
-                "home": 0
-              },
-              {
-                "name": "ALEMANHA",
-                "owner": 1,
-                "x": 2140,
-                "y": 1000,
-                "home": 1
-              }
-            ],
-            "map": "winter"
-          },
-          "phases": [
-            "advance",
-            "hold"
-          ],
-          "dialogue": [
-            0,
-            1
-          ],
-          "south": 18,
-          "invalid": 0,
-          "errors": [
-            0,
-            0,
-            0
-          ]
-        },
-        {
-          "game": {
-            "started": true,
-            "running": false,
-            "width": 2400,
-            "height": 2000,
-            "mode": "commander",
-            "time": 60,
-            "playerTeam": 0,
-            "aiEnabled": [
-              true,
-              true
-            ],
-            "aiSummary": [
-              "Avançando por cobertura · norte · Avanço combinado",
-              "Fechando brecha · norte · Contra-ataque local"
+              "Fechando brecha · extremo norte · Contra-ataque local"
             ],
             "money": null,
             "supplies": [
@@ -936,47 +126,45 @@
             ],
             "reinforcements": [
               499,
-              490
+              491
             ],
-            "units": 285,
+            "units": 293,
             "unitsByTeam": [
               158,
-              127
+              135
             ],
             "trenchesOccupied": [
-              2,
-              29
+              3,
+              7
             ],
             "aiRoles": [
               {
                 "base-de-fogo": 7,
-                "pressão-secundária": 22,
-                "deitado": 13,
-                "fixar-flanquear": 2,
+                "reagrupamento": 6,
+                "reserva-movel": 8,
+                "pressão-secundária": 24,
+                "avanço-alternado": 31,
+                "fixar-flanquear": 8,
                 "apoio-medico": 9,
-                "evasão": 17,
-                "avanço-alternado": 10,
-                "reserva-movel": 16,
-                "guarda-objetivo": 4,
+                "reunindo-esquadrao": 5,
+                "guarda-objetivo": 8,
+                "cobrindo-avanco": 19,
+                "apoio-solicitado": 1,
+                "deitado": 4,
                 "reconhecimento": 8,
-                "cobrindo-avanco": 24,
-                "reunindo-esquadrao": 2,
-                "reorganização-local": 1,
-                "ruptura": 1,
-                "escolta": 8
+                "ruptura": 2,
+                "preparar-brecha": 5
               },
               {
+                "fogo-cruzado": 11,
+                "posição-defensiva": 78,
+                "evasão": 10,
                 "guarda-objetivo": 8,
-                "contra-ataque": 14,
-                "posição-defensiva": 69,
-                "socorro": 2,
+                "deitado": 5,
+                "apoio-medico": 5,
                 "reunindo-esquadrao": 1,
-                "reserva-movel": 2,
-                "fogo-cruzado": 10,
-                "apoio-medico": 3,
-                "retirada-trincheira": 1,
-                "evasão": 3,
-                "deitado": 2
+                "socorro": 1,
+                "contra-ataque": 8
               }
             ],
             "selected": 0,
@@ -985,18 +173,18 @@
                 "name": "EUA",
                 "owner": 0,
                 "x": 260,
-                "y": 1000,
+                "y": 800,
                 "home": 0
               },
               {
                 "name": "ALEMANHA",
                 "owner": 1,
                 "x": 2140,
-                "y": 1000,
+                "y": 800,
                 "home": 1
               }
             ],
-            "map": "winter"
+            "map": "trenches"
           },
           "phases": [
             "advance",
@@ -1006,7 +194,7 @@
             1,
             1
           ],
-          "south": 13,
+          "south": 14,
           "invalid": 0,
           "errors": [
             0,
@@ -1019,7 +207,7 @@
             "started": true,
             "running": false,
             "width": 2400,
-            "height": 2000,
+            "height": 2400,
             "mode": "commander",
             "time": 89,
             "playerTeam": 0,
@@ -1028,8 +216,8 @@
               true
             ],
             "aiSummary": [
-              "Reconhecendo acesso · extremo norte · Avanço combinado",
-              "Defendendo acessos · norte · Defesa adaptativa"
+              "Reconhecendo acesso · extremo sul · Avanço combinado",
+              "Fechando brecha · extremo norte · Contra-ataque local"
             ],
             "money": null,
             "supplies": [
@@ -1041,42 +229,39 @@
               12
             ],
             "reinforcements": [
-              472,
+              475,
               483
             ],
-            "units": 313,
+            "units": 319,
             "unitsByTeam": [
-              155,
-              158
+              160,
+              159
             ],
             "trenchesOccupied": [
-              13,
-              32
+              4,
+              11
             ],
             "aiRoles": [
               {
-                "base-de-fogo": 19,
-                "pressão-secundária": 20,
+                "base-de-fogo": 8,
+                "reagrupamento": 71,
+                "reserva-movel": 15,
+                "pressão-secundária": 25,
                 "apoio-medico": 8,
-                "reorganização-local": 3,
-                "deitado": 8,
-                "reserva-movel": 16,
-                "guarda-objetivo": 4,
-                "reunindo-esquadrao": 15,
+                "reunindo-esquadrao": 9,
+                "guarda-objetivo": 8,
                 "reconhecimento": 8,
-                "reagrupamento": 39,
-                "evasão": 7,
-                "cobrindo-avanco": 1
+                "deitado": 2
               },
               {
+                "fogo-cruzado": 13,
+                "posição-defensiva": 91,
                 "guarda-objetivo": 8,
-                "reserva-movel": 15,
-                "posição-defensiva": 98,
+                "contra-ataque": 16,
                 "apoio-medico": 7,
-                "fogo-cruzado": 12,
-                "evasão": 2,
-                "retirada-trincheira": 3,
-                "deitado": 1
+                "evasão": 1,
+                "deitado": 4,
+                "socorro": 1
               }
             ],
             "selected": 0,
@@ -1085,28 +270,28 @@
                 "name": "EUA",
                 "owner": 0,
                 "x": 260,
-                "y": 1000,
+                "y": 800,
                 "home": 0
               },
               {
                 "name": "ALEMANHA",
                 "owner": 1,
                 "x": 2140,
-                "y": 1000,
+                "y": 800,
                 "home": 1
               }
             ],
-            "map": "winter"
+            "map": "trenches"
           },
           "phases": [
             "recon",
-            "hold"
+            "counter"
           ],
           "dialogue": [
             1,
-            2
+            1
           ],
-          "south": 12,
+          "south": 14,
           "invalid": 0,
           "errors": [
             0,
@@ -1119,7 +304,7 @@
             "started": true,
             "running": false,
             "width": 2400,
-            "height": 2000,
+            "height": 2400,
             "mode": "commander",
             "time": 119,
             "playerTeam": 0,
@@ -1128,8 +313,8 @@
               true
             ],
             "aiSummary": [
-              "Avançando por cobertura · extremo norte · Avanço combinado",
-              "Defendendo acessos · norte · Defesa adaptativa · Preparar emboscada"
+              "Avançando por cobertura · extremo sul · Avanço combinado",
+              "Defendendo acessos · extremo norte · Defesa adaptativa"
             ],
             "money": null,
             "supplies": [
@@ -1141,43 +326,39 @@
               12
             ],
             "reinforcements": [
-              467,
+              474,
               481
             ],
-            "units": 316,
+            "units": 317,
             "unitsByTeam": [
-              158,
+              159,
               158
             ],
             "trenchesOccupied": [
-              17,
-              43
+              10,
+              19
             ],
             "aiRoles": [
               {
-                "base-de-fogo": 23,
-                "pressão-secundária": 21,
+                "base-de-fogo": 8,
+                "reagrupamento": 6,
+                "reserva-movel": 15,
+                "pressão-secundária": 25,
+                "avanço-alternado": 35,
                 "apoio-medico": 9,
-                "cobrindo-avanco": 13,
-                "reserva-movel": 16,
-                "guarda-objetivo": 5,
-                "deitado": 4,
+                "cobrindo-avanco": 38,
+                "guarda-objetivo": 8,
                 "reconhecimento": 8,
-                "avanço-alternado": 37,
-                "socorro": 1,
-                "reunindo-esquadrao": 3,
-                "escolta": 9,
-                "ruptura": 2
+                "ruptura": 1
               },
               {
+                "fogo-cruzado": 13,
+                "posição-defensiva": 100,
                 "guarda-objetivo": 8,
-                "reserva-movel": 15,
-                "posição-defensiva": 84,
+                "reserva-movel": 16,
                 "apoio-medico": 7,
-                "fogo-cruzado": 16,
-                "isca-em-posicao": 8,
-                "preparar-emboscada": 10,
-                "reunindo-esquadrao": 1
+                "deitado": 4,
+                "evasão": 1
               }
             ],
             "selected": 0,
@@ -1186,28 +367,28 @@
                 "name": "EUA",
                 "owner": 0,
                 "x": 260,
-                "y": 1000,
+                "y": 800,
                 "home": 0
               },
               {
                 "name": "ALEMANHA",
                 "owner": 1,
                 "x": 2140,
-                "y": 1000,
+                "y": 800,
                 "home": 1
               }
             ],
-            "map": "winter"
+            "map": "trenches"
           },
           "phases": [
             "advance",
             "hold"
           ],
           "dialogue": [
-            1,
-            3
+            0,
+            0
           ],
-          "south": 26,
+          "south": 14,
           "invalid": 0,
           "errors": [
             0,
@@ -1227,8 +408,8 @@
         "expires": 212,
         "team": 0,
         "squad": 1,
-        "speaker": 390,
-        "name": "James Morgan",
+        "speaker": 403,
+        "name": "Henry Baker",
         "kind": "ocupar-trincheira",
         "text": "Ocupem a vala e protejam os acessos.",
         "task": "ocupar-trincheira"
@@ -1239,14 +420,14 @@
         "expires": 214.5,
         "team": 0,
         "squad": 1,
-        "speaker": 391,
-        "name": "James Brooks",
+        "speaker": 404,
+        "name": "Henry Turner",
         "kind": "resposta",
         "text": "Estou com você. Vamos juntos.",
         "task": "ocupar-trincheira"
       }
     ],
-    "text": "James Morgan: Ocupem a vala e protejam os acessos.",
+    "text": "Henry Baker: Ocupem a vala e protejam os acessos.",
     "api": [
       {
         "id": 1,
@@ -1254,8 +435,8 @@
         "expires": 212,
         "team": 0,
         "squad": 1,
-        "speaker": 390,
-        "name": "James Morgan",
+        "speaker": 403,
+        "name": "Henry Baker",
         "kind": "ocupar-trincheira",
         "text": "Ocupem a vala e protejam os acessos.",
         "task": "ocupar-trincheira"
@@ -1263,7 +444,7 @@
     ],
     "terrain": {
       "w": 1200,
-      "h": 1000
+      "h": 1200
     },
     "grid": {
       "errors": 0
@@ -1286,7 +467,8 @@
   },
   "classic": {
     "width": 2400,
-    "height": 1600,
+    "height": 2400,
+    "ground": 1600,
     "layout": 800
   }
 }

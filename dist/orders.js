@@ -122,7 +122,7 @@ function threat(g){
  for(const b of buildings)if(b.team!==g.team&&b.type==='bunker'&&b.hp>0&&hyp(b.x-c.x,b.y-c.y)<390){mg++;mgs=mgs||b}
  let arty=0;for(const s of shells){if(s.team===g.team||s.gren||s.t>3||s.r<55)continue;if(hyp(s.x-c.x,s.y-c.y)<170)arty++}
  let supp=0,under=0;for(const u of us){supp+=Math.min(2,u.suppression||0);if(u.underFire>0)under++}supp/=us.length;under/=us.length;
- const heavy=supp>S.cfg.HEAVY||under>.45&&(mg>0||arty>0)||arty>=3||supp>.7&&mg>0&&tanks>0;
+ const heavy=(supp>S.cfg.HEAVY||under>.45&&(mg>0||arty>0)||arty>=3||supp>.7&&mg>0&&tanks>0)&&!(g.rush&&supp<1.6);   // g.rush (comandante.js): assalto em marcha só procura abrigo se estiver realmente preso
  return g.th={heavy,supp,under,mg,tanks,arty,near,c,mgs};
 }
 
@@ -145,6 +145,8 @@ function callArty(team,x,y){
  if(team===playerTeam)toast(`Artilharia a caminho de ${C()?.gridRef(x,y)||'alvo'}. Afaste aliados.`);return true}
 function callAir(team,x,y){
  if(window.PXAW?.on){if(!PXAW.available(team,'atk')){if(team===playerTeam)toast('Sem aviões prontos para apoio aéreo.');return false}
+  const AC_=window.IronFrontAirCommand;
+  if(AC_&&AC_.request){const f=AC_.request(team,'atk',x,y,{n:1,manual:team===playerTeam,reason:'Apoio aéreo ao grupo em combate'});if(f&&team===playerTeam)toast(`Apoio aéreo a caminho de ${C()?.gridRef(x,y)||'alvo'}${f.rapid?' (patrulha desviada)':''}.`);return !!f}
   if(typeof spend==='function'&&!spend('fighter',team,team===playerTeam))return false;
   const ok=PXAW.order(team,'atk',x,y);if(ok&&team===playerTeam)toast(`Apoio aéreo a caminho de ${C()?.gridRef(x,y)||'alvo'}.`);return ok}
  if(typeof spend==='function'&&!spend('fighter',team,team===playerTeam))return false;callFighter(team,x,y);return true}
@@ -152,7 +154,7 @@ function sendFlank(g){
  const c=g.th?.c||centroid(g.units),t=g.ent||g.goal;if(!t)return false;
  const pool=S.free(g.team).filter(u=>hyp(u.x-c.x,u.y-c.y)<900).sort((a,b)=>hyp(a.x-c.x,a.y-c.y)-hyp(b.x-c.x,b.y-c.y)).slice(0,10);
  if(pool.length<4){if(g.team===playerTeam)toast('Nenhum grupo disponível para flanquear.');return false}
- const side=c.y<H/2?1:-1,wp={x:clamp((c.x+t.x)/2,60,W-60),y:clamp(t.y+side*(300+rnd(0,80)),60,H-60)};
+ const side=c.y<GH/2?1:-1,wp={x:clamp((c.x+t.x)/2,60,W-60),y:clamp(t.y+side*(300+rnd(0,80)),60,GH-60)};
  const n=g.ent?S.assault(pool,g.ent,{waypoint:wp,via:'flanco',byPlayer:g.byPlayer,ai:g.ai}):S.advance(pool,t.x,t.y,{via:'flanco',byPlayer:g.byPlayer,ai:g.ai});
  if(n&&n.kind==='advance'){n.wp=wp;n.state='flank'}return !!n}
 function nextTrench(g){
@@ -192,6 +194,7 @@ S.autoDecide=g=>{
  const loss=1-g.units.filter(live).length/Math.max(1,g.n0);
  if(loss>S.cfg.LOSS){S.retreat(g);return true}
  if(!g.th.heavy&&since>12||since>S.cfg.AUTO*1.6){DEC.push(g);return true}
+ if(g.ai&&!g.airCalled&&since>5&&(g.th.mgs||g.th.tanks)&&window.PXAW?.on){g.airCalled=true;if(DEC.air(g)){g.msg='Apoio aéreo pedido';return true}}
  if(g.ai&&since>10){DEC.flank(g)||DEC.push(g);return true}
  return false;
 };
@@ -238,7 +241,7 @@ function progressCheck(g,dist){
   // não sai do lugar: contorna lateralmente; 2ª falha: desiste e informa
   g.blocked=(g.blocked||0)+1;
   if(g.blocked===1){const side=g.id%2?1:-1;for(const u of g.units)if(live(u)&&u.pv)u.pv.ds=side}
-  else if(g.blocked===2){const c=centroid(g.units),side=(c.y<H/2?1:-1)*140;g.wp={x:c.x,y:clamp(c.y+side,60,H-60)};g.state='flank';g.since=time}
+  else if(g.blocked===2){const c=centroid(g.units),side=(c.y<GH/2?1:-1)*140;g.wp={x:c.x,y:clamp(c.y+side,60,GH-60)};g.state='flank';g.since=time}
   else{report(g,'blocked','General, o caminho está bloqueado. Não conseguimos chegar ao objetivo.',{kind:'alert',cd:30,force:true});g.msg='Caminho bloqueado';stall(g,'Caminho bloqueado');}}
 }
 function stepRetreat(g){

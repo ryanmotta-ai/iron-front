@@ -1,0 +1,88 @@
+{
+ "preparo": {
+  "n": 10,
+  "ready": 10,
+  "roles": [
+   "f:spad",
+   "f:spad",
+   "f:spad",
+   "f:spad",
+   "a:camel",
+   "a:camel",
+   "r:salmson",
+   "r:breguet",
+   "b:dh4",
+   "b:dh4"
+  ],
+  "mode": "commander",
+  "pt": 0,
+  "sel": {
+   "on": true,
+   "sel": [],
+   "armed": null,
+   "selected": 0,
+   "orders": 0,
+   "denied": 0,
+   "errors": 0
+  }
+ },
+ "seleciona": {
+  "st": {
+   "on": true,
+   "sel": [
+    14
+   ],
+   "armed": null,
+   "selected": 1,
+   "orders": 0,
+   "denied": 0,
+   "errors": 0
+  },
+  "shown": true,
+  "txt": "SPAD S.XIII · 94th Aero\nPiloto: Capt. Clayton Cook\n▲ SUBIR VOO\nATAQUE AO SOLO ◈160\n✕\nClique direito no mapa para enviar ao alvo."
+ },
+ "decola": {
+  "st": "start",
+  "flight": "cap",
+  "sel": {
+   "on": true,
+   "sel": [],
+   "armed": null,
+   "selected": 1,
+   "orders": 1,
+   "denied": 0,
+   "errors": 0
+  },
+  "air": 0,
+  "others": 0
+ },
+ "noAr": {
+  "t": 78,
+  "st": "air",
+  "air": true,
+  "h": 105,
+  "kind": "cap"
+ },
+ "ataque": {
+  "st": "start",
+  "kind": "atk",
+  "area": [
+   1550,
+   700
+  ],
+  "n": 1,
+  "sel": {
+   "on": true,
+   "sel": [],
+   "armed": null,
+   "selected": 1,
+   "orders": 1,
+   "denied": 0,
+   "errors": 0
+  }
+ },
+ "multi": {
+  "ok": true
+ },
+ "errors": []
+}

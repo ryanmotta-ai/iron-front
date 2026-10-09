@@ -6,7 +6,7 @@
    Coordenadas em PIXELS DE ARTE (1200×800, 1 px = 2 unidades do mundo) para o lado Aliado (esquerda);
    o lado Central é o espelho (x → 1200 − x). Visto da esquerda para a direita:
    logística → artilharia → reserva → apoio → linha de frente → arame → terra de ninguém (com o rio) → e o espelho. */
-const PW=1200,PH=(window.IronFrontWorld?.height||1600)/2,YS=PH/800,MAPKEY='trenches';
+const PW=1200,PH=(window.IronFrontWorld?.ground||window.IronFrontWorld?.height||1600)/2,YS=PH/800,MAPKEY='trenches';
 const rng=seed=>{let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296}};
 const mirror=pts=>pts.map(([x,y])=>[PW-x,y]);
 

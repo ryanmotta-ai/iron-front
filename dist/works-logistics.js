@@ -336,8 +336,8 @@ function planks(t){const w=wx();if(time<plankCd[t]||!w||w.snow||!(w.I>CFG.PLANK.
  const ok=!!startProject(t,'plank',[[xs,L.y],[(xe-L.x1)*L.fc>0?L.x1:xe,L.y]]);if(ok)plankCd[t]=time+25;return ok}   // folga entre trechos: a cozinha e os postos também entram na fila
 function kitchen(t){const alive=KIT.filter(k=>k.team===t&&k.hp>0).length+liveOf(t,m=>m.kind==='kitchen').length;if(alive>=(supplies[t]>700||sandbox?2:1)||time<CFG.AI.kitchenMin)return false;
  let stress=0;for(const u of units)if(u.team===t&&u.hp>0&&(u.down||(u.cohesion??1)<.55||(u.suppression||0)>.9))stress++;if(stress<5&&!(alive===0&&time>150))return false;
- let fy=H/2;try{const op=IronFrontBrain.lastPlans[t].operation;if(op)fy=op.y}catch{}
- let x=Xt(t,430),y=clamp(fy+rnd(-150,150),180,H-180);if(!dryOK(x,y)){y=clamp(y+(y>H/2?-200:200),180,H-180)}if(enemiesNear(t,x,y,400)>0)return false;
+ let fy=GH/2;try{const op=IronFrontBrain.lastPlans[t].operation;if(op)fy=op.y}catch{}
+ let x=Xt(t,430),y=clamp(fy+rnd(-150,150),180,GH-180);if(!dryOK(x,y)){y=clamp(y+(y>GH/2?-200:200),180,GH-180)}if(enemiesNear(t,x,y,400)>0)return false;
  return !!startProject(t,'kitchen',[[x,y]])}
 function sniper(t){const mk=units.filter(u=>u.team===t&&u.cls==='marksman'&&u.hp>0&&!u.sap).length,have=SNP.filter(p=>p.team===t&&p.hp>0).length+liveOf(t,m=>m.kind==='sniper').length;
  if(!mk||have>=Math.min(2,mk)||time<50)return false;const fc=face(t),fr=fieldTrenches.filter(a=>a.team===t&&a.line==='front');if(!fr.length)return false;

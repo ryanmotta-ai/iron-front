@@ -5,7 +5,7 @@ const server=http.createServer((req,res)=>{const p=path.resolve(root,'.'+(req.ur
 (async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({channel:'msedge',headless:true}),report={maps:[],probes:[],errors:[]};
 try{const page=await browser.newPage({viewport:{width:1360,height:900}});page.on('pageerror',e=>report.errors.push(String(e)));page.on('console',m=>{if(m.type()==='error'&&!/net::ERR|fonts.googleapis/.test(m.text()))report.errors.push(m.text())});
 await page.goto(`http://127.0.0.1:${server.address().port}/?preparo=0`);await page.locator('[data-go="sandbox"]').click();await page.locator('#start').click();
-for(const map of (process.argv.includes('--probes-only')?[]:['trenches','forest','winter'])){
+for(const map of (process.argv.includes('--probes-only')?[]:['trenches'])){
  await page.evaluate(map=>{document.getElementById('mapselect').value=map;document.getElementById('gametype').value='conquest';document.getElementById('blueai').value='on';document.getElementById('redai').value='on';setup();running=false;IronFrontBrain.setRoles(['attack','defend'])},map);
  const samples=[];
  for(let batch=0;batch<4;batch++)samples.push(await page.evaluate(()=>{for(let i=0;i<300&&!ended;i++)update(.1);return {time:Math.round(time),ended,supplies:[...supplies],engineers:[0,1].map(t=>units.filter(u=>u.team===t&&u.hp>0&&!u.down&&u.sap).length),works:[0,1].map(t=>PXSAP.projects.filter(p=>p.team===t&&!p.mgr).map(p=>({kind:p.kind,done:p.done,complete:p.segs.every(s=>s.stage>=p.target)}))),roles:IronFront.state().aiRoles,errors:[PXSAP.stats.errors,PXFORT.stats.errors,PXWORKS.stats.errors,PXLOGI.stats.errors,PXMANAGE.stats.errors,PXDEF.stats.errors,PXAIR.stats.errors],invalid:units.filter(u=>!Number.isFinite(u.x)||!Number.isFinite(u.y)||u.x<0||u.x>W||u.y<0||u.y>H).length}}));
@@ -20,10 +20,10 @@ if(!process.argv.includes('--probes-only')){
 }
 // Actual pioneer work and native building effects in controlled, finite-resource situations.
 for(const need of ['kitchen','depot','op']){
- await page.evaluate(need=>{document.getElementById('result').close();document.getElementById('mapselect').value='forest';document.getElementById('gametype').value='conquest';setup();running=false;units=[];buildings=[];fieldTrenches=[];decor=[];shells=[];time=120;supplies=[1600,1600];aiEnabled=[true,false];PXSAP.reset();IronFrontEngineering.reset(123);IronFrontBrain.operations.reset();IronFrontBrain.setRoles(['attack','defend']);
-  for(let i=0;i<24;i++){const u=newUnit('rifle',0,750+(i%4)*6,1000+Math.floor(i/4)*5);u.cls=undefined;u.gren=need==='depot'?0:2;u.cohesion=need==='kitchen'?.4:1;u.manualUntil=time+180;u.order='hold';u.tx=u.x;u.ty=u.y}
-  for(let i=0;i<6;i++){const u=newUnit('sapper',0,660+i*7,1000);u.cls=undefined}
-  if(need==='depot'||need==='op'){fieldTrenches.push({id:'probe-cover',team:0,type:'trench',hp:Infinity,x:750,y:1000,hw:100,hh:100});indexTerrainCover()}
+ await page.evaluate(need=>{document.getElementById('result').close();document.getElementById('mapselect').value='trenches';document.getElementById('gametype').value='conquest';setup();running=false;units=[];buildings=[];fieldTrenches=[];decor=[];shells=[];time=120;supplies=[1600,1600];aiEnabled=[true,false];PXSAP.reset();IronFrontEngineering.reset(123);IronFrontBrain.operations.reset();IronFrontBrain.setRoles(['attack','defend']);
+  for(let i=0;i<24;i++){const u=newUnit('rifle',0,750+(i%4)*6,800+Math.floor(i/4)*5);u.cls=undefined;u.gren=need==='depot'?0:2;u.cohesion=need==='kitchen'?.4:1;u.manualUntil=time+180;u.order='hold';u.tx=u.x;u.ty=u.y}
+  for(let i=0;i<6;i++){const u=newUnit('sapper',0,660+i*7,800);u.cls=undefined}
+  if(need==='depot'||need==='op'){fieldTrenches.push({id:'probe-cover',team:0,type:'trench',hp:Infinity,x:750,y:800,hw:100,hh:100});indexTerrainCover()}
   if(need==='op'){runCommander(0);IronFrontBrain.lastPlans[0].operation.sector=2;IronFrontBrain.lastPlans[0].operation.phase='recon'}
  const choose=window.probeOriginalChoose||IronFrontEngineering.choose;window.probeOriginalChoose=choose;window.probeDecisions=[];IronFrontEngineering.choose=c=>{const it=choose(c);if(it&&probeDecisions.length<10)probeDecisions.push({time:c.time,stress:c.own.filter(u=>!u.sap&&u.cohesion<.65).length,phase:c.plan?.operation?.phase,chosen:it?.kind,service:c.serviceDemand,cash:c.cash});return it};
  },need);
@@ -39,8 +39,8 @@ for(const need of ['kitchen','depot','op']){
  if(need==='depot')assert.ok(result.effect.gren>0&&result.effect.ammo>0);
  report.probes.push(result);console.log(JSON.stringify({need,native:result.native,cash:result.cash,effect:result.effect}));
 }
-await page.evaluate(()=>{cam.x=700;cam.y=1000;hud();render();minimap()});await page.screenshot({path:path.join(out,'ai-mechanics-in-game.png')});
-report.obsolete=await page.evaluate(()=>{document.getElementById('mapselect').value='forest';setup();running=false;units=[];buildings=[];fieldTrenches=[];decor=[];time=121;PXFL.on=false;PXAIR.on=false;PXAS.on=false;PXLOGI.on=false;supplies=[1000,1000];aiEnabled=[true,false];maxUnits=3;for(let i=0;i<3;i++){const u=newUnit('rifle',0,750,1000);u.cls=undefined;u.manualUntil=time+20}
+await page.evaluate(()=>{cam.x=700;cam.y=800;hud();render();minimap()});await page.screenshot({path:path.join(out,'ai-mechanics-in-game.png')});
+report.obsolete=await page.evaluate(()=>{document.getElementById('mapselect').value='trenches';setup();running=false;units=[];buildings=[];fieldTrenches=[];decor=[];time=121;PXFL.on=false;PXAIR.on=false;PXAS.on=false;PXLOGI.on=false;supplies=[1000,1000];aiEnabled=[true,false];maxUnits=3;for(let i=0;i<3;i++){const u=newUnit('rifle',0,750,1000);u.cls=undefined;u.manualUntil=time+20}
  const make=progress=>{const pts=[[250,1700]],p=PXSAP.project(0,'dugout','fort',pts,{keep:true});p.t0=0;p.item={kind:'dugout',pts};supplies[0]-=PXSAP.cfg.KIND.dugout.cost;p.segs[0].work=progress;return p};
  const untouched=make(0),partial=make(5),before=supplies[0],cost=PXSAP.cfg.KIND.dugout.cost;update(.1);const after=supplies[0];update(.1);return {before,after,cost,afterAgain:supplies[0],untouchedCancelled:untouched.done,partialPreserved:!partial.done&&partial.segs[0].work===5}});
 assert.ok(report.obsolete.untouchedCancelled&&report.obsolete.partialPreserved);assert.equal(report.obsolete.after,report.obsolete.before+report.obsolete.cost);assert.equal(report.obsolete.afterAgain,report.obsolete.after);

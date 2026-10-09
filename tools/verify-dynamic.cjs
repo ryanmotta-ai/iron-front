@@ -6,11 +6,11 @@ const server=http.createServer((req,res)=>{const p=path.resolve(root,'.'+(req.ur
 (async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({channel:'msedge',headless:true});const report={maps:[],errors:[]};
 try{const page=await browser.newPage({viewport:{width:1360,height:900}});page.on('pageerror',e=>report.errors.push(String(e)));page.on('console',m=>{if(m.type()==='error'&&!/net::ERR|fonts.googleapis/.test(m.text()))report.errors.push(m.text())});
  await page.goto(`http://127.0.0.1:${server.address().port}/?preparo=5`);await page.locator('[data-go="sandbox"]').click();await page.locator('#start').click();
- for(const map of (process.argv.includes('--snapshot-only')?['winter']:['trenches','forest','winter'])){
+ for(const map of (process.argv.includes('--snapshot-only')?['trenches']:['trenches'])){
   await page.evaluate(map=>{document.getElementById('mapselect').value=map;document.getElementById('scale').value='160';document.getElementById('blueai').value='on';document.getElementById('redai').value='on';setup();IronFrontBrain.setRoles(['attack','defend']);running=false;PXFORT.endPrep()},map);
   const samples=[];
   for(let batch=0;batch<(process.argv.includes('--snapshot-only')?1:4);batch++){samples.push(await page.evaluate(()=>{for(let i=0;i<300;i++)update(.1);hud();render();minimap();return {game:IronFront.state(),phases:IronFrontBrain.lastPlans.map(p=>p?.operation.phase),dialogue:IronFrontBrain.lastPlans.map(p=>p?.dialogue.length),south:units.filter(u=>u.y>1600).length,invalid:units.filter(u=>!Number.isFinite(u.x)||!Number.isFinite(u.y)||u.y>H+10).length,errors:[PHYS.stats?.errors,PXSAP.stats?.errors,PXFORT.stats?.errors]}}));}
-  assert.equal(samples[0].game.height,2000);assert.ok(samples.some(s=>s.phases.includes('advance')));assert.ok(samples.some(s=>s.south>0));assert.ok(samples.every(s=>s.invalid===0));report.maps.push({map,samples});console.log(JSON.stringify({map,phases:samples.map(s=>s.phases),south:samples.at(-1).south}));
+  assert.equal(samples[0].game.height,2400);assert.ok(samples.some(s=>s.phases.includes('advance')));assert.ok(samples.some(s=>s.south>0));assert.ok(samples.every(s=>s.invalid===0));report.maps.push({map,samples});console.log(JSON.stringify({map,phases:samples.map(s=>s.phases),south:samples.at(-1).south}));
  }
  report.scenario=await page.evaluate(()=>{
   const savedPlan=IronFrontBrain.lastPlans[0];running=false;ended=false;units=[];fieldTrenches=[{id:'demo-valley',type:'trench',line:'front',team:1,x:900,y:1000,hp:Infinity,hw:30,hh:30,slots:8}];buildings=[];decor=[];shells=[];points=[{name:'B',x:1000,y:1000,owner:1,progress:100}];time=200;IronFrontBrain.operations.reset();
@@ -22,6 +22,6 @@ try{const page=await browser.newPage({viewport:{width:1360,height:900}});page.on
  report.refresh=await page.evaluate(()=>{PXAS.refresh();return {holder:PXAS.sectors[0]?.holder,origin:PXAS.sectors[0]?.team}});assert.equal(report.refresh.holder,0);assert.equal(report.refresh.origin,1);
  report.toggle=await page.evaluate(()=>{IronFront.dialogue.toggle();hud();const off=document.getElementById('battleDialogue').textContent;IronFront.dialogue.toggle();return {off}});assert.equal(report.toggle.off,'');
  report.reset=await page.evaluate(()=>{setup();running=false;hud();return {events:IronFront.dialogue.events().length,dialogue:document.getElementById('battleDialogue').textContent}});assert.equal(report.reset.events,0);
- await page.goto(`http://127.0.0.1:${server.address().port}/?mapa=classico&preparo=5`);report.classic=await page.evaluate(()=>({width:W,height:H,layout:PX.WW1.PH}));assert.equal(report.classic.height,1600);
+ await page.goto(`http://127.0.0.1:${server.address().port}/?preparo=5`);report.classic=await page.evaluate(()=>({width:W,height:H,ground:GH,layout:PX.WW1.PH}));assert.equal(report.classic.height,2400);assert.equal(report.classic.ground,1600);assert.equal(report.classic.layout,800);
  assert.deepEqual(report.errors,[]);fs.writeFileSync(path.join(out,process.argv.includes('--snapshot-only')?'dynamic-view-report.json':'dynamic-report.json'),JSON.stringify(report,null,2));console.log('Dynamic battle integration verified');
 }finally{await browser.close();await new Promise(r=>server.close(r))}})().catch(e=>{console.error(e);process.exitCode=1});

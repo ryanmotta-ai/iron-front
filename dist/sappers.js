@@ -163,7 +163,7 @@ function assign(){
  /* IA: engenheiros de campo ociosos esperam atrás da primeira linha em vez de irem para o assalto */
  for(let t=0;t<2;t++){if(!aiEnabled[t])continue;const fx=FRONT[t],fc=face(t);
   for(const u of sappers(t)){if(!freeSapper(u))continue;
-   if((u.x-(fx-fc*60))*fc>0){if(Policy){if(!u.sapWait||Math.abs(u.sapWait.front-fx)>60)u.sapWait={front:fx,x:fx-fc*(105+u.id%3*18),y:clamp(u.y+(u.id%3-1)*18,120,H-120)};const safe=Policy.route(supportContext(t,u),u,u.sapWait);u.tx=safe.x;u.ty=safe.y}else{u.tx=fx-fc*rnd(90,140);u.ty=clamp(u.y,120,H-120)}u.order='move'}
+   if((u.x-(fx-fc*60))*fc>0){if(Policy){if(!u.sapWait||Math.abs(u.sapWait.front-fx)>60)u.sapWait={front:fx,x:fx-fc*(105+u.id%3*18),y:clamp(u.y+(u.id%3-1)*18,120,GH-120)};const safe=Policy.route(supportContext(t,u),u,u.sapWait);u.tx=safe.x;u.ty=safe.y}else{u.tx=fx-fc*rnd(90,140);u.ty=clamp(u.y,120,GH-120)}u.order='move'}
    else if(u.order==='attack'){u.order='hold';u.tx=u.x;u.ty=u.y}
    u.manualUntil=u.sapStamp=time+2}}}
 function spotFor(s,i,n,fc){const along=(i-(n-1)/2)*14,[nx,ny]=enemyNormal(s.ax,s.ay,fc),back=s.kind==='nest'||s.kind==='mortar'?14:7;
@@ -254,7 +254,7 @@ function planSap(team){if(time<40||P.some(p=>!p.done&&p.team===team&&p.kind==='s
  const fc=face(team),Brain=window.IronFrontBrain;let fy=800;
  try{const op=Brain?.lastPlans?.[team]?.operation;
   if(op)fy=op.y;else{const f=Brain&&Brain.rankObjectives?Brain.rankObjectives(team,points,units)[0]:null;if(f&&f.point)fy=f.point.y}}catch{}
- fy=clamp(fy+rnd(-120,120),160,H-160);
+ fy=clamp(fy+rnd(-120,120),160,GH-160);
  let a=null,bd=Infinity;for(const t of fieldTrenches){if(t.team!==team||(t.line&&t.line!=='front'))continue;const d=Math.abs(t.y-fy)+Math.abs(t.x-FRONT[team])*.3;if(d<bd){bd=d;a=t}}
  const x0=a?a.x+fc*16:FRONT[team]+fc*16,y0=a?a.y:fy,side=Math.random()<.5?1:-1,pts=zigzag(x0,y0,fc,2,side);
  const n=segment(pts).length;if(!pay(team,n*CFG.KIND.sap.cost))return false;
@@ -281,7 +281,7 @@ function aiTick(team){
  const crew=sappers(team);
  if(managed)return; // The army planner now replaces and sizes engineer teams alongside combat reinforcements.
  if(!crew.length){if(time>25&&(S.boughtAt?.[team]??-99)+75<time&&(sandbox||supplies[team]>=cost('sapper')+30)&&units.filter(u=>u.team===team).length+3<=maxUnits&&pay(team,cost('sapper'))){
-  (S.boughtAt||(S.boughtAt=[-99,-99]))[team]=time;const rx=window.PX&&PX.WW1&&map==='trenches'?PX.WW1.reinforceX(team):(team?W-350:350);squad('sapper',team,rx,clamp(800+rnd(-200,200),180,H-180))}return}
+  (S.boughtAt||(S.boughtAt=[-99,-99]))[team]=time;const rx=window.PX&&PX.WW1&&map==='trenches'?PX.WW1.reinforceX(team):(team?W-350:350);squad('sapper',team,rx,clamp(800+rnd(-200,200),180,GH-180))}return}
  if(live(team).length>=CFG.MAXPROJ.ai)return;
  planRepair(team)||planCreep(team)||(crew.length>=2&&planSap(team))}
 

@@ -8,7 +8,7 @@ const path = require('node:path');
 let serial = 0;
 const sb = {
   console, Math, Array, Object, Map, Set, WeakMap, JSON,
-  W: 2400, H: 1600, vw: 320, vh: 180, time: 0, started: true, ended: false, sandbox: false, playerTeam: 0, mode: 'commander', player: null,
+  W: 2400, H: 1600, GH: 1600, vw: 320, vh: 180, time: 0, started: true, ended: false, sandbox: false, playerTeam: 0, mode: 'commander', player: null,
   map: 'forest', tab: 'units', placement: null, soundOn: false, maxUnits: 160,
   units: [], buildings: [], shells: [], particles: [], fieldTrenches: [], trenchGrid: new Map(), allCraters: [], points: [],
   supplies: [1000, 1000], aiEnabled: [false, false], supportCooldown: [0, 0], cam: { x: 0, y: 0 }, mouse: { x: 0, y: 0, wx: 0, wy: 0 },

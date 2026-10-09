@@ -41,7 +41,7 @@ const noForts=()=>{try{return map==='trenches'&&PX.WW1&&PX.WW1.CLEAN&&PX.WW1.CLE
 const active=()=>S.on&&noForts();
 const X=(t,x)=>t?W-x:x;
 const dry=(x,y)=>!(window.PXW&&PXW.depth&&PXW.depth(x,y)>=.12);
-function dryAt(x,y){for(let k=0;k<12;k++){const yy=y+(k%2?1:-1)*Math.ceil(k/2)*18;if(dry(x,yy))return[x,clamp(yy,40,H-40)]}return[x,y]}
+function dryAt(x,y){for(let k=0;k<12;k++){const yy=y+(k%2?1:-1)*Math.ceil(k/2)*18;if(dry(x,yy))return[x,clamp(yy,40,GH-40)]}return[x,y]}
 
 /* ======================================================================================
    CATÁLOGO (tipos novos no sistema de obras do sappers.js)
@@ -110,7 +110,7 @@ const SUB={trench:'Linha de tiro · ◈/trecho',comm:'Ligação · ◈/trecho',w
    IA CONSTRUTORA — plano de defesa em profundidade
    ====================================================================================== */
 function legacyPlan(t){const fc=face(t),FX=X(t,CFG.FX),it=[],J=()=>rnd(-14,14);
- const add=(kind,pts,pri,line)=>it.push({kind,pts:pts.map(([x,y])=>dryAt(clamp(x,30,W-30),clamp(y,40,H-40))),pri,line});
+ const add=(kind,pts,pri,line)=>it.push({kind,pts:pts.map(([x,y])=>dryAt(clamp(x,30,W-30),clamp(y,40,GH-40))),pri,line});
  /* 1 primeira linha: baías em zigue-zague, em lotes de ~240 px, do centro para os flancos */
  const zz=[];for(let y=70,i=0;y<=1530;y+=60,i++)zz.push([FX+(i%2?10:-10)*fc,y]);
  for(let i=0;i<zz.length-1;i+=4){const ch=zz.slice(i,i+5);if(ch.length>1)add('trench',ch,10+Math.abs(ch[0][1]-800)/800,'front')}
@@ -139,16 +139,16 @@ function layoutPlan(t,second=false){
  const L=window.IronFrontLayouts,E=window.IronFrontEngineering;if(!L||!E)return second?legacyPlan2(t):legacyPlan(t);
  const profile=E.layout(t,time),fc=face(t),FX=X(t,CFG.FX);
  let guns=[];try{if(map==='trenches')guns=(PX.WW1.layout().gunsPlan||[]).map(g=>({k:g.k,x:g.x*2+4,y:g.y*2}))}catch{}
- const items=L.preparation(profile,{team:t,width:W,height:H,front:FX,roads:(PX.ROADS||[]).map(y=>y*2),catalog:K,guns,artillery:!!window.PXBAT?.active?.(),second});
+ const items=L.preparation(profile,{team:t,width:W,height:GH,front:FX,roads:(PX.ROADS||[]).map(y=>y*2),catalog:K,guns,artillery:!!window.PXBAT?.active?.(),second});
  if(!second)for(const f of S.planExtra)try{for(const e of f(t,FX,fc))if(K[e.kind])items.push({...e,layout:profile.id})}catch(e){fail(e)}
- return items.map(it=>({...it,pts:it.pts.map(([x,y])=>dryAt(clamp(x,30,W-30),clamp(y,40,H-40)))})).sort((a,b)=>a.pri-b.pri);
+ return items.map(it=>({...it,pts:it.pts.map(([x,y])=>dryAt(clamp(x,30,W-30),clamp(y,40,GH-40)))})).sort((a,b)=>a.pri-b.pri);
 }
 function plan(t){return layoutPlan(t)}
 function plan2(t){return layoutPlan(t,true)}
 function startBuilder(t){QUEUE[t]=plan(t);DONE[t]=[];bT[t]=0;EXTRA[t]=false}
 /* sobrou trégua e dinheiro: segunda leva — 2ª faixa de arame, linha de reserva, ninhos intermediários, mais abrigos e antiaérea */
 let EXTRA=[false,false];
-function legacyPlan2(t){const fc=face(t),FX=X(t,CFG.FX),it=[],add=(kind,pts,pri,line)=>it.push({kind,pts:pts.map(([x,y])=>dryAt(clamp(x,30,W-30),clamp(y,40,H-40))),pri,line});
+function legacyPlan2(t){const fc=face(t),FX=X(t,CFG.FX),it=[],add=(kind,pts,pri,line)=>it.push({kind,pts:pts.map(([x,y])=>dryAt(clamp(x,30,W-30),clamp(y,40,GH-40))),pri,line});
  for(const y of[360,660,940,1240])add('nest',[[FX+fc*2,y]],1);
  for(const[a,b]of[[70,380],[460,760],[840,1150],[1230,1530]]){add('wire',[[FX+fc*165,a],[FX+fc*165,b]],2)}
  for(const y of[200,520,800,1100,1400])add('dugout',[[FX-fc*110,y]],3);
@@ -188,9 +188,9 @@ function adaptiveBuild(t){
  if(window.PXWORKS?.on===false)for(const kind of ['depot','op','foxhole','chevaux'])delete catalog[kind];
  if(window.PXLOGI?.on===false)for(const kind of ['kitchen','sniper'])delete catalog[kind];
  const nativeUsable=s=>s.kind==='aid'?!!window.PXMED?.posts.some(a=>a.seg===s&&a.hp>0):s.kind==='depot'?!!window.PXWORKS?.depots().some(a=>a.s===s&&a.hp>0):s.kind==='op'?!!window.PXWORKS?.ops().some(a=>a.s===s&&a.hp>0):s.kind==='kitchen'?!!window.PXLOGI?.kitchens().some(a=>a.s===s&&a.hp>0):s.kind==='sniper'?!!window.PXLOGI?.snipers().some(a=>a.s===s&&a.hp>0):s.kind==='aa'?AAS.some(a=>a.s===s&&a.hp>0):(s.kind==='gunf'||s.kind==='gunh')?GUNS.some(g=>g.s===s&&g.hp>0):!s.wreck;
- const it=E.choose({team:t,height:H,width:W,time,own,wounded:units.filter(u=>u.team===t&&u.hp>0),workers:own.filter(u=>u.sap&&!u.rs&&u.cls!=='medic'&&u.hp>u.maxhp*.35).length,projects,assets,catalog,cash:sandbox?Infinity:supplies[t],maxSegments:SAP.cfg.MAXSEGS,anchorCount:SAP.segs.filter(s=>s.team===t&&(s.anchor||!s.p.done&&K[s.kind]?.line&&!K[s.kind].noAnchor)).length,serviceDemand:!!(window.PXLOGI?.needsService?.(t)||window.PXMANAGE?.needsService?.(t)||window.PXDEF?.needsService?.(t)),usable:nativeUsable,income:incomeFor(t),airThreat:time-airSeen[t]<60,artillery:!!window.PXBAT?.active?.(),plan:window.IronFrontBrain?.lastPlans[t],enemies:window.IronFrontBrain?.operations?.contacts(t)||[],obstacles:[...decor,...buildings.filter(b=>b.hp>0)],shells,dry,cost:costOf});
+ const it=E.choose({team:t,height:GH,width:W,time,own,wounded:units.filter(u=>u.team===t&&u.hp>0),workers:own.filter(u=>u.sap&&!u.rs&&u.cls!=='medic'&&u.hp>u.maxhp*.35).length,projects,assets,catalog,cash:sandbox?Infinity:supplies[t],maxSegments:SAP.cfg.MAXSEGS,anchorCount:SAP.segs.filter(s=>s.team===t&&(s.anchor||!s.p.done&&K[s.kind]?.line&&!K[s.kind].noAnchor)).length,serviceDemand:!!(window.PXLOGI?.needsService?.(t)||window.PXMANAGE?.needsService?.(t)||window.PXDEF?.needsService?.(t)),usable:nativeUsable,income:incomeFor(t),airThreat:time-airSeen[t]<60,artillery:!!window.PXBAT?.active?.(),plan:window.IronFrontBrain?.lastPlans[t],enemies:window.IronFrontBrain?.operations?.contacts(t)||[],obstacles:[...decor,...buildings.filter(b=>b.hp>0)],shells,dry,cost:costOf});
  if(!it){
-  const workers=own.filter(u=>u.sap&&!u.rs&&u.cls!=='medic'&&u.hp>u.maxhp*.35).length,capacity=Math.min(4,Math.max(1,Math.floor(workers/3)));
+  const workers=own.filter(u=>u.sap&&!u.rs&&u.cls!=='medic'&&u.hp>u.maxhp*.35).length,capacity=Math.min(E.tune?.[t]?.cap||4,Math.max(1,Math.floor(workers/3)));
   const service=window.PXLOGI?.needsService?.(t)||window.PXMANAGE?.needsService?.(t)||window.PXDEF?.needsService?.(t),limit=service&&capacity>1?capacity-1:capacity;
   if(!workers||service&&capacity===1&&time%30>=20||projects.filter(p=>!p.done&&!p.aiDeferred).length>=limit)return;
   const deferred=projects.filter(p=>!p.done&&p.aiDeferred&&p.segs.some(s=>own.some(u=>!u.sap&&hyp(u.x-s.x,u.y-s.y)<350))&&canPrepare({pts:p.segs.slice(p.cur).map(s=>[s.x,s.y])},t));

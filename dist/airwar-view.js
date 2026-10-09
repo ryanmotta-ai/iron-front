@@ -29,12 +29,16 @@ const altv=a=>Math.max(0,a.h||0)/(A.cfg.ALTV||900);
 const PAL={grass:['#4b5631','#535f36','#5b673b','#46502e'],plough:['#5e4b33','#6b563a','#544230'],wheat:['#8f8650','#9c9259','#857c49'],fallow:['#646a3f','#6e7346','#5a6038'],
  hedge:'#2e3a22',hedgeH:'#3f4e2c',tree:['#2c3a22','#36472a','#46593a'],road:['#7a6a4c','#6a5c42','#8a7a58'],roof:['#8a3d2c','#a24a34','#6d3023'],slate:['#4b4f55','#5d626a'],wall:['#bfb39a','#a89d86'],
  strip:['#6f7b45','#677340'],track:'#5b5f37',canvas:['#a99f7c','#968c6b','#bdb38f','#7f765a'],dark:'#1d1f18',ink:'#15130f'};
-let REAR=[null,null],REARX=[0,0],built=false;
+let REAR=[null,null],REARX=[0,0],built=false,AFC=[null,null];
+/* aeródromo DENTRO do mapa: canvas só do retângulo do campo (af.box), com a base opaca (cobre árvores e lama do terreno) e borda esfumada */
+function buildAirfield(side){const af=A.airfields()[side];if(!af||!af.box||!af.compact)return;const B=af.box,w=Math.ceil((B.x1-B.x0)*Z),h=Math.ceil((B.y1-B.y0)*Z),c=mk(w,h),x=c.getContext('2d');
+  if(window.PXAFA&&PXAFA.on)PXAFA.paint(x,af,B.x0,B.y0);AFC[side]={c,x:B.x0,y:B.y0}}
 function rect(x,X,Y,w,h,c){x.fillStyle=c;x.fillRect(Math.round(X),Math.round(Y),Math.round(w),Math.round(h))}
 function buildRear(only){const t0=performance.now(),TH=A.theatre(),AF=A.airfields();if(!AF[0])return;
+ if(AF[0].compact&&AF[1]&&AF[1].compact){built=true;return}   // campos dentro do mapa: sem retaguarda fora dele
  for(let side=0;side<2;side++){if(only!=null&&side!==only)continue;const x0=side?W:TH.x0,x1=side?TH.x1:0,w=Math.ceil((x1-x0)*Z),h=Math.ceil(H*Z),c=mk(w,h),x=c.getContext('2d'),seed=side*977+13;
   REARX[side]=x0;const af=AF[side],B=af.box||{x0:af.x-680,x1:af.x+680,y0:af.y-860,y1:af.y+150};   // área do aeródromo
-  const inAF=(px,py,m=0)=>{const wx=px/Z+x0,wy=py/Z;return wx>B.x0-m/Z&&wx<B.x1+m/Z&&wy>B.y0-m/Z&&wy<B.y1+m/Z};
+  const inAF=(px,py,m=0)=>{if(af.compact)return false;const wx=px/Z+x0,wy=py/Z;return wx>B.x0-m/Z&&wx<B.x1+m/Z&&wy>B.y0-m/Z&&wy<B.y1+m/Z};
   /* base: ladrilho de capim periódico (gerado uma vez) repetido */
   x.fillStyle=x.createPattern(grassTile(),'repeat');x.fillRect(0,0,w,h);
   /* lavouras: retalhos por subdivisão */
@@ -60,7 +64,7 @@ function buildRear(only){const t0=performance.now(),TH=A.theatre(),AF=A.airfield
   {const vy=ROADS[1],vx0=side?w*.62:w*.3;for(let n=0;n<11;n++){const hx=vx0+(n%6)*15+hsh(n,7,seed)*6-40,hy=vy+(n<6?-16:10)+hsh(n,8,seed)*4;if(inAF(hx,hy,30))continue;house(x,hx,hy,hsh(n,9,seed))}
    if(!inAF(vx0+40,vy-30,30))church(x,vx0+40,vy-30)}
   /* o aeródromo */
-  if(window.PXAFA&&PXAFA.on)PXAFA.paint(x,af,x0);else airfield(x,af,x0);
+  if(!af.compact){if(window.PXAFA&&PXAFA.on)PXAFA.paint(x,af,x0);else airfield(x,af,x0)}   // aeródromo compacto: pintado dentro do mapa (buildAirfield)
   REAR[side]=c}
  if(only==null||REAR[0]&&REAR[1])built=true;V.stats.rearMs=(V.stats.rearMs||0)+Math.round(performance.now()-t0)}
 let GT=null;
@@ -108,7 +112,7 @@ function afDynamic(c,ox,oy,dt){const AF=A.airfields();if(!AF[0])return;const wv=
   /* biruta na cabeceira */const bx=ox+Math.round((af.x+(af.dir||1)*af.half*.82)*Z),by=oy+Math.round((af.y+(af.w||56)/2+40)*Z),ws=clamp(hyp(wv.x,wv.y)/40,.15,1),wa=Math.atan2(wv.y,wv.x);
   c.fillStyle=PAL.ink;c.fillRect(bx,by-9,1,10);for(let i=0;i<5;i++){const k=i*ws*1.4,fl=Math.sin(time*7+i)*(1-ws)*.8,px=bx+Math.round(Math.cos(wa)*k+fl),py=by-9+Math.round(Math.sin(wa)*k*.5);c.fillStyle=(i&1)?'#e8e2d0':'#d4532f';c.fillRect(px,py,2,2)}
   /* bandeira */const q=af.hq||{x:af.x+590,y:af.y-600},fx=ox+Math.round(q.x*Z)+18,fy=oy+Math.round(q.y*Z)-6;c.fillStyle='#2a2620';c.fillRect(fx,fy-12,1,14);
-  for(let i=0;i<7;i++){const wav=Math.round(Math.sin(time*5-i*.8)*.8);for(let j=0;j<5;j++){c.fillStyle=t?(j<2?'#1a1a1a':j<3?'#e9e6dc':'#b3302b'):(j%2?'#e9e6dc':'#b3302b');if(!t&&i<3&&j<3)c.fillStyle='#2f3f7a';c.fillRect(fx+1+i,fy-12+j+wav,1,1)}}
+  for(let i=0;i<7;i++){const wav=Math.round(Math.sin(time*5-i*.8)*.8);for(let j=0;j<5;j++){const fl2=af.flag===undefined?t:af.flag;c.fillStyle=fl2?(j<2?'#1a1a1a':j<3?'#e9e6dc':'#b3302b'):(j%2?'#e9e6dc':'#b3302b');if(!fl2&&i<3&&j<3)c.fillStyle='#2f3f7a';c.fillRect(fx+1+i,fy-12+j+wav,1,1)}}
   /* mecânicos: andam entre os aviões parados, giram a hélice de quem está dando partida (com o airfield-life.js eles são desenhados lá, em escala) */
   if(window.PXAFL&&PXAFL.on)continue;
   const M=MECH[t];if(M.length<5)M.push({x:af.x+rnd(-250,250),y:af.y-rnd(120,260),tx:0,ty:0,t:0,team:t,seed:Math.random()*9});
@@ -188,11 +192,12 @@ function drawMap(){if(!MAP||!V.map.show)return;const x=MAPC.getContext('2d'),TH=
    LIGAÇÕES
    ====================================================================================== */
 const wrap=(name,fn)=>{const orig=window[name];if(typeof orig!=='function'){console.warn('airwar-view.js: função ausente: '+name);return}window[name]=function(...a){return fn(orig,...a)}};
-wrap('setup',(orig,...a)=>{const r=orig(...a);try{built=false;REAR=[null,null];MECH[0].length=0;MECH[1].length=0;SPARK.length=0;if(C.on)camOff();V.stats.rearMs=0;if(V.on&&A.on)setTimeout(()=>{try{if(!REAR[0])buildRear(0);setTimeout(()=>{try{if(!REAR[1])buildRear(1)}catch(e){fail(e)}},120)}catch(e){fail(e)}},60)}catch(e){fail(e)}return r});
+wrap('setup',(orig,...a)=>{const r=orig(...a);try{built=false;REAR=[null,null];AFC=[null,null];MECH[0].length=0;MECH[1].length=0;SPARK.length=0;if(C.on)camOff();V.stats.rearMs=0;if(V.on&&A.on)setTimeout(()=>{try{if(!REAR[0])buildRear(0);setTimeout(()=>{try{if(!REAR[1])buildRear(1)}catch(e){fail(e)}},120)}catch(e){fail(e)}},60)}catch(e){fail(e)}return r});
 wrap('update',(orig,dt)=>{const r=orig(dt);if(!V.on||!A.on)return r;try{camTick(Math.min(dt,.05))}catch(e){fail(e)}return r});
 if(window.WW1A){const u0=WW1A.under,o0=WW1A.over;
  WW1A.under=function(c,ox,oy,dt){const r=u0.apply(this,arguments);if(V.on&&A.on&&typeof started!=='undefined'&&started)try{
    if(!built&&A.airfields()[0]){if(!REAR[0])buildRear(0);else if(!REAR[1])buildRear(1)}
+   for(let s=0;s<2;s++){if(!AFC[s]&&A.airfields()[s]&&A.airfields()[s].compact)buildAirfield(s);const F=AFC[s];if(!F)continue;const fx=ox+Math.round(F.x*Z),fy=oy+Math.round(F.y*Z);if(fx>vw||fx+F.c.width<0||fy>vh||fy+F.c.height<0)continue;c.drawImage(F.c,fx,fy)}
    for(let s=0;s<2;s++){const R=REAR[s];if(!R)continue;const x=ox+Math.round(REARX[s]*Z);if(x>vw||x+R.width<0)continue;c.drawImage(R,x,oy)}
    afDynamic(c,ox,oy,Math.min(.05,dt||.016))}catch(e){fail(e)}return r};
  WW1A.over=function(c,ox,oy,dt){const r=o0.apply(this,arguments);if(V.on&&A.on)try{camLabel(c);drawMap()}catch(e){fail(e)}return r}}
@@ -204,6 +209,6 @@ window.addEventListener('keydown',e=>{if(!V.on||!A.on||e.repeat)return;const k=(
  else if(k==='escape'&&C.on){camOff()}});
 let hinted=false;wrap('setup',(orig,...a)=>{const r=orig(...a);try{if(!hinted&&typeof started!=='undefined'&&started&&A.on){hinted=true;setTimeout(()=>{try{toast('Guerra aérea: L segue os combates aéreos (Shift+L volta) · Y mostra o teatro aéreo e os aeródromos.')}catch{}},4500)}}catch{}return r});
 V.state=()=>({on:V.on,built,rearMs:V.stats.rearMs,drawMs:+V.stats.drawMs.toFixed(3),cam:{on:C.on,tgt:C.tgt?C.tgt.id:null,free:!!C.free},map:V.map.show,sparks:SPARK.length,errors:V.stats.errors});
-V.camOn=camOn;V.camOff=camOff;V.next=()=>{C.tgt=nextTarget();return C.tgt};V.buildRear=buildRear;V.rear=()=>REAR;V.rearX=()=>REARX;
+V.camOn=camOn;V.camOff=camOff;V.next=()=>{C.tgt=nextTarget();return C.tgt};V.buildRear=buildRear;V.buildAirfield=buildAirfield;V.airfieldCanvas=()=>AFC;V.rear=()=>REAR;V.rearX=()=>REARX;
 if(window.IronFront)window.IronFront.airwarView=V;
 })();

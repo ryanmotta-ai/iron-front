@@ -279,7 +279,7 @@ function needsService(t){if(!S.on||time<60||time<nextReact[t]||aiMyProjects(t)||
 function aiReact(t){if(time<nextReact[t]||time<60||aiMyProjects(t)>=1||freePioneers(t)<3)return;const fc=t?-1:1,A=CFG.AI.cap;   // sem 3 engenheiros de campo livres a obra ficaria parada ocupando uma vaga da engenharia
  const tanks=observedEnemies(t).filter(u=>u.type==='tank');
  for(const e of tanks){const a=trenchNear(t,e.y),fx=a?a.x:(t?W-720:720),dx=(e.x-fx)*fc;if(dx<-40||dx>800)continue;
-  const sx=fx+fc*rnd(60,95),sy=clamp(e.y,150,H-150);if(Math.abs(e.x-sx)<160)continue;
+  const sx=fx+fc*rnd(60,95),sy=clamp(e.y,150,GH-150);if(Math.abs(e.x-sx)<160)continue;
   if(ditOf(t)+3<=A.ditch&&!nearObj(DIT.filter(d=>d.team===t),sx,sy,110)&&!SAP.projects.some(p=>!p.done&&p.team===t&&p.kind==='ditch'&&p.segs.some(s=>Math.abs(s.x-sx)<110&&Math.abs(s.y-sy)<110))){
    if(aiOrder(t,'ditch',[[sx,sy-54],[sx,sy+54]],'aiDitch'))return}
   if(tanks.length>=2&&hdgOf(t)+3<=A.hedge&&!nearObj(HDG.filter(h=>h.team===t),sx-fc*30,sy,90)){
@@ -289,7 +289,7 @@ function aiReact(t){if(time<nextReact[t]||time<60||aiMyProjects(t)>=1||freePione
  const foot=observedEnemies(t).filter(u=>u.type!=='tank'&&u.type!=='cavalry'&&!u.sap);
  for(const e of foot){const a=trenchNear(t,e.y),fx=a?a.x:(t?W-720:720),dx=(e.x-fx)*fc;if(dx<130||dx>700)continue;
   let n=0,cy=0;for(const o of foot)if(Math.abs(o.y-e.y)<150&&Math.abs(o.x-e.x)<160){n++;cy+=o.y}if(n<5)continue;cy/=n;
-  const sx=fx+fc*rnd(70,105),sy=clamp(cy,150,H-150);if(enemiesAt(t,sx,sy,200)>=3||nearObj(MINES.filter(m=>m.team===t),sx,sy,90))continue;   // ≥4 inimigos a 200 px fariam o sappers.js abandonar a obra
+  const sx=fx+fc*rnd(70,105),sy=clamp(cy,150,GH-150);if(enemiesAt(t,sx,sy,200)>=3||nearObj(MINES.filter(m=>m.team===t),sx,sy,90))continue;   // ≥4 inimigos a 200 px fariam o sappers.js abandonar a obra
   if(aiOrder(t,'mines',[[sx,sy-30],[sx,sy+30]],'aiMines'))return}}
 /* a IA desmina campos já revelados perto das suas tropas (nunca na trégua; um projeto por vez) */
 function aiDemine(t){if(time<nextDem[t]||SAP.projects.some(p=>!p.done&&p.team===t&&p.kind==='demine'))return;

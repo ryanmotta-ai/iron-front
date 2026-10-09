@@ -20,7 +20,7 @@ function request(team,kind,x,y,options={}){
  if(A.planes().filter(a=>a.team===team&&live(a)&&a.st!=='park').length>=8)return null;
  if((kind==='atk'||kind==='bmb')&&!P.clear(units.filter(u=>u.team===team&&u.hp>0&&!u.down),x,y)){stats.unsafe++;if(options.manual)toast('Aliados próximos da área de ataque. Escolha um alvo mais afastado.');return null}
  const c=P.cost[kind];if(c===undefined||!canPay(team,c,options.manual))return null;
- const f=A.dispatch(team,kind,x,y,{n:options.n||({cap:2,int:2,esc:2,atk:2,bmb:1}[kind]||1)});if(!f)return null;
+ const f=A.dispatch(team,kind,x,y,{n:options.n||({cap:2,int:2,esc:2,atk:2,bmb:1}[kind]||1),pick:options.pick});if(!f)return null;
  pay(team,c,'missão-'+kind,options.manual);next[team][kind]=time+P.cooldown[kind];stats.missions[kind]=(stats.missions[kind]||0)+1;
  f.commanded=true;f.reason=options.reason||A.names[kind];
  const p=f.m[0],sector=B.lastPlans[team]?.sectors?.find(s=>s.id===B.lastPlans[team]?.operation?.sector)?.name||'setor marcado';

@@ -9,8 +9,8 @@
    ],
    [
     20.5,
-    "",
-    "surgery,surgery,down",
+    "118:bed",
+    "surgery,bed,down",
     ""
    ],
    [
@@ -34,43 +34,43 @@
    [
     34,
     "119:bed",
-    "surgery,surgery,bed",
+    "surgery,recover,bed",
     ""
    ],
    [
     38,
     "119:bed",
-    "recover,surgery,bed",
+    "surgery,recover,bed",
     ""
    ],
    [
     41,
     "",
-    "recover,surgery,surgery",
+    "surgery,recover,surgery",
     ""
    ],
    [
     44,
     "",
-    "recover,surgery,surgery",
+    "surgery,,surgery",
     ""
    ],
    [
     47,
     "",
-    "recover,surgery,surgery",
+    "surgery,,surgery",
     ""
    ],
    [
     50,
     "",
-    ",surgery,surgery",
+    "surgery,,surgery",
     ""
    ],
    [
     54,
     "",
-    ",surgery,surgery",
+    "surgery,,recover",
     ""
    ]
   ],
@@ -121,43 +121,43 @@
    [
     34,
     "117:bed",
-    "bed,recover,recover",
+    "bed,surgery,recover",
     ""
    ],
    [
     38,
     "",
-    "surgery,recover,recover",
+    "surgery,surgery,recover",
     ""
    ],
    [
     41,
     "",
-    "surgery,recover,recover",
+    "surgery,surgery,recover",
     ""
    ],
    [
     44,
     "",
-    "surgery,recover,",
+    "surgery,surgery,",
     ""
    ],
    [
     47,
     "",
-    "surgery,,",
+    "surgery,surgery,",
     ""
    ],
    [
     50,
     "",
-    "recover,,",
+    "surgery,surgery,",
     ""
    ],
    [
     54,
     "",
-    "recover,,",
+    "surgery,surgery,",
     ""
    ]
   ],
@@ -167,7 +167,7 @@
   ],
   "stats": {
    "patients": 3,
-   "carries": 6,
+   "carries": 4,
    "rises": 0,
    "errors": 0
   },

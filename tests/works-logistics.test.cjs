@@ -15,7 +15,7 @@ function engine(search = '', opt = {}) {
   const segment = (pts, step = 30) => { const out = []; for (let i = 1; i < pts.length; i++) out.push(...seg(pts[i - 1], pts[i], step)); return out; };
   const sb = {
     console, Math, Array, Object, Map, Set, WeakMap, JSON, String, Number, Infinity, Int16Array, Int32Array, Float32Array, Uint8Array, setTimeout: f => f(), performance,
-    W, H, vw: 320, vh: 180, time: 0, started: true, ended: false, playerTeam: 0, mode: 'commander', player: null, sandbox: opt.sandbox ?? true,
+    W, H, GH: H, vw: 320, vh: 180, time: 0, started: true, ended: false, playerTeam: 0, mode: 'commander', player: null, sandbox: opt.sandbox ?? true,
     units: [], buildings: [], fieldTrenches: anchors, particles: [], bullets: [], shells: [], decor: [], aiEnabled: [false, false], supplies: [999, 999], location: { search },
     weapon: 'rifle', ammo: 5, magazines: { rifle: 5 }, weapons: { rifle: { mag: 5 } }, missions: [], booms: [], cam: { x: 0, y: 0 },
     defs: { rifle: { speed: 47 }, tank: { speed: 28 }, mg: { speed: 34 } },

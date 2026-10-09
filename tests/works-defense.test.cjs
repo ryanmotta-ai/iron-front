@@ -12,7 +12,7 @@ const rnd = (a, b) => a + rand() * (b - a), clamp = (v, a, b) => v < a ? a : v >
 let serial = 0;
 const sb = {
   console, Math, Array, Object, Map, Set, WeakMap, JSON, String, Number, Infinity, performance, setTimeout: f => f(),
-  W: 2400, H: 1600, vw: 320, vh: 180, time: 0, started: true, ended: false, playerTeam: 0, mode: 'commander', player: null, sandbox: true,
+  W: 2400, H: 1600, GH: 1600, vw: 320, vh: 180, time: 0, started: true, ended: false, playerTeam: 0, mode: 'commander', player: null, sandbox: true,
   units: [], buildings: [], fieldTrenches: [], particles: [], shells: [], aiEnabled: [false, false], supplies: [999, 999], supportCooldown: [0, 0], location: { search: '' },
   weapon: 'rifle', ammo: 5, magazines: { rifle: 5 }, weapons: { rifle: { mag: 5 } }, missions: [], teamKills: [0, 0], toasts: [],
   observationRange: () => 700,

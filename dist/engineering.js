@@ -3,6 +3,8 @@
 'use strict';
 const Layouts=root.IronFrontLayouts||(typeof require==='function'?require('./engineering-layouts.js'):null);
 let sessionSeed;
+/* ritmo de obras: simultâneas por frente (cap), intervalo entre projetos (gap) e em emergência (urgent); o comandante.js ajusta por doutrina */
+const tune=[{cap:4,gap:12,urgent:8,sap:false},{cap:4,gap:12,urgent:8,sap:false}];   // por facção
 const memories=[null,null],distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 function memory(t,time){let m=memories[t];if(!m||time<m.time)m=memories[t]={time,reserve:0,next:0,spent:0,evaluated:0,history:[],works:[],scores:{},danger:[],layout:Layouts.select(sessionSeed===undefined?undefined:(sessionSeed^Math.imul(t+1,2654435761))>>>0),stage:'posição',note:'Avaliando necessidade de cobertura'};m.time=time;return m}
 function reset(seed){memories.fill(null);sessionSeed=seed}
@@ -25,7 +27,7 @@ function choose(c){
  const m=memory(c.team,c.time);assess(c,m);
  const combat=c.own.filter(u=>!u.sap&&u.cls!=='medic'&&!u.down).length;
  m.reserve=c.workers&&combat>=18?80:0;
- const capacity=Math.min(4,Math.max(1,Math.floor(c.workers/3))),service=c.serviceDemand;
+ const capacity=Math.min(tune[c.team].cap,Math.max(1,Math.floor(c.workers/3))),service=c.serviceDemand;
  // Leave a crew for telephone logistics or maintenance when either has real work waiting.
  const limit=service&&capacity>1?capacity-1:capacity;
  if(c.time<m.next||!c.workers||c.projects.filter(p=>!p.done&&!p.aiDeferred).length>=limit)return null;
@@ -55,6 +57,8 @@ function choose(c){
   if(stress>=3)choices.push(['kitchen',95,7+Math.min(6,stress*.7)]);
   if(force.some(u=>u.cls==='marksman'))choices.push(['sniper',55,5]);
   if(force.length>=4&&op?.sector===s.id&&(c.artillery||['recon','prepare','advance','consolidate'].includes(op.phase)||s.threat>=3))choices.push(['op',40,6]);
+  // sapas: quem ataca avança a vala junto com a tropa (a linha nova nasce ~95 px à frente da mais adiantada, só onde há gente nossa e o trecho é seguro)
+  if(tune[c.team].sap&&force.length>=5&&op&&op.phase!=='hold'&&['posição','consolidação'].includes(m.stage))choices.push(['trench',-95,3.4]);
   if(s.threat>=4)choices.push(['bunker',80,4]);
   if(s.threat>=3&&['hold','withdraw','counter'].includes(op?.phase))choices.push(['wire',-60,4]);
   if(s.threat>=6)choices.push(['pillbox',95,5]);
@@ -85,7 +89,7 @@ function choose(c){
  if(!best){m.reserve=Math.min(180,candidates[0]?.cost||0);m.note=candidates.length?'Guardando suprimentos para a próxima obra':'Sem nova obra necessária em local seguro';return null}
  m.reserve=best.cost;return best;
 }
-function committed(team,it,project,time){const m=memory(team,time);m.spent+=it.cost;m.next=time+(it.stage==='reforço'||it.stage==='socorro'?8:12);m.reserve=80;m.works.push({project,kind:it.kind,x:it.x,y:it.y,cost:it.cost,at:time,last:time,use:0,evaluated:false});const names={depot:'depósito de munição',trench:'trincheira',comm:'ligação protegida',nest:'ninho de metralhadora',dugout:'abrigo',aid:'posto médico',mortar:'posição de morteiro',bunker:'bunker',pillbox:'casamata',aa:'antiaérea',gunf:'canhão',gunh:'obuseiro',kitchen:'cozinha de campanha',sniper:'posto de atirador',op:'posto de observação',foxhole:'toca individual',sandbag:'sacos de areia',chevaux:'cavalo de frisa'};m.note='Construindo '+(names[it.kind]||it.kind)+' · '+m.layout.name+' · '+(it.stage||m.stage)}
+function committed(team,it,project,time){const m=memory(team,time);m.spent+=it.cost;m.next=time+(it.stage==='reforço'||it.stage==='socorro'?tune[team].urgent:tune[team].gap);m.reserve=80;m.works.push({project,kind:it.kind,x:it.x,y:it.y,cost:it.cost,at:time,last:time,use:0,evaluated:false});const names={depot:'depósito de munição',trench:'trincheira',comm:'ligação protegida',nest:'ninho de metralhadora',dugout:'abrigo',aid:'posto médico',mortar:'posição de morteiro',bunker:'bunker',pillbox:'casamata',aa:'antiaérea',gunf:'canhão',gunh:'obuseiro',kitchen:'cozinha de campanha',sniper:'posto de atirador',op:'posto de observação',foxhole:'toca individual',sandbag:'sacos de areia',chevaux:'cavalo de frisa'};m.note='Construindo '+(names[it.kind]||it.kind)+' · '+m.layout.name+' · '+(it.stage||m.stage)}
 function state(team){const m=memories[team];if(!m)return null;return {layout:{id:m.layout.id,name:m.layout.name,seed:m.layout.seed},stage:m.stage,reserve:m.reserve,spent:m.spent,evaluated:m.evaluated,note:m.note,history:m.history.map(x=>({...x})),scores:JSON.parse(JSON.stringify(m.scores))}}
-const api={choose,committed,state,reset,layout};root.IronFrontEngineering=api;if(typeof module!=='undefined')module.exports=api;
+const api={choose,committed,state,reset,layout,tune};root.IronFrontEngineering=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);

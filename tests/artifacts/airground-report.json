@@ -1,0 +1,127 @@
+{
+ "mapa": {
+  "options": [
+   "trenches"
+  ],
+  "W": 2400,
+  "H": 2400,
+  "GH": 1600,
+  "flags": [
+   [
+    260,
+    800
+   ],
+   [
+    2140,
+    800
+   ]
+  ],
+  "hq": [
+   132,
+   840
+  ],
+  "roadsGround": [
+   185,
+   400,
+   610
+  ],
+  "layoutPH": 800,
+  "air": [
+   {
+    "x": 600,
+    "y": 2320,
+    "box": {
+     "x0": 25,
+     "x1": 1175,
+     "y0": 1575,
+     "y1": 2395
+    }
+   },
+   {
+    "x": 1800,
+    "y": 2320,
+    "box": {
+     "x0": 1225,
+     "x1": 2375,
+     "y0": 1575,
+     "y1": 2395
+    }
+   }
+  ]
+ },
+ "sitio": {
+  "ready": true,
+  "decorInside": 0,
+  "cratersInside": 0,
+  "cleaned": 29
+ },
+ "captura": {
+  "capturedAfter": 18,
+  "flag": 0,
+  "canLaunch": false,
+  "aaPosts": 0,
+  "parked": [
+   10,
+   4
+  ],
+  "retakenAfter": 18,
+  "flagBack": 1,
+  "canLaunchAgain": true
+ },
+ "solo": {
+  "before": 10,
+  "afterShell": 9,
+  "afterStrafe": 8,
+  "stats": 7
+ },
+ "fuzil-aviao": {
+  "hits": 9
+ },
+ "apoioAereo": {
+  "semProntidao": {
+   "fl": [
+    "atk:work"
+   ],
+   "t": 200,
+   "req": true,
+   "rapid": false,
+   "over": 69.8
+  },
+  "comProntidao": {
+   "fl": [
+    "atk:work"
+   ],
+   "t": 185,
+   "req": true,
+   "rapid": true,
+   "over": 5.2
+  }
+ },
+ "partida": {
+  "v": {
+   "anchors": 0,
+   "buildings": 0,
+   "unitsOut": 0,
+   "goals": 7
+  },
+  "t": 500,
+  "airsite": {
+   "cleaned": 29,
+   "planesLost": 14,
+   "captures": 2,
+   "retaken": 1,
+   "riflesHits": 14,
+   "reinforcements": 6,
+   "errors": 0
+  },
+  "air": {
+   "sorties": [
+    13,
+    10
+   ],
+   "landings": 1,
+   "crashes": 0
+  }
+ },
+ "errors": []
+}

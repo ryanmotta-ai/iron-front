@@ -78,7 +78,7 @@ function sync(){
  sourceStatic(out);sourceBattery(out);sourceMedics(out);sourceWorks(out);sourceFort(out);sourceBunkers(out);
  for(const fn of S.sources)try{fn(out)}catch(e){fail(e)}
  for(const sp of out){let e=byRef.get(sp.ref);const K=KIND[sp.kind]||{name:sp.kind,mat:'wood',hp:100,w:40,h:40,value:20,flam:0};
-  if(!e){e={id:++serial,ref:sp.ref,kind:sp.kind,team:sp.team,x:sp.x,y:sp.y,w:K.w,h:K.h,name:sp.name||K.name,mat:sp.mat||K.mat,value:sp.value||K.value,flam:K.flam,
+  if(!e){e={id:++serial,ref:sp.ref,kind:sp.kind,team:sp.team,x:sp.x,y:sp.y,w:sp.w||K.w,h:sp.h||K.h,name:sp.name||K.name,mat:sp.mat||K.mat,value:sp.value||K.value,flam:K.flam,
    max:sp.ref.max||sp.ref.maxhp||K.hp,hp:sp.ref.hp,own:!!sp.own,legacy:!!sp.legacy,bld:!!sp.bld,state:0,eff:1,burn:0,smoke:0,known:[sp.team===0||false,sp.team===1||false],born:time,seed:serial*13,gun:sp.gun||null,rebuild:K.rebuild};
    if(sp.kind==='hq'||sp.kind==='hospital'||sp.kind==='comms'||sp.knownAll)e.known=[true,true];  // as retaguardas são conhecidas (a bandeira denuncia o QG)
    byRef.set(sp.ref,e);S.list.push(e)}

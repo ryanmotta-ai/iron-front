@@ -44,7 +44,7 @@ function bestRoute(team,seed,t){
  const direct=routeDanger(team,[seed,t]);let best={danger:direct,wp:null};
  if(direct<=60)return best;
  const mx=(seed.x+t.x)/2;
- for(const y of [150,H-150,seed.y-450,seed.y+450]){const wp={x:mx,y:clamp(y,80,H-80)},d=routeDanger(team,[seed,wp,t]);if(d<best.danger-15)best={danger:d,wp}}
+ for(const y of [150,GH-150,seed.y-450,seed.y+450]){const wp={x:mx,y:clamp(y,80,GH-80)},d=routeDanger(team,[seed,wp,t]);if(d<best.danger-15)best={danger:d,wp}}
  return best;
 }
 function compose(team,target){
@@ -74,7 +74,7 @@ function raidTick(){
   if(!aiEnabled[team]||time<S.cfg.START||time<S.cool[team])continue;
   const mine=S.raids.filter(r=>r.team===team).length,army=units.filter(u=>u.team===team&&live(u)).length,cap=army>=200?S.cfg.RAIDS[3]:army>=100?S.cfg.RAIDS[2]:S.cfg.RAIDS[1];
   if(mine>=cap)continue;
-  const hq=T().list.find(e=>e.team===team&&e.kind==='hq')||{x:team?W-130:130,y:H/2};
+  const hq=T().list.find(e=>e.team===team&&e.kind==='hq')||{x:team?W-130:130,y:GH/2};
   let best=null,bs=-1e9;
   for(const e of T().list){if(e.team===team||e.destroyed||!T().known(e,team)||S.raids.some(r=>r.target===e))continue;
    const sc=score(e,team,hq);if(sc>bs){bs=sc;best=e}}
@@ -106,12 +106,12 @@ function installLanes(){
   for(const [k,v] of fr)if(now-v.t>15)fr.delete(k);
   let f=fr.get(id);
   if(!f&&fr.size<S.cfg.FRONT){const used=new Set([...fr.values()].map(v=>v.lane));const lane=[0,-1,1].find(l=>!used.has(l));f={lane,t:now};fr.set(id,f)}
-  if(f){f.t=now;return {x:target.x-d*Math.abs(f.lane)*45,y:clamp(target.y+f.lane*S.cfg.LANE,50,(state.height||H)-50)}}
+  if(f){f.t=now;return {x:target.x-d*Math.abs(f.lane)*45,y:clamp(target.y+f.lane*S.cfg.LANE,50,(state.height||GH)-50)}}
   // apoio: cada esquadrão espera na sua própria posição (8 pontos em arco atrás do eixo) até uma faixa abrir
   S.stats.retargets++;const sg=S.stage[team];for(const [k,v] of sg)if(now-v.t>15)sg.delete(k);
   let st=sg.get(id);if(!st){const used=new Set([...sg.values()].map(v=>v.slot));let slot=0;while(used.has(slot)&&slot<15)slot++;st={slot,t:now};sg.set(id,st)}st.t=now;
   const i=st.slot%8,ring=Math.floor(st.slot/8);
-  return {x:target.x-d*(S.cfg.STAGEBACK+(i%2)*80+ring*170),y:clamp(target.y+(i-3.5)*120,50,(state.height||H)-50)};
+  return {x:target.x-d*(S.cfg.STAGEBACK+(i%2)*80+ring*170),y:clamp(target.y+(i-3.5)*120,50,(state.height||GH)-50)};
  };
 }
 
@@ -122,7 +122,7 @@ function spreadPlan(plan,state){
  const by=new Map();
  for(const o of plan.orders){if(o.squad===undefined||!Number.isFinite(o.tx)||!Number.isFinite(o.ty)||KEEP_TOGETHER.has(o.role))continue;let g=by.get(o.squad);if(!g)by.set(o.squad,g={id:o.squad,list:[],x:0,y:0});g.list.push(o);g.x+=o.tx;g.y+=o.ty}
  const sq=[...by.values()].filter(g=>g.list.length>=2).sort((a,b)=>a.id-b.id);if(sq.length<2)return plan;
- const placed=[],Hh=(state&&state.height)||H;let shifted=0;
+ const placed=[],Hh=(state&&state.height)||GH;let shifted=0;
  for(const g of sq){g.x/=g.list.length;g.y/=g.list.length;const sep=Math.max(S.cfg.SEP,34*Math.sqrt(g.list.length));
   const free=(x,y)=>placed.every(p=>hyp(p.x-x,p.y-y)>=Math.max(sep,p.sep)*.92);
   let best=null;const side=g.id%2?1:-1;
@@ -138,7 +138,7 @@ function spreadPlan(plan,state){
 /* teto de densidade por unidade: no máximo CAP destinos a menos de 110 px uns dos outros; o excedente é aberto lateralmente */
 function capDensity(plan,state){
  const ord=plan.orders.filter(o=>Number.isFinite(o.tx)&&Number.isFinite(o.ty)&&o.role!=='cobrindo-avanco'&&o.role!=='cobrindo-retirada'&&o.role!=='blindado-imobilizado'&&o.role!=='guarda-objetivo');
- if(ord.length<=S.cfg.CAP)return;const Hh=(state&&state.height)||H,placed=[];let moved=0;
+ if(ord.length<=S.cfg.CAP)return;const Hh=(state&&state.height)||GH,placed=[];let moved=0;
  const crowd=(x,y)=>{let n=0;for(const p of placed)if(Math.abs(p.x-x)<110&&Math.abs(p.y-y)<110&&hyp(p.x-x,p.y-y)<110)n++;return n};
  // pontos de uma grade de passo 112 px ao redor do destino (vizinhos a ≥112 px não se contam), do mais perto ao mais longe
  const lattice=[];for(let i=-6;i<=6;i++)for(let j=-6;j<=6;j++)if(i||j)lattice.push([i,j,Math.abs(i)+Math.abs(j)+Math.hypot(i,j)*.01]);lattice.sort((a,b)=>a[2]-b[2]);

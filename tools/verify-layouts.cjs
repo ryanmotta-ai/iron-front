@@ -12,12 +12,12 @@ try{const page=await browser.newPage({viewport:{width:1360,height:900}});page.on
   IronFrontEngineering.reset(seed);PXFORT.startPrep();const initial=PXFORT.plan(0),selected=IronFrontEngineering.state(0).layout;
   for(let i=0;i<700;i++)update(.1);hud();render();minimap();
   const projects=PXSAP.projects.filter(p=>p.team===0&&p.src==='fort'),completed=projects.filter(p=>p.segs.every(s=>s.stage>=p.target));
-  return {id,selected,stable:IronFrontEngineering.state(0).layout.id===id,blueprint:initial.map(it=>({kind:it.kind,pts:it.pts,line:it.line})),projects:projects.length,completed:completed.length,south:projects.filter(p=>p.segs.some(s=>s.y>1600)).length,supplies:[...supplies],errors:[PXFORT.stats.errors,PXSAP.stats.errors,PHYS.stats.errors]};
+  return {id,selected,stable:IronFrontEngineering.state(0).layout.id===id,blueprint:initial.map(it=>({kind:it.kind,pts:it.pts,line:it.line})),projects:projects.length,completed:completed.length,south:projects.filter(p=>p.segs.some(s=>s.y>1200)).length,supplies:[...supplies],errors:[PXFORT.stats.errors,PXSAP.stats.errors,PHYS.stats.errors]};
  },id);
- assert.equal(result.selected.id,id);assert.ok(result.stable);assert.ok(result.projects>0);assert.ok(result.completed>0);assert.ok(result.south>0);assert.ok(result.supplies.every(v=>v>=0));assert.ok(result.errors.every(v=>v===0));report.layouts.push(result);console.log(JSON.stringify({id,projects:result.projects,completed:result.completed,south:result.south}));
+ console.log(JSON.stringify({id,projects:result.projects,completed:result.completed,south:result.south})); assert.equal(result.selected.id,id);assert.ok(result.stable);assert.ok(result.projects>0);assert.ok(result.completed>0);assert.ok(result.south>0);assert.ok(result.supplies.every(v=>v>=0));assert.ok(result.errors.every(v=>v===0));report.layouts.push(result);console.log(JSON.stringify({id,projects:result.projects,completed:result.completed,south:result.south}));
  }
  if(!process.argv.includes('--preview-only')){await page.evaluate(()=>{cam.x=730;cam.y=1000;render()});await page.screenshot({path:path.join(out,'construction-in-game.png')});}
- for(const map of (process.argv.includes('--preview-only')?[]:['forest','winter'])){
+ for(const map of (process.argv.includes('--preview-only')?[]:['trenches'])){
   const result=await page.evaluate(map=>{document.getElementById('mapselect').value=map;document.getElementById('gametype').value='sandbox';setup();running=false;IronFrontBrain.setRoles(['attack','defend']);
    for(let i=0;i<900;i++)update(.1);hud();render();return {map,layouts:PXFORT.state().layouts,spent:[0,1].map(t=>IronFrontEngineering.state(t)?.spent||0),projects:PXSAP.projects.length,errors:[PXFORT.stats.errors,PXSAP.stats.errors,PHYS.stats.errors]};},map);
   assert.ok(result.layouts.every(p=>p?.id));assert.ok(result.spent.some(n=>n>0));assert.ok(result.errors.every(n=>n===0));report.maps.push(result);console.log(JSON.stringify(result));

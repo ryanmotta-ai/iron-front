@@ -9,7 +9,7 @@ let serial = 0;
 const guns = [];
 const sb = {
   console, Math, Array, Object, Map, Set, WeakMap, JSON, String, URLSearchParams,
-  W: 2400, H: 1600, vw: 320, vh: 180, time: 0, started: true, ended: false, sandbox: false, playerTeam: 0, mode: 'commander', player: null,
+  W: 2400, H: 1600, GH: 1600, vw: 320, vh: 180, time: 0, started: true, ended: false, sandbox: false, playerTeam: 0, mode: 'commander', player: null,
   map: 'trenches', tab: 'units', placement: null, soundOn: false, audio: null, keys: {}, screenShake: 0, maxUnits: 160,
   units: [], buildings: [], shells: [], particles: [], bullets: [], planes: [], fieldTrenches: [], trenchGrid: new Map(), allCraters: [], points: [{ x: 1200, y: 800, progress: 0, owner: -1 }],
   supplies: [600, 600], aiEnabled: [false, true], aiDecisionTimer: [5, 5], supportCooldown: [0, 0], cam: { x: 0, y: 0 }, mouse: { x: 0, y: 0, wx: 0, wy: 0 }, selected: new Set(),

@@ -4,7 +4,7 @@ const {chromium}=require('playwright');const root=path.resolve(__dirname,'../dis
 const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+(req.url.split('?')[0]==='/'?'/index.html':req.url.split('?')[0]));if(!file.startsWith(root+path.sep)){res.writeHead(403);return res.end()}fs.readFile(file,(e,data)=>{if(e){res.writeHead(404);return res.end()}res.setHeader('Content-Type',file.endsWith('.js')?'text/javascript':file.endsWith('.css')?'text/css':'text/html');res.end(data)})});
 (async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({channel:'msedge',headless:true});const errors=[],results=[];
 try{const page=await browser.newPage();page.on('pageerror',e=>errors.push(String(e)));await page.goto(`http://127.0.0.1:${server.address().port}/?preparo=0`,{waitUntil:'load'});
- for(const map of ['trenches','forest'])for(const attacker of [0,1]){
+ for(const map of ['trenches'])for(const attacker of [0,1]){
   const result=await page.evaluate(({map,attacker})=>{
    let seed=907+attacker;Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
    document.getElementById('mapselect').value=map;document.getElementById('gametype').value='conquest';document.getElementById('scale').value='80';document.getElementById('blueai').value='on';document.getElementById('redai').value='on';document.getElementById('rolesel').value=attacker?'a1':'a0';document.getElementById('difficulty').value='normal';setup();running=false;

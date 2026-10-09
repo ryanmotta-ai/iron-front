@@ -18,7 +18,7 @@ forest:{seed:23,g:['#222d1d','#2b3924','#35472b','#415636','#4f6642'],m:['#352c2
 winter:{seed:37,g:['#8597a0','#97a9b1','#adbcc1','#c5d2d4','#e0e9e8'],m:['#5d6461','#6f7773','#838b86','#979e98','#abb1ab'],r:['#8f9a9b','#a2acac','#b6bfbf'],w:['#3c6075','#4b7489','#6a93a6','#94b9c9'],foam:'#eaf3f3',spark:'#ffffff',bank:['#6c7a7d','#7f8c8e'],tuft:['#6e7f88','#f2f7f6'],flower:['#f2f7f6','#c6d6dc'],
  tree:['#445e57','#587369','#7a9690','#c3d3d1'],trunk:['#4a3f38','#6a5b50'],dead:['#4b4641','#72695f'],ruin:['#84878a','#9fa3a5','#62666a'],deadRate:.25,pine:.75,snow:1}};
 const riverX=y=>(1190+Math.sin(y*2/160)*70)/2,riverHW=y=>14+3*Math.sin(y*.09+1)+1.5*Math.sin(y*.23);
-const ROADS=[185,400,610].map(y=>y*(window.IronFrontWorld?.height||1600)/1600);
+const ROADS=[185,400,610].map(y=>y*(window.IronFrontWorld?.ground||window.IronFrontWorld?.height||1600)/1600);
 
 function pk(col,a=255){const[r,g,b]=hex2rgb(col);return((a<<24)|(b<<16)|(g<<8)|r)>>>0}
 function px(c,x,y,col){c.fillStyle=col;c.fillRect(x,y,1,1)}

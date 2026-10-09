@@ -105,7 +105,7 @@ function aiTick(){
    if(best)job('repair',engs.slice(0,3),best,{ai:true})}
   // compra: com 2+ blindados e nenhum mecânico
   if(tanks.length+units.filter(t=>t.team===team&&t.type==='tank'&&t.hp>0).length>=2&&!units.some(u=>u.team===team&&u.cls==='mechanic'&&u.hp>0)&&time>120&&(S.boughtAt?.[team]??-99)+120<time){
-   const spendOk=typeof spend==='function'&&spend('mechanic',team,false);if(spendOk){(S.boughtAt||(S.boughtAt=[-99,-99]))[team]=time;const rx=window.PX&&PX.WW1&&map==='trenches'?PX.WW1.reinforceX(team):(team?W-350:350);squad('mechanic',team,rx,clamp(H/2+rnd(-160,160),180,H-180))}}}
+   const spendOk=typeof spend==='function'&&spend('mechanic',team,false);if(spendOk){(S.boughtAt||(S.boughtAt=[-99,-99]))[team]=time;const rx=window.PX&&PX.WW1&&map==='trenches'?PX.WW1.reinforceX(team):(team?W-350:350);squad('mechanic',team,rx,clamp(GH/2+rnd(-160,160),180,GH-180))}}}
 }
 
 /* marca visual: chave inglesa sobre o mecânico */

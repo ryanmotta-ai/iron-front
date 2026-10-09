@@ -381,7 +381,7 @@ function plan(state){
  return {...base,reinforce,defense:state.managedConstruction?null:base.defense,purchase,summary:phases[op.phase]+' · '+op.sector.name+' · '+op.style.label+(m.battlePlans.active?' · '+m.battlePlans.note:''),orders:coordinated,support,assault,
   dialogue:state.humanAI!==false?Stories.update(m.stories,state,groups,coordinated,m.battlePlans.reports):[],
   strategy:BattlePlans.snapshot(m.battlePlans),opponent:Patterns.snapshot(m.patterns),
-  learning:Learning.snapshot(m.learning),coordination:Coordination.snapshot(m.coordination),squadMind:m.squads.map(Squads.snapshot).filter(Boolean),intelligence:Intelligence.snapshot(m.seen,state.time),operation:{phase:op.phase,sector:op.sector.id,x:op.sector.x,y:op.sector.y,since:op.since,style:op.style.name,objective:Refinement.objective(state,op)?{name:Refinement.objective(state,op).name,x:Refinement.objective(state,op).x,y:Refinement.objective(state,op).y}:null},
+  learning:Learning.snapshot(m.learning),coordination:Coordination.snapshot(m.coordination),squadMind:m.squads.map(Squads.snapshot).filter(Boolean),intelligence:Intelligence.snapshot(m.seen,state.time),operation:{phase:op.phase,sector:op.sector.id,x:op.sector.x,y:op.sector.y,since:op.since,failure:op.failureReason||null,style:op.style.name,objective:Refinement.objective(state,op)?{name:Refinement.objective(state,op).name,x:Refinement.objective(state,op).x,y:Refinement.objective(state,op).y}:null},
   sectors:ss.map(s=>({id:s.id,name:s.name,x:s.x,y:s.y,front:s.front,threat:s.threat,force:s.force,invasion:s.invasion})),events:m.events.map(e=>({...e}))};
 }
 function supportResult(team,success){const m=memories[team],op=m?.operation;if(!op)return;op.smokeAt=m.time;op.smokeUntil=success?m.time+30:0}

@@ -3,7 +3,7 @@
    O script tem acesso ao jogo e deve devolver (return) um valor JSON-serializável. Erros da página são impressos. */
 const fs=require('node:fs'),path=require('node:path'),http=require('node:http');
 process.env.NODE_PATH='C:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules';require('node:module').Module._initPaths();
-const {chromium}=require('playwright'),root=path.resolve(__dirname,'../dist');
+const {chromium}=require('playwright'),root=path.resolve(process.argv.includes('--root')?process.argv[process.argv.indexOf('--root')+1]:path.join(__dirname,'../dist'));
 const arg=(k,d)=>{const i=process.argv.indexOf('--'+k);return i>0?process.argv[i+1]:d};
 const code=fs.readFileSync(path.resolve(arg('code')),'utf8'),map=arg('map','trenches'),query=arg('query','preparo=0'),ai=arg('ai','both'),shot=arg('shot',''),game=arg('game','sandbox'),seed=+arg('seed','7'),scale=arg('scale','80'),vp=arg('viewport','1360x900').split('x').map(Number),keepPrep=arg('keepprep','')==='1';
 const server=http.createServer((req,res)=>{const f=path.resolve(root,'.'+decodeURIComponent(req.url.split('?')[0]==='/'?'/index.html':req.url.split('?')[0]));if(!f.startsWith(root+path.sep)){res.writeHead(403);return res.end()}

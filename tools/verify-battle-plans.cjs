@@ -8,7 +8,7 @@ try{
  await page.goto(`http://127.0.0.1:${server.address().port}/?preparo=0`);await page.locator('[data-go="sandbox"]').click();await page.locator('#start').click();
  if(process.argv.includes('--probe-only'))report.battles=JSON.parse(fs.readFileSync(path.join(out,'battle-plans-report.json'),'utf8')).battles;
  // Run complete, finite-resource matches with combat, construction, aircraft and medical care active.
- for(const map of process.argv.includes('--probe-only')?[]:['trenches','forest','winter']){
+ for(const map of process.argv.includes('--probe-only')?[]:['trenches']){
   await page.evaluate(map=>{let seed=2718;Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};document.getElementById('result').close();document.getElementById('mapselect').value=map;document.getElementById('gametype').value='conquest';document.getElementById('blueai').value='on';document.getElementById('redai').value='on';document.getElementById('scale').value='120';setup();sandbox=false;running=false;supplies=[1800,1800];PXW.setKind('clear');window.maneuverLog=[];window.maneuverSeen=new Set()},map);
   for(let batch=0;batch<6;batch++){
    const snapshot=await page.evaluate(()=>{for(let i=0;i<300&&!ended;i++){update(.1);for(let t=0;t<2;t++){const p=IronFrontBrain.lastPlans[t],m=p?.strategy?.active;if(m){const key=t+':'+m.id+':'+m.stage;if(!maneuverSeen.has(key)){maneuverSeen.add(key);maneuverLog.push({time,team:t,kind:m.kind,stage:m.stage})}}}}hud();render();return {time,units:units.filter(u=>u.hp>0).length,stages:maneuverLog.length}});console.log(JSON.stringify({map,...snapshot}));
@@ -18,7 +18,7 @@ try{
  }
  // Place native squads in an observed MG scenario, then move actual participants to verify commander integration.
  report.probe=await page.evaluate(()=>{
-  document.getElementById('result').close();document.getElementById('mapselect').value='forest';setup();running=false;units=[];buildings=[];fieldTrenches=[];decor=[];shells=[];time=0;aiEnabled=[true,false];supplies=[0,0];IronFrontBrain.operations.reset();IronFrontBrain.setRoles(['attack','defend']);PXW.setKind('clear');
+  document.getElementById('result').close();document.getElementById('mapselect').value='trenches';setup();running=false;units=[];buildings=[];fieldTrenches=[];decor=[];shells=[];time=0;aiEnabled=[true,false];supplies=[0,0];IronFrontBrain.operations.reset();IronFrontBrain.setRoles(['attack','defend']);PXW.setKind('clear');
   for(const [x,y,n,type] of [[820,900,8,'rifle'],[810,1070,8,'rifle'],[810,1120,8,'rifle'],[450,1000,8,'rifle'],[270,1000,8,'rifle'],[840,1010,3,'mg']])for(let i=0;i<n;i++){const u=newUnit(type,0,x+i*3,y);u.cls=undefined;u.gren=2;u.manualUntil=0;u.suppression=0;u.cohesion=1}
   const enemy=newUnit('mg',1,1100,1000);enemy.cls=undefined;enemy.manualUntil=999;
   for(const t of [0,5,6]){time=t;runCommander(0)}

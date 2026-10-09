@@ -6,7 +6,7 @@ const path = require('node:path');
 // strategy.js: dispersão do plano (fim das blobs), faixas no eixo do objetivo, teto de densidade, rota segura, alvos inválidos e bunker sem linha de visada.
 const sb = {
   console, Math, Array, Object, Map, Set, JSON, String, Number, Infinity, location: { search: '' },
-  W: 2400, H: 2000, time: 300, player: null, mode: 'commander', started: true, ended: false, playerTeam: 0, aiEnabled: [true, true], units: [], buildings: [], decor: [],
+  W: 2400, H: 2000, GH: 1600, time: 300, player: null, mode: 'commander', started: true, ended: false, playerTeam: 0, aiEnabled: [true, true], units: [], buildings: [], decor: [],
   update(dt) { sb.time += dt; }, setup() {}, PXFORT: { isPrep: () => false }, bullets: [],
   nearest: (u, r) => sb.units.find(e => e.team !== u.team && Math.hypot(e.x - u.x, e.y - u.y) < r) || null,
 };
